@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="modal.js"></script>
+    <style>
+        .user-card {
+            transition: all 0.3s ease;
+        }
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background-color: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">用户管理</h2>
+            <p class="text-gray-600">管理各单位账号信息和权限设置</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
+                    <div class="relative">
+                        <input type="text" placeholder="搜索账号..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <option value="">全部单位</option>
+                        <option value="系统管理员">系统管理员</option>
+                        <option value="第一客运分公司">第一客运分公司</option>
+                        <option value="第二客运分公司">第二客运分公司</option>
+                        <option value="维修分公司">维修分公司</option>
+                        <option value="物流分公司">物流分公司</option>
+                        <option value="公交分公司">公交分公司</option>
+                        <option value="高铁分公司">高铁分公司</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <option value="">全部状态</option>
+                        <option value="active">启用</option>
+                        <option value="inactive">禁用</option>
+                    </select>
+                </div>
+                <button id="add-user-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                    <i class="fa fa-plus mr-2"></i>
+                    创建账号
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单位名称</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">账号</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">联系电话</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">权限等级</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">第一客运分公司</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">user001</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">张三</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">13800138000</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    单位管理员
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    启用
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                2024-01-15
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">编辑</button>
+                                <button class="text-red-600 hover:text-red-900">禁用</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">第二客运分公司</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">user002</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">李四</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">13900139000</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    单位操作员
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    启用
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                2024-01-10
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">编辑</button>
+                                <button class="text-red-600 hover:text-red-900">禁用</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">维修分公司</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">user003</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">王五</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">13700137000</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    单位查看员
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    禁用
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                2024-01-08
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">编辑</button>
+                                <button class="text-green-600 hover:text-green-900">启用</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">物流分公司</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">user004</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">赵六</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">13600136000</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    单位管理员
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    启用
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                2024-01-05
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">编辑</button>
+                                <button class="text-red-600 hover:text-red-900">禁用</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-sm text-gray-600">
+                    显示 <span class="font-medium">1</span> 到 <span class="font-medium">4</span> 条，共 <span class="font-medium">6</span> 条记录
+                </div>
+                <div class="flex items-center space-x-1">
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                        <i class="fa fa-chevron-left"></i>
+                    </button>
+                    <button class="px-3 py-1 bg-blue-600 text-white rounded-lg">1</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">2</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                        <i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 模拟当前登录用户信息（实际项目中应从后端获取）
+            const currentUser = {
+                username: 'admin',
+                unit: '系统管理员',
+                role: 'super_admin' // super_admin, unit_admin, operator, viewer
+            };
+
+            // 角色数据
+            const roles = [
+                {
+                    id: 'super_admin',
+                    name: '超级管理员',
+                    description: '拥有系统所有权限',
+                    permissions: [],
+                    color: 'purple',
+                    userCount: 1
+                },
+                {
+                    id: 'unit_admin',
+                    name: '单位管理员',
+                    description: '管理本单位的资产和用户',
+                    permissions: [],
+                    color: 'blue',
+                    userCount: 2
+                },
+                {
+                    id: 'operator',
+                    name: '单位操作员',
+                    description: '操作本单位资产',
+                    permissions: [],
+                    color: 'green',
+                    userCount: 1
+                },
+                {
+                    id: 'viewer',
+                    name: '单位查看员',
+                    description: '查看本单位资产',
+                    permissions: [],
+                    color: 'yellow',
+                    userCount: 1
+                }
+            ];
+
+            // 用户数据
+            const userData = [
+                { unit: '系统管理员', username: 'admin', name: '系统管理员', phone: '13800138000', roleId: 'super_admin', status: 'active', createTime: '2024-01-20' },
+                { unit: '第一客运分公司', username: 'user001', name: '张三', phone: '13800138000', roleId: 'unit_admin', status: 'active', createTime: '2024-01-15' },
+                { unit: '第二客运分公司', username: 'user002', name: '李四', phone: '13900139000', roleId: 'operator', status: 'active', createTime: '2024-01-10' },
+                { unit: '维修分公司', username: 'user003', name: '王五', phone: '13700137000', roleId: 'viewer', status: 'inactive', createTime: '2024-01-08' },
+                { unit: '物流分公司', username: 'user004', name: '赵六', phone: '13600136000', roleId: 'unit_admin', status: 'active', createTime: '2024-01-05' }
+            ];
+
+            // 根据用户权限过滤数据
+            function filterUserData() {
+                if (currentUser.role === 'super_admin') {
+                    return userData;
+                } else if (currentUser.role === 'unit_admin') {
+                    return userData.filter(user => user.unit === currentUser.unit);
+                } else {
+                    return [];
+                }
+            }
+
+            // 获取角色信息
+            function getRoleById(roleId) {
+                return roles.find(role => role.id === roleId) || { name: '未知角色', color: 'gray' };
+            }
+
+            // 渲染用户列表
+            function renderUserList() {
+                const filteredUsers = filterUserData();
+                const tableBody = document.querySelector('tbody');
+                tableBody.innerHTML = '';
+
+                filteredUsers.forEach(user => {
+                    const row = document.createElement('tr');
+                    const role = getRoleById(user.roleId);
+                    let roleClass;
+                    if (role.color === 'purple') roleClass = 'bg-purple-100 text-purple-800';
+                    else if (role.color === 'blue') roleClass = 'bg-blue-100 text-blue-800';
+                    else if (role.color === 'green') roleClass = 'bg-green-100 text-green-800';
+                    else if (role.color === 'yellow') roleClass = 'bg-yellow-100 text-yellow-800';
+                    else roleClass = 'bg-gray-100 text-gray-800';
+                    
+                    const statusText = user.status === 'active' ? '启用' : '禁用';
+                    const statusClass = user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                    const statusBtnText = user.status === 'active' ? '禁用' : '启用';
+                    const statusBtnClass = user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900';
+
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${user.unit}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${user.username}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${user.name}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${user.phone}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${roleClass}">
+                                ${role.name}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${user.createTime}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-btn" data-username="${user.username}">编辑</button>
+                            <button class="${statusBtnClass} status-btn" data-username="${user.username}" data-status="${user.status}">${statusBtnText}</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // 更新分页信息
+                const recordCount = filteredUsers.length;
+                document.querySelector('.text-sm.text-gray-600').innerHTML = `显示 <span class="font-medium">1</span> 到 <span class="font-medium">${Math.min(recordCount, 4)}</span> 条，共 <span class="font-medium">${recordCount}</span> 条记录`;
+            }
+
+            // 初始化渲染
+            renderUserList();
+
+            // 搜索功能
+            const searchInput = document.querySelector('input[placeholder="搜索账号..."]');
+            const unitFilter = document.querySelectorAll('select')[0];
+            const statusFilter = document.querySelectorAll('select')[1];
+
+            function applyFilters() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedUnit = unitFilter.value;
+                const selectedStatus = statusFilter.value;
+
+                let filtered = [...userData];
+
+                // 搜索筛选
+                if (searchTerm) {
+                    filtered = filtered.filter(user => 
+                        user.username.toLowerCase().includes(searchTerm) ||
+                        user.name.toLowerCase().includes(searchTerm) ||
+                        user.phone.includes(searchTerm)
+                    );
+                }
+
+                // 单位筛选
+                if (selectedUnit) {
+                    filtered = filtered.filter(user => user.unit === selectedUnit);
+                }
+
+                // 状态筛选
+                if (selectedStatus) {
+                    filtered = filtered.filter(user => user.status === selectedStatus);
+                }
+
+                // 根据当前用户权限过滤
+                if (currentUser.role === 'unit_admin') {
+                    filtered = filtered.filter(user => user.unit === currentUser.unit);
+                }
+
+                // 渲染筛选结果
+                const tableBody = document.querySelector('tbody');
+                tableBody.innerHTML = '';
+
+                filtered.forEach(user => {
+                    const role = getRoleById(user.roleId);
+                    let roleClass;
+                    if (role.color === 'purple') roleClass = 'bg-purple-100 text-purple-800';
+                    else if (role.color === 'blue') roleClass = 'bg-blue-100 text-blue-800';
+                    else if (role.color === 'green') roleClass = 'bg-green-100 text-green-800';
+                    else if (role.color === 'yellow') roleClass = 'bg-yellow-100 text-yellow-800';
+                    else roleClass = 'bg-gray-100 text-gray-800';
+                    const statusText = user.status === 'active' ? '启用' : '禁用';
+                    const statusClass = user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                    const statusBtnText = user.status === 'active' ? '禁用' : '启用';
+                    const statusBtnClass = user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${user.unit}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${user.username}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${user.name}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${user.phone}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${roleClass}">
+                                ${role.name}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${user.createTime}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-btn" data-username="${user.username}">编辑</button>
+                            <button class="${statusBtnClass} status-btn" data-username="${user.username}" data-status="${user.status}">${statusBtnText}</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // 更新分页信息
+                const recordCount = filtered.length;
+                document.querySelector('.text-sm.text-gray-600').innerHTML = `显示 <span class="font-medium">1</span> 到 <span class="font-medium">${Math.min(recordCount, 4)}</span> 条，共 <span class="font-medium">${recordCount}</span> 条记录`;
+            }
+
+            // 添加筛选事件监听
+            searchInput.addEventListener('input', applyFilters);
+            unitFilter.addEventListener('change', applyFilters);
+            statusFilter.addEventListener('change', applyFilters);
+
+            // 创建账号按钮点击事件
+            document.getElementById('add-user-btn').addEventListener('click', function() {
+                // 根据当前用户权限生成表单
+                let unitSelectHTML = '';
+                let roleSelectHTML = '';
+
+                if (currentUser.role === 'super_admin') {
+                    // 超级管理员可以选择所有单位，包括创建超级管理员
+                    unitSelectHTML = `
+                        <select id="user-unit" class="form-select" required>
+                            <option value="">请选择单位</option>
+                            <option value="系统管理员">系统管理员</option>
+                            <option value="第一客运分公司">第一客运分公司</option>
+                            <option value="第二客运分公司">第二客运分公司</option>
+                            <option value="维修分公司">维修分公司</option>
+                            <option value="物流分公司">物流分公司</option>
+                            <option value="公交分公司">公交分公司</option>
+                            <option value="高铁分公司">高铁分公司</option>
+                        </select>
+                    `;
+                    // 超级管理员可以选择所有角色
+                    let roleOptions = roles.map(role => `<option value="${role.id}">${role.name}</option>`).join('');
+                    roleSelectHTML = `
+                        <select id="user-role" class="form-select" required>
+                            <option value="">请选择角色</option>
+                            ${roleOptions}
+                        </select>
+                    `;
+                } else if (currentUser.role === 'unit_admin') {
+                    // 单位管理员只能选择自己的单位
+                    unitSelectHTML = `
+                        <select id="user-unit" class="form-select" required disabled>
+                            <option value="${currentUser.unit}" selected>${currentUser.unit}</option>
+                        </select>
+                    `;
+                    // 单位管理员只能选择操作员和查看员角色
+                    let roleOptions = roles.filter(role => role.id === 'operator' || role.id === 'viewer')
+                        .map(role => `<option value="${role.id}">${role.name}</option>`).join('');
+                    roleSelectHTML = `
+                        <select id="user-role" class="form-select" required>
+                            <option value="">请选择角色</option>
+                            ${roleOptions}
+                        </select>
+                    `;
+                } else {
+                    // 操作员和查看员没有创建账号权限
+                    showModal({
+                        title: '权限不足',
+                        content: '<p class="text-red-600">您没有创建账号的权限！</p>',
+                        showCancelButton: false,
+                        confirmButtonText: '确定'
+                    });
+                    return;
+                }
+
+                const addUserForm = `
+                    <form id="add-user-form">
+                        <div class="form-group">
+                            <label class="form-label" for="user-unit">所属单位 <span class="text-red-500">*</span></label>
+                            ${unitSelectHTML}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="user-username">账号 <span class="text-red-500">*</span></label>
+                            <input type="text" id="user-username" class="form-input" placeholder="请输入账号" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="user-name">姓名 <span class="text-red-500">*</span></label>
+                            <input type="text" id="user-name" class="form-input" placeholder="请输入姓名" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="user-phone">联系电话 <span class="text-red-500">*</span></label>
+                            <input type="tel" id="user-phone" class="form-input" placeholder="请输入联系电话" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="user-email">邮箱</label>
+                            <input type="email" id="user-email" class="form-input" placeholder="请输入邮箱地址">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="user-password">初始密码 <span class="text-red-500">*</span></label>
+                            <input type="password" id="user-password" class="form-input" placeholder="请设置初始密码" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="user-role">角色 <span class="text-red-500">*</span></label>
+                            ${roleSelectHTML}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="user-status">账号状态 <span class="text-red-500">*</span></label>
+                            <select id="user-status" class="form-select" required>
+                                <option value="active">启用</option>
+                                <option value="inactive">禁用</option>
+                            </select>
+                        </div>
+                        <div id="admin-note" class="hidden">
+                            <p class="text-sm text-blue-600">超级管理员自动关联系统管理员单位</p>
+                        </div>
+                    </form>
+                `;
+
+                showModal({
+                    title: '创建账号',
+                    content: addUserForm,
+                    onConfirm: function() {
+                        const form = document.getElementById('add-user-form');
+                        if (form.checkValidity()) {
+                            const unit = document.getElementById('user-unit').value;
+                            const username = document.getElementById('user-username').value;
+                            const name = document.getElementById('user-name').value;
+                            const phone = document.getElementById('user-phone').value;
+                            const role = document.getElementById('user-role').value;
+                            const status = document.getElementById('user-status').value;
+                            
+                            // 模拟创建账号操作
+                            userData.push({
+                                unit: unit,
+                                username: username,
+                                name: name,
+                                phone: phone,
+                                roleId: role,
+                                status: status,
+                                createTime: new Date().toISOString().split('T')[0]
+                            });
+                            
+                            console.log('创建账号:', {
+                                unit: unit,
+                                username: username,
+                                name: name,
+                                role: role
+                            });
+                            
+                            // 重新渲染列表
+                            renderUserList();
+                            
+                            // 显示成功提示
+                            showModal({
+                                title: '创建成功',
+                                content: `<p class="text-green-600">账号 "${username}" 创建成功！</p>`,
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                        } else {
+                            // 表单验证失败
+                            form.reportValidity();
+                        }
+                    }
+                });
+
+                // 添加角色选择联动逻辑
+                setTimeout(function() {
+                    const roleSelect = document.getElementById('user-role');
+                    if (roleSelect) {
+                        roleSelect.addEventListener('change', function() {
+                            const role = this.value;
+                            const unitSelect = document.getElementById('user-unit');
+                            const adminNote = document.getElementById('admin-note');
+                            
+                            if (role === 'super_admin') {
+                                unitSelect.value = '系统管理员';
+                                unitSelect.disabled = true;
+                                adminNote.classList.remove('hidden');
+                            } else {
+                                unitSelect.disabled = false;
+                                adminNote.classList.add('hidden');
+                            }
+                        });
+                    }
+                }, 100);
+            });
+
+            // 编辑按钮点击事件
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('edit-btn')) {
+                    const username = e.target.dataset.username;
+                    const user = userData.find(u => u.username === username);
+                    
+                    if (user) {
+                        // 检查权限：单位管理员只能编辑本单位账号
+                        if (currentUser.role === 'unit_admin' && user.unit !== currentUser.unit) {
+                            showModal({
+                                title: '权限不足',
+                                content: '<p class="text-red-600">您只能编辑本单位的账号！</p>',
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                            return;
+                        }
+
+                        // 生成角色选择选项
+                        let roleOptions = '';
+                        if (currentUser.role === 'super_admin') {
+                            // 超级管理员可以选择所有角色
+                            roleOptions = roles.map(role => 
+                                `<option value="${role.id}" ${user.roleId === role.id ? 'selected' : ''}>${role.name}</option>`
+                            ).join('');
+                        } else {
+                            // 单位管理员只能选择操作员和查看员角色
+                            roleOptions = roles.filter(role => role.id === 'operator' || role.id === 'viewer')
+                                .map(role => `<option value="${role.id}" ${user.roleId === role.id ? 'selected' : ''}>${role.name}</option>`)
+                                .join('');
+                        }
+
+                        const editForm = `
+                            <form id="edit-user-form">
+                                <div class="form-group">
+                                    <label class="form-label">所属单位</label>
+                                    <input type="text" class="form-input" value="${user.unit}" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">账号</label>
+                                    <input type="text" class="form-input" value="${user.username}" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="edit-name">姓名 <span class="text-red-500">*</span></label>
+                                    <input type="text" id="edit-name" class="form-input" value="${user.name}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="edit-phone">联系电话 <span class="text-red-500">*</span></label>
+                                    <input type="tel" id="edit-phone" class="form-input" value="${user.phone}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="edit-role">角色 <span class="text-red-500">*</span></label>
+                                    <select id="edit-role" class="form-select" required>
+                                        ${roleOptions}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="edit-status">账号状态 <span class="text-red-500">*</span></label>
+                                    <select id="edit-status" class="form-select" required>
+                                        <option value="active" ${user.status === 'active' ? 'selected' : ''}>启用</option>
+                                        <option value="inactive" ${user.status === 'inactive' ? 'selected' : ''}>禁用</option>
+                                    </select>
+                                </div>
+                            </form>
+                        `;
+
+                        showModal({
+                            title: '编辑账号',
+                            content: editForm,
+                            onConfirm: function() {
+                                const form = document.getElementById('edit-user-form');
+                                if (form.checkValidity()) {
+                                    const name = document.getElementById('edit-name').value;
+                                    const phone = document.getElementById('edit-phone').value;
+                                    const role = document.getElementById('edit-role').value;
+                                    const status = document.getElementById('edit-status').value;
+                                    
+                                    // 更新用户数据
+                                    user.name = name;
+                                    user.phone = phone;
+                                    user.roleId = role;
+                                    user.status = status;
+                                    
+                                    // 重新渲染列表
+                                    renderUserList();
+                                    
+                                    // 显示成功提示
+                                    showModal({
+                                        title: '编辑成功',
+                                        content: `<p class="text-green-600">账号 "${username}" 编辑成功！</p>`,
+                                        showCancelButton: false,
+                                        confirmButtonText: '确定'
+                                    });
+                                } else {
+                                    form.reportValidity();
+                                }
+                            }
+                        });
+                    }
+                } else if (e.target.classList.contains('status-btn')) {
+                    const username = e.target.dataset.username;
+                    const currentStatus = e.target.dataset.status;
+                    const user = userData.find(u => u.username === username);
+                    
+                    if (user) {
+                        // 检查权限：单位管理员只能管理本单位账号
+                        if (currentUser.role === 'unit_admin' && user.unit !== currentUser.unit) {
+                            showModal({
+                                title: '权限不足',
+                                content: '<p class="text-red-600">您只能管理本单位的账号！</p>',
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                            return;
+                        }
+
+                        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+                        const actionText = newStatus === 'active' ? '启用' : '禁用';
+                        
+                        showModal({
+                            title: `${actionText}账号`,
+                            content: `<p>确定要${actionText}账号 "${username}" 吗？</p>`,
+                            onConfirm: function() {
+                                user.status = newStatus;
+                                
+                                // 重新渲染列表
+                                renderUserList();
+                                
+                                // 显示成功提示
+                                showModal({
+                                    title: `${actionText}成功`,
+                                    content: `<p class="text-green-600">账号 "${username}" ${actionText}成功！</p>`,
+                                    showCancelButton: false,
+                                    confirmButtonText: '确定'
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

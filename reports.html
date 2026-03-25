@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报表统计</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .report-card {
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">报表统计</h2>
+            <p class="text-gray-600">生成年度报表和数据统计分析</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <option value="2024">2024年</option>
+                        <option value="2023">2023年</option>
+                        <option value="2022">2022年</option>
+                    </select>
+                    <div class="relative">
+                        <select id="report-type-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none pr-10">
+                            <option value="yearly">年度报表</option>
+                            <option value="halfyear">半年度报表</option>
+                            <option value="quarterly">季度报表</option>
+                        </select>
+                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 cursor-pointer" id="report-type-help" title="报表类型说明">
+                            <i class="fa fa-question-circle"></i>
+                        </span>
+                    </div>
+                    <select id="quarter-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none hidden">
+                        <option value="Q1">第一季度</option>
+                        <option value="Q2">第二季度</option>
+                        <option value="Q3">第三季度</option>
+                        <option value="Q4">第四季度</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <option value="all">全部单位</option>
+                        <option value="company1">第一客运分公司</option>
+                        <option value="company2">第二客运分公司</option>
+                        <option value="maintenance">维修分公司</option>
+                        <option value="logistics">物流分公司</option>
+                    </select>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                        <i class="fa fa-download mr-2"></i>
+                        导出报表
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+        <!-- 核心指标卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center">
+                            <p class="text-sm font-medium text-gray-500">总资产数量</p>
+                            <span class="ml-2 text-gray-400 hover:text-blue-600 cursor-pointer" id="total-assets-help" title="计算公式">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">1,248</h3>
+                        <p class="text-sm text-green-600 mt-2">
+                            <i class="fa fa-arrow-up mr-1"></i>
+                            <span>同比增长 5.2%</span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fa fa-cubes text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center">
+                            <p class="text-sm font-medium text-gray-500">出租率</p>
+                            <span class="ml-2 text-gray-400 hover:text-blue-600 cursor-pointer" id="rental-rate-help" title="计算公式">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">78.5%</h3>
+                        <p class="text-sm text-green-600 mt-2">
+                            <i class="fa fa-arrow-up mr-1"></i>
+                            <span>同比提升 3.1%</span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fa fa-line-chart text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center">
+                            <p class="text-sm font-medium text-gray-500">盘活资产</p>
+                            <span class="ml-2 text-gray-400 hover:text-blue-600 cursor-pointer" id="asset-activation-help" title="计算公式">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">20</h3>
+                        <p class="text-sm text-red-600 mt-2">
+                            <i class="fa fa-arrow-down mr-1"></i>
+                            <span>同比下降 87.2%</span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fa fa-refresh text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+        <!-- 报表内容 -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-semibold text-gray-800">详细数据报表</h3>
+
+            </div>
+            
+            <!-- 年度报表 -->
+            <div id="yearly-report" class="report-content active">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指标</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">2024年</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">2023年</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">同比变化</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">变化百分点</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">计算公式</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">总资产数量</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1,248</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1,186</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+5.2%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+62</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">各单位资产数量总和</div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">出租率</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">78.5%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">75.4%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+4.1%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+3.1%</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">已出租资产数量 ÷ 出租属性资产总数量 × 100%</div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">闲置率</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">21.5%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">24.3%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">-11.5%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">-2.8%</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">闲置资产数量 ÷ 总资产数量 × 100%</div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">盘活资产数量</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">20</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">156</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">-87.2%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">-136</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">去年出租属性的闲置资产 - 今年出租属性的闲置资产</div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">盘活资产转化率</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">7.5%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">65.0%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">-88.5%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">-57.5%</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">出租属性的盘活资产 ÷ 出租属性的闲置资产总量</div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 半年度报表 -->
+            <div id="halfyear-report" class="report-content hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指标</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">2024年上半年</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">2023年上半年</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">同比变化</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">变化百分点</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">半年度出租率</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">77.8%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">74.2%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+4.9%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+3.6%</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">上半年平均出租率</div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">半年度盘活资产</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">8项</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">72项</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">-88.9%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">-64项</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">上半年闲置资产盘活数量</div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">半年度资产增长率</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2.1%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1.8%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+16.7%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+0.3%</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">上半年资产增长比例</div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 季度报表 -->
+            <div id="quarterly-report" class="report-content hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指标</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">2024年Q4</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">2024年Q3</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">环比变化</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">变化百分点</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">季度出租率</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">79.2%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">77.8%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+1.8%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+1.4%</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">本季度出租率</div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">季度闲置资产</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">256项</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">268项</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">-4.5%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">-12项</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">本季度闲置资产数量</div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">季度盘活资产</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12项</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">8项</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+50.0%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+4项</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">本季度出租属性的资产的盘活资产数量</div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">季度资产增长率</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1.2%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1.0%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+20.0%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+0.2%</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-xs text-gray-500">本季度资产增长比例</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 显示模态框函数
+        function showModal(options) {
+            const {
+                title = '提示',
+                content = '',
+                showCancelButton = true,
+                confirmButtonText = '确定',
+                cancelButtonText = '取消',
+                confirmCallback = null,
+                cancelCallback = null,
+                width = 'max-w-4xl'
+            } = options;
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50';
+            modal.innerHTML = `
+                <div class="${width} bg-white rounded-xl shadow-xl">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">${title}</h3>
+                            <button class="text-gray-400 hover:text-gray-500" id="modal-close">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mb-6">
+                            ${content}
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            ${showCancelButton ? `
+                                <button id="modal-cancel" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">${cancelButtonText}</button>
+                            ` : ''}
+                            <button id="modal-confirm" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">${confirmButtonText}</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            const closeModal = () => {
+                document.body.removeChild(modal);
+            };
+
+            modal.querySelector('#modal-close').addEventListener('click', closeModal);
+            modal.querySelector('#modal-confirm').addEventListener('click', () => {
+                if (confirmCallback) confirmCallback();
+                closeModal();
+            });
+
+            if (showCancelButton) {
+                modal.querySelector('#modal-cancel').addEventListener('click', () => {
+                    if (cancelCallback) cancelCallback();
+                    closeModal();
+                });
+            }
+
+            // 点击模态框外部关闭
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 报表类型切换功能
+            const reportTypeSelect = document.getElementById('report-type-select');
+            const reportContents = document.querySelectorAll('.report-content');
+            
+            // 更新统计卡片数据
+            function updateStatCards(year, reportType) {
+                // 模拟数据，实际应该从后端获取
+                const dataMap = {
+                    '2024': {
+                        'yearly': {
+                            totalAssets: '1,248',
+                            totalAssetsGrowth: '+5.2%',
+                            rentalRate: '78.5%',
+                            rentalRateGrowth: '+3.1%',
+                            assetActivation: '20',
+                            assetActivationGrowth: '-87.2%'
+                        },
+                        'halfyear': {
+                            totalAssets: '1,235',
+                            totalAssetsGrowth: '+4.8%',
+                            rentalRate: '77.8%',
+                            rentalRateGrowth: '+3.6%',
+                            assetActivation: '8',
+                            assetActivationGrowth: '-88.9%'
+                        },
+                        'quarterly': {
+                            'Q1': {
+                                totalAssets: '1,220',
+                                totalAssetsGrowth: '+4.2%',
+                                rentalRate: '77.2%',
+                                rentalRateGrowth: '+2.8%',
+                                assetActivation: '3',
+                                assetActivationGrowth: '-90.0%'
+                            },
+                            'Q2': {
+                                totalAssets: '1,228',
+                                totalAssetsGrowth: '+4.5%',
+                                rentalRate: '77.5%',
+                                rentalRateGrowth: '+3.0%',
+                                assetActivation: '5',
+                                assetActivationGrowth: '-87.5%'
+                            },
+                            'Q3': {
+                                totalAssets: '1,238',
+                                totalAssetsGrowth: '+4.9%',
+                                rentalRate: '78.0%',
+                                rentalRateGrowth: '+3.2%',
+                                assetActivation: '7',
+                                assetActivationGrowth: '-86.5%'
+                            },
+                            'Q4': {
+                                totalAssets: '1,248',
+                                totalAssetsGrowth: '+5.2%',
+                                rentalRate: '78.5%',
+                                rentalRateGrowth: '+3.1%',
+                                assetActivation: '5',
+                                assetActivationGrowth: '-87.0%'
+                            }
+                        }
+                    },
+                    '2023': {
+                        'yearly': {
+                            totalAssets: '1,186',
+                            totalAssetsGrowth: '+4.8%',
+                            rentalRate: '75.4%',
+                            rentalRateGrowth: '+2.5%',
+                            assetActivation: '156',
+                            assetActivationGrowth: '+7.6%'
+                        },
+                        'halfyear': {
+                            totalAssets: '1,178',
+                            totalAssetsGrowth: '+4.5%',
+                            rentalRate: '74.2%',
+                            rentalRateGrowth: '+2.3%',
+                            assetActivation: '72',
+                            assetActivationGrowth: '+8.0%'
+                        },
+                        'quarterly': {
+                            'Q1': {
+                                totalAssets: '1,170',
+                                totalAssetsGrowth: '+4.2%',
+                                rentalRate: '73.5%',
+                                rentalRateGrowth: '+2.1%',
+                                assetActivation: '30',
+                                assetActivationGrowth: '+7.1%'
+                            },
+                            'Q2': {
+                                totalAssets: '1,175',
+                                totalAssetsGrowth: '+4.4%',
+                                rentalRate: '74.0%',
+                                rentalRateGrowth: '+2.2%',
+                                assetActivation: '42',
+                                assetActivationGrowth: '+7.7%'
+                            },
+                            'Q3': {
+                                totalAssets: '1,180',
+                                totalAssetsGrowth: '+4.6%',
+                                rentalRate: '74.8%',
+                                rentalRateGrowth: '+2.4%',
+                                assetActivation: '45',
+                                assetActivationGrowth: '+7.8%'
+                            },
+                            'Q4': {
+                                totalAssets: '1,186',
+                                totalAssetsGrowth: '+4.8%',
+                                rentalRate: '75.4%',
+                                rentalRateGrowth: '+2.5%',
+                                assetActivation: '39',
+                                assetActivationGrowth: '+7.5%'
+                            }
+                        }
+                    },
+                    '2022': {
+                        'yearly': {
+                            totalAssets: '1,131',
+                            totalAssetsGrowth: '+4.2%',
+                            rentalRate: '72.9%',
+                            rentalRateGrowth: '+2.0%',
+                            assetActivation: '145',
+                            assetActivationGrowth: '+6.5%'
+                        },
+                        'halfyear': {
+                            totalAssets: '1,125',
+                            totalAssetsGrowth: '+4.0%',
+                            rentalRate: '72.0%',
+                            rentalRateGrowth: '+1.8%',
+                            assetActivation: '68',
+                            assetActivationGrowth: '+6.2%'
+                        },
+                        'quarterly': {
+                            'Q1': {
+                                totalAssets: '1,120',
+                                totalAssetsGrowth: '+3.8%',
+                                rentalRate: '71.5%',
+                                rentalRateGrowth: '+1.7%',
+                                assetActivation: '28',
+                                assetActivationGrowth: '+6.0%'
+                            },
+                            'Q2': {
+                                totalAssets: '1,123',
+                                totalAssetsGrowth: '+3.9%',
+                                rentalRate: '71.8%',
+                                rentalRateGrowth: '+1.8%',
+                                assetActivation: '40',
+                                assetActivationGrowth: '+6.3%'
+                            },
+                            'Q3': {
+                                totalAssets: '1,128',
+                                totalAssetsGrowth: '+4.1%',
+                                rentalRate: '72.5%',
+                                rentalRateGrowth: '+1.9%',
+                                assetActivation: '42',
+                                assetActivationGrowth: '+6.5%'
+                            },
+                            'Q4': {
+                                totalAssets: '1,131',
+                                totalAssetsGrowth: '+4.2%',
+                                rentalRate: '72.9%',
+                                rentalRateGrowth: '+2.0%',
+                                assetActivation: '35',
+                                assetActivationGrowth: '+6.4%'
+                            }
+                        }
+                    }
+                };
+                
+                const yearData = dataMap[year] || dataMap['2024'];
+                let periodData;
+                
+                if (reportType === 'quarterly') {
+                    const quarter = document.getElementById('quarter-select').value || 'Q1';
+                    periodData = yearData.quarterly[quarter] || yearData.quarterly.Q1;
+                } else {
+                    periodData = yearData[reportType] || yearData.yearly;
+                }
+                
+                // 更新DOM
+                document.querySelector('.stat-card:nth-child(1) h3').textContent = periodData.totalAssets;
+                document.querySelector('.stat-card:nth-child(1) .text-green-600 span').textContent = `同比增长 ${periodData.totalAssetsGrowth}`;
+                
+                document.querySelector('.stat-card:nth-child(2) h3').textContent = periodData.rentalRate;
+                document.querySelector('.stat-card:nth-child(2) .text-green-600 span').textContent = `同比提升 ${periodData.rentalRateGrowth}`;
+                
+                document.querySelector('.stat-card:nth-child(3) h3').textContent = periodData.assetActivation;
+                const activationGrowthElement = document.querySelector('.stat-card:nth-child(3) .text-red-600, .stat-card:nth-child(3) .text-green-600');
+                if (activationGrowthElement) {
+                    activationGrowthElement.className = periodData.assetActivationGrowth.startsWith('+') ? 'text-sm text-green-600 mt-2' : 'text-sm text-red-600 mt-2';
+                    activationGrowthElement.querySelector('span').textContent = `同比${periodData.assetActivationGrowth.startsWith('+') ? '增长' : '下降'} ${periodData.assetActivationGrowth.replace('+', '')}`;
+                    activationGrowthElement.querySelector('i').className = periodData.assetActivationGrowth.startsWith('+') ? 'fa fa-arrow-up mr-1' : 'fa fa-arrow-down mr-1';
+                }
+            }
+
+            // 年份选择事件
+            document.querySelector('select:first-child').addEventListener('change', function() {
+                const year = this.value;
+                const reportType = document.getElementById('report-type-select').value;
+                updateStatCards(year, reportType);
+            });
+
+            reportTypeSelect.addEventListener('change', function() {
+                const reportType = this.value;
+                const quarterSelect = document.getElementById('quarter-select');
+                const year = document.querySelector('select:first-child').value;
+                
+                // 显示对应内容
+                reportContents.forEach(content => {
+                    content.classList.add('hidden');
+                    content.classList.remove('active');
+                });
+                document.getElementById(reportType + '-report').classList.remove('hidden');
+                document.getElementById(reportType + '-report').classList.add('active');
+                
+                // 控制季度选择器显示
+                if (reportType === 'quarterly') {
+                    quarterSelect.classList.remove('hidden');
+                } else {
+                    quarterSelect.classList.add('hidden');
+                }
+                
+                // 更新统计卡片数据
+                updateStatCards(year, reportType);
+            });
+
+            // 季度选择事件
+            document.getElementById('quarter-select').addEventListener('change', function() {
+                const year = document.querySelector('select:first-child').value;
+                const reportType = 'quarterly';
+                updateStatCards(year, reportType);
+            });
+
+            // 报表类型帮助信息点击事件
+            document.getElementById('report-type-help').addEventListener('click', function() {
+                showModal({
+                    title: '报表类型时间区间说明',
+                    content: `
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                <h4 class="font-semibold text-blue-800 mb-2">报表类型定义</h4>
+                                <p class="text-sm text-blue-700">以下是各报表类型的时间区间说明</p>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <h5 class="font-medium text-gray-800">年度报表</h5>
+                                    <p class="text-sm text-gray-600">时间区间：全年（1月1日 - 12月31日）</p>
+                                    <p class="text-sm text-gray-600">包含全年运营数据和财务数据的综合报表</p>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <h5 class="font-medium text-gray-800">半年度报表</h5>
+                                    <p class="text-sm text-gray-600">时间区间：上半年（1月1日 - 6月30日）</p>
+                                    <p class="text-sm text-gray-600">包含上半年阶段性数据和目标完成情况</p>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <h5 class="font-medium text-gray-800">季度报表</h5>
+                                    <p class="text-sm text-gray-600">时间区间：具体季度（如Q1:1-3月，Q2:4-6月等）</p>
+                                    <p class="text-sm text-gray-600">包含季度运营监控数据和环比分析</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>同比对比规则：</strong>所有报表类型的同比数据均与上一年同期数据对比。
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '我知道了'
+                });
+            });
+
+            // 总资产数量帮助信息点击事件
+            document.getElementById('total-assets-help').addEventListener('click', function() {
+                showModal({
+                    title: '总资产数量计算公式',
+                    content: `
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                <h4 class="font-semibold text-blue-800 mb-2">计算公式</h4>
+                                <p class="text-sm text-blue-700">总资产数量 = 所有单位资产数量之和</p>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <h5 class="font-medium text-gray-800">同比增长计算</h5>
+                                    <p class="text-sm text-gray-600">同比增长率 = (本年同期总资产数量 - 上年同期总资产数量) ÷ 上年同期总资产数量 × 100%</p>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                <h5 class="font-medium text-gray-800">数据统计范围</h5>
+                                <p class="text-sm text-gray-600">包含所有单位的所有资产，包括出租和非出租资产</p>
+                                <p class="text-sm text-gray-600">数据会根据选择的年份、报表类型和季度动态变化</p>
+                            </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>备注：</strong>总资产数量反映了企业资产规模的总体情况，是资产管理的基础指标。
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '我知道了'
+                });
+            });
+
+            // 出租率帮助信息点击事件
+            document.getElementById('rental-rate-help').addEventListener('click', function() {
+                showModal({
+                    title: '出租率计算公式',
+                    content: `
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                <h4 class="font-semibold text-blue-800 mb-2">计算公式</h4>
+                                <p class="text-sm text-blue-700">出租率 = 已出租资产数量 ÷ 出租属性资产总数量 × 100%</p>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <h5 class="font-medium text-gray-800">同比提升计算</h5>
+                                    <p class="text-sm text-gray-600">同比提升百分点 = 本年同期出租率 - 上年同期出租率</p>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <h5 class="font-medium text-gray-800">数据统计范围</h5>
+                                    <p class="text-sm text-gray-600">已出租资产数量：当前处于出租状态的资产数量</p>
+                                    <p class="text-sm text-gray-600">出租属性资产总数量：具有出租属性的资产总数量</p>
+                                    <p class="text-sm text-gray-600">数据会根据选择的年份、报表类型和季度动态变化</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>备注：</strong>出租率是衡量资产运营效率的关键指标，反映了具有出租属性资产的利用程度。
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '我知道了'
+                });
+            });
+
+            // 盘活资产帮助信息点击事件
+            document.getElementById('asset-activation-help').addEventListener('click', function() {
+                showModal({
+                    title: '盘活资产计算公式',
+                    content: `
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                <h4 class="font-semibold text-blue-800 mb-2">计算公式</h4>
+                                <p class="text-sm text-blue-700">盘活资产数量 = 上一周期出租属性闲置资产数量 - 本周期出租属性闲置资产数量</p>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <h5 class="font-medium text-gray-800">同比变化计算</h5>
+                                    <p class="text-sm text-gray-600">同比变化率 = (本年同期盘活资产数量 - 上年同期盘活资产数量) ÷ 上年同期盘活资产数量 × 100%</p>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <h5 class="font-medium text-gray-800">关键定义</h5>
+                                    <p class="text-sm text-gray-600">出租属性闲置资产：指具有出租属性但当前处于闲置状态的资产</p>
+                                    <p class="text-sm text-gray-600">盘活标准：以期末状态为准，若年底为"闲置"状态，则不算盘活</p>
+                                    <p class="text-sm text-gray-600">数据会根据选择的年份、报表类型和季度动态变化</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>备注：</strong>盘活资产反映了闲置资产的有效利用情况，是资产管理的重要绩效指标。
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '我知道了'
+                });
+            });
+
+
+
+
+        });
+    </script>
+</body>
+</html>

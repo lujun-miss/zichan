@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产管理OA系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        accent: '#60a5fa',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        light: '#f3f4f6',
+                        dark: '#1f2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+        }
+        .main-content {
+            flex: 1;
+            overflow: hidden;
+        }
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        .nav-item:hover {
+            background-color: rgba(30, 64, 175, 0.1);
+        }
+        .nav-item.active {
+            background-color: rgba(30, 64, 175, 0.2);
+            border-left: 4px solid #1e40af;
+        }
+        .nav-subitem {
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        .nav-subitem:hover {
+            background-color: rgba(30, 64, 175, 0.05);
+        }
+        .nav-subitem.active {
+            background-color: rgba(30, 64, 175, 0.1);
+            border-left: 3px solid #3b82f6;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-full">
+        <aside class="sidebar bg-white shadow-md">
+            <div class="p-6">
+                <div class="flex items-center space-x-3 mb-8">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                        <i class="fa fa-building text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">资产管理OA</h1>
+                        <p class="text-xs text-gray-500">交通集团</p>
+                    </div>
+                </div>
+                <nav>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="javascript:void(0)" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:text-primary" onclick="loadPage('home.html')">
+                                <i class="fa fa-dashboard w-5 text-center"></i>
+                                <span>首页管理</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:text-primary" onclick="loadPage('units.html')">
+                                <i class="fa fa-sitemap w-5 text-center"></i>
+                                <span>单位管理</span>
+                            </a>
+                        </li>
+                        <li>
+                            <div class="nav-item-group">
+                                <button class="nav-item flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:text-primary w-full" onclick="toggleSubmenu('assets-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fa fa-cubes w-5 text-center"></i>
+                                        <span>资产信息</span>
+                                    </div>
+                                    <i class="fa fa-chevron-down text-xs transition-transform" id="assets-chevron"></i>
+                                </button>
+                                <ul id="assets-submenu" class="pl-10 space-y-1 hidden">
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '第一客运分公司')">
+                                            <span>第一客运分公司</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '第二客运分公司')">
+                                            <span>第二客运分公司</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '维修分公司')">
+                                            <span>维修分公司</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '物流分公司')">
+                                            <span>物流分公司</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '公交分公司')">
+                                            <span>公交分公司</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '高铁分公司')">
+                                            <span>高铁分公司</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="nav-item-group">
+                                <button class="nav-item flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:text-primary w-full" onclick="toggleSubmenu('reports-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fa fa-bar-chart w-5 text-center"></i>
+                                        <span>报表统计</span>
+                                    </div>
+                                    <i class="fa fa-chevron-down text-xs transition-transform" id="reports-chevron"></i>
+                                </button>
+                                <ul id="reports-submenu" class="pl-10 space-y-1 hidden">
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('reports.html')">
+                                            <span>统计报表</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_stats.html')">
+                                            <span>资产统计</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:text-primary" onclick="loadPage('users.html')">
+                                <i class="fa fa-users w-5 text-center"></i>
+                                <span>用户管理</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:text-primary" onclick="loadPage('roles.html')">
+                                <i class="fa fa-key w-5 text-center"></i>
+                                <span>角色管理</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+        </aside>
+        <main class="main-content bg-gray-50">
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center space-x-4">
+                        <button class="lg:hidden text-gray-600">
+                            <i class="fa fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold text-gray-800" id="page-title">首页管理</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                            <i class="fa fa-bell"></i>
+                        </button>
+                        <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                                <i class="fa fa-user text-gray-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">管理员</p>
+                                <p class="text-xs text-gray-500">admin@example.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="h-[calc(100vh-64px)]">
+                <iframe id="content-frame" src="home.html"></iframe>
+            </div>
+        </main>
+    </div>
+    <script>
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const chevron = document.getElementById(submenuId.replace('submenu', 'chevron'));
+            
+            if (submenu.classList.contains('hidden')) {
+                submenu.classList.remove('hidden');
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                submenu.classList.add('hidden');
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function loadPage(pageUrl, unitName) {
+            const iframe = document.getElementById('content-frame');
+            const navItems = document.querySelectorAll('.nav-item');
+            const navSubItems = document.querySelectorAll('.nav-subitem');
+            const pageTitle = document.getElementById('page-title');
+            
+            navItems.forEach(item => item.classList.remove('active'));
+            navSubItems.forEach(item => item.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            
+            if (unitName) {
+                iframe.src = `${pageUrl}?unit=${encodeURIComponent(unitName)}`;
+                pageTitle.textContent = `${unitName} - 资产列表`;
+            } else {
+                iframe.src = pageUrl;
+                const titles = {
+                    'home.html': '首页管理',
+                    'units.html': '单位管理',
+                    'assets.html': '资产信息',
+                    'reports.html': '报表统计',
+                    'users.html': '用户管理',
+                    'roles.html': '角色管理'
+                };
+                pageTitle.textContent = titles[pageUrl] || '首页管理';
+            }
+        }
+    </script>
+</body>
+</html>

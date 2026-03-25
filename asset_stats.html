@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产统计</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .report-card {
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">资产统计</h2>
+            <p class="text-gray-600">查询所有单位资产详细信息</p>
+        </div>
+
+        <!-- 资产统计 -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-gray-800">资产列表</h3>
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                        <i class="fa fa-download mr-2"></i>
+                        导出资产列表
+                    </button>
+                    <button class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center" id="expand-all-btn">
+                        <i class="fa fa-expand mr-2"></i>
+                        全部展开
+                    </button>
+                    <button class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center" id="collapse-all-btn">
+                        <i class="fa fa-compress mr-2"></i>
+                        全部收起
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex flex-wrap gap-3">
+                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" id="asset-unit-filter">
+                        <option value="all">全部单位</option>
+                        <option value="company1">第一客运分公司</option>
+                        <option value="company2">第二客运分公司</option>
+                        <option value="maintenance">维修分公司</option>
+                        <option value="logistics">物流分公司</option>
+                        <option value="bus">公交分公司</option>
+                        <option value="highspeed">高铁分公司</option>
+                    </select>
+                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" id="asset-type-filter">
+                        <option value="all">全部类型</option>
+                        <option value="房屋建筑">房屋建筑</option>
+                        <option value="土地">土地</option>
+                        <option value="设备设施">设备设施</option>
+                        <option value="其他">其他</option>
+                    </select>
+                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" id="asset-status-filter">
+                        <option value="all">全部状态</option>
+                        <option value="已出租">已出租</option>
+                        <option value="闲置中">闲置中</option>
+                        <option value="维修中">维修中</option>
+                        <option value="自用">自用</option>
+                    </select>
+                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" id="asset-rental-filter">
+                        <option value="all">全部属性</option>
+                        <option value="出租">出租属性</option>
+                        <option value="非出租">非出租属性</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="space-y-3" id="asset-list-container">
+                <!-- 资产列表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 资产数据
+        const assetsData = {
+            'company1': {
+                name: '第一客运分公司',
+                assets: [
+                    { name: '火车站东广场商铺', type: '房屋建筑', area: '120㎡', status: '已出租', rental: '出租', rent: '¥12,000/月' },
+                    { name: '客运站办公楼', type: '房屋建筑', area: '850㎡', status: '闲置中', rental: '非出租', rent: '-' },
+                    { name: '客运停车场', type: '土地', area: '2000㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '客运调度中心', type: '房屋建筑', area: '450㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '站前商铺', type: '房屋建筑', area: '80㎡', status: '已出租', rental: '出租', rent: '¥8,000/月' }
+                ]
+            },
+            'company2': {
+                name: '第二客运分公司',
+                assets: [
+                    { name: '郊区客运站', type: '房屋建筑', area: '600㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '客运维修车间', type: '房屋建筑', area: '300㎡', status: '维修中', rental: '非出租', rent: '-' },
+                    { name: '客运停车场', type: '土地', area: '1500㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '郊区客运站点', type: '房屋建筑', area: '120㎡', status: '闲置中', rental: '非出租', rent: '-' }
+                ]
+            },
+            'maintenance': {
+                name: '维修分公司',
+                assets: [
+                    { name: '维修车间', type: '房屋建筑', area: '600㎡', status: '维修中', rental: '非出租', rent: '-' },
+                    { name: '设备仓库', type: '房屋建筑', area: '400㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '维修停车场', type: '土地', area: '1200㎡', status: '自用', rental: '非出租', rent: '-' }
+                ]
+            },
+            'logistics': {
+                name: '物流分公司',
+                assets: [
+                    { name: '物流仓库', type: '房屋建筑', area: '1200㎡', status: '已出租', rental: '出租', rent: '¥60/㎡/月' },
+                    { name: '物流配送中心', type: '房屋建筑', area: '800㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '物流停车场', type: '土地', area: '3000㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '物流办公区', type: '房屋建筑', area: '300㎡', status: '自用', rental: '非出租', rent: '-' }
+                ]
+            },
+            'bus': {
+                name: '公交分公司',
+                assets: [
+                    { name: '公交枢纽站商铺', type: '房屋建筑', area: '80㎡', status: '已出租', rental: '出租', rent: '¥15,000/月' },
+                    { name: '公交调度中心', type: '房屋建筑', area: '500㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '公交停车场', type: '土地', area: '2500㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '公交维修站', type: '房屋建筑', area: '400㎡', status: '维修中', rental: '非出租', rent: '-' }
+                ]
+            },
+            'highspeed': {
+                name: '高铁分公司',
+                assets: [
+                    { name: '高铁站配套用房', type: '房屋建筑', area: '450㎡', status: '闲置中', rental: '非出租', rent: '-' },
+                    { name: '高铁站商铺', type: '房屋建筑', area: '150㎡', status: '已出租', rental: '出租', rent: '¥20,000/月' },
+                    { name: '高铁停车场', type: '土地', area: '1800㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '高铁办公区', type: '房屋建筑', area: '600㎡', status: '自用', rental: '非出租', rent: '-' }
+                ]
+            }
+        };
+
+        // 获取状态对应的样式类
+        function getStatusClass(status) {
+            switch(status) {
+                case '已出租': return 'bg-green-100 text-green-800';
+                case '闲置中': return 'bg-yellow-100 text-yellow-800';
+                case '维修中': return 'bg-red-100 text-red-800';
+                case '自用': return 'bg-blue-100 text-blue-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // 获取出租属性对应的样式类
+        function getRentalClass(rental) {
+            return rental === '出租' ? 'text-green-600' : 'text-gray-500';
+        }
+
+        // 渲染资产列表
+        function renderAssets(filteredData = null) {
+            const container = document.getElementById('asset-list-container');
+            const data = filteredData || assetsData;
+            
+            container.innerHTML = '';
+            
+            Object.keys(data).forEach(unitId => {
+                const unit = data[unitId];
+                const assets = unit.assets;
+                
+                if (assets.length === 0) return;
+                
+                const unitElement = document.createElement('div');
+                unitElement.className = 'border border-gray-200 rounded-lg overflow-hidden';
+                
+                unitElement.innerHTML = `
+                    <div class="bg-gray-50 px-4 py-3 flex items-center justify-between cursor-pointer unit-header" data-unit="${unitId}">
+                        <div class="flex items-center">
+                            <i class="fa fa-chevron-right text-gray-400 mr-2 unit-icon"></i>
+                            <h4 class="font-medium text-gray-800">${unit.name}</h4>
+                            <span class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">${assets.length}项资产</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <span class="text-sm text-gray-500">已出租: ${assets.filter(a => a.status === '已出租').length}</span>
+                            <span class="text-sm text-gray-500">闲置: ${assets.filter(a => a.status === '闲置中').length}</span>
+                        </div>
+                    </div>
+                    <div class="unit-content">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-200">
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产名称</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">面积</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出租属性</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">租金</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${assets.map(asset => `
+                                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${asset.name}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${asset.type}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${asset.area}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(asset.status)}">
+                                                    ${asset.status}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm ${getRentalClass(asset.rental)}">${asset.rental}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${asset.rent}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(unitElement);
+                
+                // 默认展开所有单位
+                const contentElement = unitElement.querySelector('.unit-content');
+                contentElement.style.display = 'block';
+                const iconElement = unitElement.querySelector('.unit-icon');
+                iconElement.classList.remove('fa-chevron-right');
+                iconElement.classList.add('fa-chevron-down');
+            });
+            
+            if (container.innerHTML === '') {
+                container.innerHTML = '<p class="text-center text-gray-500 py-8">暂无符合条件的资产数据</p>';
+            }
+        }
+
+        // 筛选资产
+        function filterAssets() {
+            const unitFilter = document.getElementById('asset-unit-filter').value;
+            const typeFilter = document.getElementById('asset-type-filter').value;
+            const statusFilter = document.getElementById('asset-status-filter').value;
+            const rentalFilter = document.getElementById('asset-rental-filter').value;
+            
+            const filteredData = {};
+            
+            Object.keys(assetsData).forEach(unitId => {
+                const unit = assetsData[unitId];
+                const filteredAssets = unit.assets.filter(asset => {
+                    const unitMatch = unitFilter === 'all' || unitId === unitFilter;
+                    const typeMatch = typeFilter === 'all' || asset.type === typeFilter;
+                    const statusMatch = statusFilter === 'all' || asset.status === statusFilter;
+                    const rentalMatch = rentalFilter === 'all' || asset.rental === rentalFilter;
+                    
+                    return unitMatch && typeMatch && statusMatch && rentalMatch;
+                });
+                
+                if (filteredAssets.length > 0) {
+                    filteredData[unitId] = {
+                        name: unit.name,
+                        assets: filteredAssets
+                    };
+                }
+            });
+            
+            renderAssets(filteredData);
+        }
+
+        // 全部展开
+        function expandAll() {
+            document.querySelectorAll('.unit-header').forEach(header => {
+                const content = header.nextElementSibling;
+                const icon = header.querySelector('.unit-icon');
+                content.style.display = 'block';
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-down');
+            });
+        }
+
+        // 全部收起
+        function collapseAll() {
+            document.querySelectorAll('.unit-header').forEach(header => {
+                const content = header.nextElementSibling;
+                const icon = header.querySelector('.unit-icon');
+                content.style.display = 'none';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-right');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化渲染资产列表
+            renderAssets();
+            
+            // 筛选事件
+            document.getElementById('asset-unit-filter').addEventListener('change', filterAssets);
+            document.getElementById('asset-type-filter').addEventListener('change', filterAssets);
+            document.getElementById('asset-status-filter').addEventListener('change', filterAssets);
+            document.getElementById('asset-rental-filter').addEventListener('change', filterAssets);
+            
+            // 展开/收起按钮事件
+            document.getElementById('expand-all-btn').addEventListener('click', expandAll);
+            document.getElementById('collapse-all-btn').addEventListener('click', collapseAll);
+            
+            // 单位标题点击事件（委托事件）
+            document.addEventListener('click', function(e) {
+                const header = e.target.closest('.unit-header');
+                if (header) {
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('.unit-icon');
+                    
+                    if (content.style.display === 'block') {
+                        content.style.display = 'none';
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-right');
+                    } else {
+                        content.style.display = 'block';
+                        icon.classList.remove('fa-chevron-right');
+                        icon.classList.add('fa-chevron-down');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

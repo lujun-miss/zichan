@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单位管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="modal.js"></script>
+    <style>
+        .unit-card {
+            transition: all 0.3s ease;
+        }
+        .unit-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background-color: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6 flex items-center justify-between">
+            <p class="text-gray-600" id="page-description">管理各基层单位信息和资产情况</p>
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                    <i class="fa fa-user text-gray-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-800">管理员</p>
+                    <p class="text-xs text-gray-500">admin@example.com</p>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div class="flex items-center">
+                    <h3 class="text-lg font-semibold text-gray-800 mr-4">单位列表</h3>
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium" id="unit-count">6个单位</span>
+                </div>
+                <button id="add-unit-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                    <i class="fa fa-plus mr-2"></i>
+                    添加单位
+                </button>
+            </div>
+            
+            <div class="mt-4">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fa fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" id="unit-search" class="form-input pl-10" placeholder="搜索单位名称...">
+                </div>
+            </div>
+        </div>
+
+        <div id="unit-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 单位列表将通过JavaScript动态生成 -->
+        </div>
+
+        <div id="asset-list" class="hidden">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800" id="unit-asset-title">单位资产列表</h3>
+                        <p class="text-sm text-gray-600" id="unit-asset-count">共0项资产</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="add-asset-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                            <i class="fa fa-plus mr-2"></i>
+                            添加资产
+                        </button>
+                        <div class="relative">
+                            <input type="text" placeholder="搜索资产名称..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="">全部状态</option>
+                            <option value="rented">已出租</option>
+                            <option value="idle">闲置中</option>
+                            <option value="maintenance">维修中</option>
+                            <option value="used">自用</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产名称</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产类型</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">面积</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出租属性</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">租金</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="asset-table-body">
+                            <!-- 资产列表将动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 flex items-center justify-between">
+                    <div class="text-sm text-gray-600">
+                        显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">0</span> 条记录
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+                        <button class="px-3 py-1 bg-blue-600 text-white rounded-lg">1</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">2</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">3</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-center">
+            <nav class="flex items-center space-x-1">
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+                <button class="px-3 py-1 bg-blue-600 text-white rounded-lg">1</button>
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">2</button>
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">3</button>
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">4</button>
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">5</button>
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取URL参数
+            function getUrlParameter(name) {
+                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+
+            // 资产数据
+            const assetsData = {
+                '第一客运分公司': [
+                    { name: '火车站东广场商铺', type: '房屋建筑', area: '120㎡', status: '已出租', rental: '出租', rent: '¥12,000/月' },
+                    { name: '客运站办公楼', type: '房屋建筑', area: '850㎡', status: '闲置中', rental: '非出租', rent: '-' },
+                    { name: '客运停车场', type: '土地', area: '2000㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '客运调度中心', type: '房屋建筑', area: '450㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '站前商铺', type: '房屋建筑', area: '80㎡', status: '已出租', rental: '出租', rent: '¥8,000/月' }
+                ],
+                '第二客运分公司': [
+                    { name: '郊区客运站', type: '房屋建筑', area: '600㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '客运维修车间', type: '房屋建筑', area: '300㎡', status: '维修中', rental: '非出租', rent: '-' },
+                    { name: '客运停车场', type: '土地', area: '1500㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '郊区客运站点', type: '房屋建筑', area: '120㎡', status: '闲置中', rental: '非出租', rent: '-' }
+                ],
+                '维修分公司': [
+                    { name: '维修车间', type: '房屋建筑', area: '600㎡', status: '维修中', rental: '非出租', rent: '-' },
+                    { name: '设备仓库', type: '房屋建筑', area: '400㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '维修停车场', type: '土地', area: '1200㎡', status: '自用', rental: '非出租', rent: '-' }
+                ],
+                '物流分公司': [
+                    { name: '物流仓库', type: '房屋建筑', area: '1200㎡', status: '已出租', rental: '出租', rent: '¥60/㎡/月' },
+                    { name: '物流配送中心', type: '房屋建筑', area: '800㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '物流停车场', type: '土地', area: '3000㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '物流办公区', type: '房屋建筑', area: '300㎡', status: '自用', rental: '非出租', rent: '-' }
+                ],
+                '公交分公司': [
+                    { name: '公交枢纽站商铺', type: '房屋建筑', area: '80㎡', status: '已出租', rental: '出租', rent: '¥15,000/月' },
+                    { name: '公交调度中心', type: '房屋建筑', area: '500㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '公交停车场', type: '土地', area: '2500㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '公交维修站', type: '房屋建筑', area: '400㎡', status: '维修中', rental: '非出租', rent: '-' }
+                ],
+                '高铁分公司': [
+                    { name: '高铁站配套用房', type: '房屋建筑', area: '450㎡', status: '闲置中', rental: '非出租', rent: '-' },
+                    { name: '高铁站商铺', type: '房屋建筑', area: '150㎡', status: '已出租', rental: '出租', rent: '¥20,000/月' },
+                    { name: '高铁停车场', type: '土地', area: '1800㎡', status: '自用', rental: '非出租', rent: '-' },
+                    { name: '高铁办公区', type: '房屋建筑', area: '600㎡', status: '自用', rental: '非出租', rent: '-' }
+                ]
+            };
+
+            // 检查是否有单位参数
+            const unitName = getUrlParameter('unit');
+            if (unitName) {
+                // 显示资产列表，隐藏单位管理相关内容
+                document.getElementById('unit-list').classList.add('hidden');
+                document.getElementById('asset-list').classList.remove('hidden');
+                
+                // 更新描述并隐藏单位管理区域
+                document.getElementById('page-description').textContent = `${unitName}的资产明细`;
+                document.getElementById('unit-asset-title').textContent = `${unitName}资产列表`;
+                
+                // 隐藏单位管理相关的搜索和添加按钮区域
+                const unitSearchArea = document.querySelector('.bg-white.rounded-xl.shadow-sm.p-6.mb-6');
+                if (unitSearchArea) {
+                    unitSearchArea.classList.add('hidden');
+                }
+                
+                // 隐藏页面标题和描述区域（顶部红框内容）
+                const pageHeader = document.querySelector('.mb-6');
+                if (pageHeader) {
+                    pageHeader.classList.add('hidden');
+                }
+                
+                // 隐藏底部分页控件（底部红框内容）
+                const paginationArea = document.querySelector('.mt-6.flex.items-center.justify-center');
+                if (paginationArea) {
+                    paginationArea.classList.add('hidden');
+                }
+                
+                // 获取该单位的资产数据
+                const assets = assetsData[unitName] || [];
+                document.getElementById('unit-asset-count').textContent = `共${assets.length}项资产`;
+                
+                // 生成资产表格
+                const tableBody = document.getElementById('asset-table-body');
+                tableBody.innerHTML = '';
+                
+                assets.forEach((asset, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // 根据状态设置不同的样式
+                    let statusClass = '';
+                    switch(asset.status) {
+                        case '已出租':
+                            statusClass = 'bg-green-100 text-green-800';
+                            break;
+                        case '闲置中':
+                            statusClass = 'bg-yellow-100 text-yellow-800';
+                            break;
+                        case '维修中':
+                            statusClass = 'bg-red-100 text-red-800';
+                            break;
+                        case '自用':
+                            statusClass = 'bg-blue-100 text-blue-800';
+                            break;
+                    }
+                    
+                    // 根据出租属性设置样式
+                    let rentalClass = asset.rental === '出租' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${asset.name}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${asset.type}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${asset.area}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${rentalClass}">
+                                ${asset.rental}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                ${asset.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${asset.rent}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="text-blue-600 hover:text-blue-900 mr-3">详情</button>
+                            <button class="text-blue-600 hover:text-blue-900">编辑</button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+
+            
+
+            // 添加资产按钮点击事件
+            document.getElementById('add-asset-btn').addEventListener('click', function() {
+                const addAssetForm = `
+                    <form id="add-asset-form">
+                        <div class="form-group">
+                            <label class="form-label" for="asset-name">资产名称 <span class="text-red-500">*</span></label>
+                            <input type="text" id="asset-name" class="form-input" placeholder="请输入资产名称" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="asset-type">资产类型 <span class="text-red-500">*</span></label>
+                            <select id="asset-type" class="form-select" required>
+                                <option value="">请选择资产类型</option>
+                                <option value="房屋建筑">房屋建筑</option>
+                                <option value="土地">土地</option>
+                                <option value="设备">设备</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="asset-area">面积</label>
+                            <input type="text" id="asset-area" class="form-input" placeholder="请输入面积（如：120㎡）">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="asset-rental">出租属性 <span class="text-red-500">*</span></label>
+                            <select id="asset-rental" class="form-select" required>
+                                <option value="">请选择出租属性</option>
+                                <option value="出租">出租</option>
+                                <option value="非出租">非出租</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="asset-status">资产状态 <span class="text-red-500">*</span></label>
+                            <select id="asset-status" class="form-select" required>
+                                <option value="">请选择资产状态</option>
+                                <option value="已出租">已出租</option>
+                                <option value="闲置中">闲置中</option>
+                                <option value="维修中">维修中</option>
+                                <option value="自用">自用</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="rent-fields" style="display: none;">
+                            <label class="form-label" for="asset-rent-period">支付周期</label>
+                            <select id="asset-rent-period" class="form-select">
+                                <option value="month">月付</option>
+                                <option value="quarter">季付</option>
+                                <option value="year">年付</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="rent-amount-field" style="display: none;">
+                            <label class="form-label" for="asset-rent">租金金额</label>
+                            <input type="text" id="asset-rent" class="form-input" placeholder="请输入租金金额（如：12000）">
+                        </div>
+                    </form>
+                `;
+
+                showModal({
+                    title: '添加资产',
+                    content: addAssetForm,
+                    onConfirm: function() {
+                        const form = document.getElementById('add-asset-form');
+                        if (form.checkValidity()) {
+                            const assetName = document.getElementById('asset-name').value;
+                            const assetType = document.getElementById('asset-type').value;
+                            const assetArea = document.getElementById('asset-area').value;
+                            const assetRental = document.getElementById('asset-rental').value;
+                            const assetStatus = document.getElementById('asset-status').value;
+                            const assetRentPeriod = document.getElementById('asset-rent-period').value;
+                            const assetRentAmount = document.getElementById('asset-rent').value || '-';
+                            
+                            let rentDisplay = '-';
+                            if (assetRental === '出租' && assetRentAmount !== '-') {
+                                const periodMap = {
+                                    'month': '月',
+                                    'quarter': '季',
+                                    'year': '年'
+                                };
+                                rentDisplay = `¥${assetRentAmount}/${periodMap[assetRentPeriod]}`;
+                            }
+                            
+                            // 模拟添加资产操作
+                            console.log('添加资产:', {
+                                name: assetName,
+                                type: assetType,
+                                area: assetArea,
+                                rental: assetRental,
+                                status: assetStatus,
+                                rentPeriod: assetRentPeriod,
+                                rentAmount: assetRentAmount
+                            });
+                            
+                            // 显示成功提示
+                            showModal({
+                                title: '添加成功',
+                                content: `
+                                    <div class="space-y-4">
+                                        <p class="text-green-600">资产 "${assetName}" 添加成功！</p>
+                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                            <h5 class="font-semibold text-blue-800 mb-2">资产信息</h5>
+                                            <p class="text-sm text-blue-700">类型：<strong>${assetType}</strong></p>
+                                            <p class="text-sm text-blue-700">出租属性：<strong>${assetRental}</strong></p>
+                                            <p class="text-sm text-blue-700">状态：<strong>${assetStatus}</strong></p>
+                                            ${assetArea ? `<p class="text-sm text-blue-700">面积：<strong>${assetArea}</strong></p>` : ''}
+                                            ${rentDisplay !== '-' ? `<p class="text-sm text-blue-700">租金：<strong>${rentDisplay}</strong></p>` : ''}
+                                        </div>
+                                    </div>
+                                `,
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                        } else {
+                            // 表单验证失败
+                            form.reportValidity();
+                        }
+                    },
+                    onModalShow: function() {
+                        // 添加事件监听器来控制租金字段的显示/隐藏
+                        const rentalSelect = document.getElementById('asset-rental');
+                        const statusSelect = document.getElementById('asset-status');
+                        const rentFields = document.getElementById('rent-fields');
+                        const rentAmountField = document.getElementById('rent-amount-field');
+                        
+                        function updateRentFieldsVisibility() {
+                            const isRental = rentalSelect.value === '出租';
+                            
+                            if (isRental) {
+                                rentFields.style.display = 'block';
+                                rentAmountField.style.display = 'block';
+                            } else {
+                                rentFields.style.display = 'none';
+                                rentAmountField.style.display = 'none';
+                            }
+                        }
+                        
+                        // 初始检查
+                        updateRentFieldsVisibility();
+                        
+                        // 添加事件监听器
+                        rentalSelect.addEventListener('change', updateRentFieldsVisibility);
+                        statusSelect.addEventListener('change', updateRentFieldsVisibility);
+                    }
+                });
+            });
+
+            // 添加单位按钮点击事件
+            document.getElementById('add-unit-btn').addEventListener('click', function() {
+                const addUnitForm = `
+                    <form id="add-unit-form">
+                        <div class="form-group">
+                            <label class="form-label" for="unit-name">单位名称 <span class="text-red-500">*</span></label>
+                            <input type="text" id="unit-name" class="form-input" placeholder="请输入单位名称" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="unit-type">单位类型 <span class="text-red-500">*</span></label>
+                            <select id="unit-type" class="form-select" required>
+                                <option value="">请选择单位类型</option>
+                                <option value="客运公司">客运公司</option>
+                                <option value="维修公司">维修公司</option>
+                                <option value="物流公司">物流公司</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="unit-manager">负责人 <span class="text-red-500">*</span></label>
+                            <input type="text" id="unit-manager" class="form-input" placeholder="请输入负责人姓名" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="unit-phone">联系电话 <span class="text-red-500">*</span></label>
+                            <input type="tel" id="unit-phone" class="form-input" placeholder="请输入联系电话" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="unit-address">单位地址</label>
+                            <input type="text" id="unit-address" class="form-input" placeholder="请输入单位地址">
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-4 mt-4">
+                            <h4 class="font-semibold text-gray-700 mb-3">创建单位管理员账号</h4>
+                            <div class="form-group">
+                                <label class="form-label" for="admin-username">账号 <span class="text-red-500">*</span></label>
+                                <input type="text" id="admin-username" class="form-input" placeholder="请输入管理员账号" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="admin-password">初始密码 <span class="text-red-500">*</span></label>
+                                <input type="password" id="admin-password" class="form-input" placeholder="请设置初始密码" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="admin-email">邮箱</label>
+                                <input type="email" id="admin-email" class="form-input" placeholder="请输入邮箱地址">
+                            </div>
+                        </div>
+                    </form>
+                `;
+
+                showModal({
+                    title: '添加单位',
+                    content: addUnitForm,
+                    onConfirm: function() {
+                        const form = document.getElementById('add-unit-form');
+                        if (form.checkValidity()) {
+                            const unitName = document.getElementById('unit-name').value;
+                            const unitType = document.getElementById('unit-type').value;
+                            const unitManager = document.getElementById('unit-manager').value;
+                            const adminUsername = document.getElementById('admin-username').value;
+                            const adminPassword = document.getElementById('admin-password').value;
+                            
+                            // 模拟添加单位操作
+                            console.log('添加单位:', {
+                                name: unitName,
+                                type: unitType,
+                                manager: unitManager
+                            });
+                            
+                            // 模拟创建管理员账号操作
+                            console.log('创建管理员账号:', {
+                                unit: unitName,
+                                username: adminUsername,
+                                role: 'admin'
+                            });
+                            
+                            // 显示成功提示
+                            showModal({
+                                title: '添加成功',
+                                content: `
+                                    <div class="space-y-4">
+                                        <p class="text-green-600">单位 "${unitName}" 添加成功！</p>
+                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                            <h5 class="font-semibold text-blue-800 mb-2">管理员账号信息</h5>
+                                            <p class="text-sm text-blue-700">账号：<strong>${adminUsername}</strong></p>
+                                            <p class="text-sm text-blue-700">初始密码：<strong>${adminPassword}</strong></p>
+                                            <p class="text-xs text-blue-600 mt-2">请妥善保存初始密码，首次登录需修改密码</p>
+                                        </div>
+                                    </div>
+                                `,
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                        } else {
+                            // 表单验证失败
+                            form.reportValidity();
+                        }
+                    }
+                });
+            });
+
+            // 搜索功能
+            const unitsData = [
+                {
+                    name: '第一客运分公司',
+                    type: '客运公司',
+                    assetCount: 342,
+                    rentalRate: '82.5%',
+                    idleAssets: 58,
+                    manager: '张三'
+                },
+                {
+                    name: '第二客运分公司',
+                    type: '客运公司',
+                    assetCount: 276,
+                    rentalRate: '78.3%',
+                    idleAssets: 61,
+                    manager: '李四'
+                },
+                {
+                    name: '第三客运分公司',
+                    type: '客运公司',
+                    assetCount: 245,
+                    rentalRate: '75.2%',
+                    idleAssets: 61,
+                    manager: '王五'
+                },
+                {
+                    name: '物流分公司',
+                    type: '物流公司',
+                    assetCount: 218,
+                    rentalRate: '85.2%',
+                    idleAssets: 32,
+                    manager: '赵六'
+                },
+                {
+                    name: '公交分公司',
+                    type: '客运公司',
+                    assetCount: 187,
+                    rentalRate: '72.1%',
+                    idleAssets: 52,
+                    manager: '孙七'
+                },
+                {
+                    name: '高铁分公司',
+                    type: '客运公司',
+                    assetCount: 159,
+                    rentalRate: '79.3%',
+                    idleAssets: 33,
+                    manager: '周八'
+                }
+            ];
+
+            function renderUnits(units) {
+                const unitList = document.getElementById('unit-list');
+                unitList.innerHTML = '';
+                
+                units.forEach((unit, index) => {
+                    const unitCard = document.createElement('div');
+                    unitCard.className = 'unit-card bg-white rounded-xl shadow-sm overflow-hidden';
+                    unitCard.innerHTML = `
+                        <div class="p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fa fa-building text-blue-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">${unit.name}</h3>
+                                        <p class="text-sm text-gray-500">${unit.type}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">总资产数量</span>
+                                    <span class="font-medium text-gray-800">${unit.assetCount}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <span class="text-sm text-gray-600">出租率</span>
+                                        <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="unit-rental-rate-help">
+                                            <i class="fa fa-question-circle"></i>
+                                        </span>
+                                    </div>
+                                    <span class="font-medium text-green-600">${unit.rentalRate}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">闲置资产</span>
+                                    <span class="font-medium text-yellow-600">${unit.idleAssets}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">负责人</span>
+                                    <span class="font-medium text-gray-800">${unit.manager}</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <button class="view-detail-btn w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center justify-center" data-index="${index}">
+                                    <i class="fa fa-eye mr-2"></i>
+                                    查看详情
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    unitList.appendChild(unitCard);
+                });
+                
+                // 更新单位数量
+                document.getElementById('unit-count').textContent = `${units.length}个单位`;
+                
+                // 重新绑定查看详情按钮事件
+                document.querySelectorAll('.view-detail-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.dataset.index);
+                        showUnitDetail(index);
+                    });
+                });
+            }
+
+            function showUnitDetail(index) {
+                const units = [
+                    {
+                        name: '第一客运分公司',
+                        type: '客运公司',
+                        manager: '张三',
+                        phone: '13800138000',
+                        address: '北京市朝阳区建国路88号',
+                        account: 'admin@example.com',
+                        assetCount: 342,
+                        rentalRate: '82.5%',
+                        idleAssets: 58,
+                        description: '负责北京市区主要客运业务，拥有多个客运站点和停车场。'
+                    },
+                    {
+                        name: '第二客运分公司',
+                        type: '客运公司',
+                        manager: '李四',
+                        phone: '13900139000',
+                        address: '北京市海淀区中关村大街1号',
+                        account: 'admin@example.com',
+                        assetCount: 276,
+                        rentalRate: '78.3%',
+                        idleAssets: 61,
+                        description: '负责北京市西北部区域的客运业务，拥有多个公交场站。'
+                    },
+                    {
+                        name: '第三客运分公司',
+                        type: '客运公司',
+                        manager: '王五',
+                        phone: '13700137000',
+                        address: '北京市丰台区丰台路20号',
+                        account: 'admin@example.com',
+                        assetCount: 245,
+                        rentalRate: '75.2%',
+                        idleAssets: 61,
+                        description: '负责北京市南部区域的客运业务，拥有多个客运站和维修厂。'
+                    },
+                    {
+                        name: '物流分公司',
+                        type: '物流公司',
+                        manager: '赵六',
+                        phone: '13600136000',
+                        address: '北京市顺义区空港物流园区',
+                        account: 'admin@example.com',
+                        assetCount: 218,
+                        rentalRate: '85.2%',
+                        idleAssets: 32,
+                        description: '负责集团物流运输业务，拥有多个物流仓库。'
+                    },
+                    {
+                        name: '公交分公司',
+                        type: '客运公司',
+                        manager: '孙七',
+                        phone: '13500135000',
+                        address: '北京市东城区东直门外大街48号',
+                        account: 'admin@example.com',
+                        assetCount: 187,
+                        rentalRate: '72.1%',
+                        idleAssets: 52,
+                        description: '负责北京市区公共交通运营，拥有多条公交线路。'
+                    },
+                    {
+                        name: '高铁分公司',
+                        type: '客运公司',
+                        manager: '周八',
+                        phone: '13400134000',
+                        address: '北京市西城区西客站南路1号',
+                        account: 'admin@example.com',
+                        assetCount: 159,
+                        rentalRate: '79.3%',
+                        idleAssets: 33,
+                        description: '负责高铁客运业务，拥有多个高铁站配套设施。'
+                    }
+                ];
+
+                const unit = units[index];
+                
+                const detailContent = `
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fa fa-building text-blue-600 text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold text-gray-800">${unit.name}</h4>
+                                <p class="text-sm text-gray-500">${unit.type}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">负责人</p>
+                                <p class="font-medium text-gray-800">${unit.manager}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">联系电话</p>
+                                <p class="font-medium text-gray-800">${unit.phone}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">单位地址</p>
+                                <p class="font-medium text-gray-800">${unit.address}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">账号</p>
+                                <p class="font-medium text-gray-800">${unit.account}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-4">
+                            <h5 class="font-semibold text-gray-800 mb-3">资产统计</h5>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500">总资产数量</p>
+                                    <p class="text-lg font-bold text-gray-800">${unit.assetCount}</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500">出租率</p>
+                                    <p class="text-lg font-bold text-green-600">${unit.rentalRate}</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500">闲置资产</p>
+                                    <p class="text-lg font-bold text-yellow-600">${unit.idleAssets}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-4">
+                            <h5 class="font-semibold text-gray-800 mb-2">单位描述</h5>
+                            <p class="text-sm text-gray-600">${unit.description}</p>
+                        </div>
+                    </div>
+                `;
+
+                showModal({
+                    title: '单位详情',
+                    content: detailContent,
+                    showConfirmButton: false,
+                    confirmButtonText: '关闭',
+                    showCancelButton: true,
+                    cancelButtonText: '关闭'
+                });
+            }
+
+            // 搜索输入事件
+            document.getElementById('unit-search').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    renderUnits(unitsData);
+                } else {
+                    const filteredUnits = unitsData.filter(unit => 
+                        unit.name.toLowerCase().includes(searchTerm)
+                    );
+                    renderUnits(filteredUnits);
+                }
+            });
+
+            // 初始化渲染
+            renderUnits(unitsData);
+
+            // 单位出租率帮助信息点击事件（委托事件，因为元素是动态生成的）
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('#unit-rental-rate-help')) {
+                    showModal({
+                        title: '出租率说明',
+                        content: `
+                            <div class="space-y-4">
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                    <h4 class="font-semibold text-blue-800 mb-2">出租率定义</h4>
+                                    <p class="text-sm text-blue-700">出租率 = 已出租资产数量 ÷ 总资产数量 × 100%</p>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <p class="text-sm font-medium text-gray-800">说明：</p>
+                                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
+                                        <li>已出租资产：状态为"已出租"的资产</li>
+                                        <li>总资产数量：该单位所有具有"出租"属性的资产总数</li>
+                                        <li>出租率反映单位资产利用效率，越高越好</li>
+                                        <li>此数据为实时统计，反映当前最新状态</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `,
+                        showCancelButton: false,
+                        confirmButtonText: '我知道了'
+                    });
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>

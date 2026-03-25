@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产信息</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="modal.js"></script>
+    <style>
+        .asset-card {
+            transition: all 0.3s ease;
+        }
+        .asset-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .asset-image {
+            height: 160px;
+            object-fit: cover;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background-color: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">资产信息</h2>
+            <p class="text-gray-600">管理固定资产和房屋信息</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
+                    <div class="relative">
+                        <input type="text" placeholder="搜索资产名称..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <option value="">全部资产类型</option>
+                        <option value="building">房屋建筑</option>
+                        <option value="equipment">设备设施</option>
+                        <option value="land">土地</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <option value="">全部状态</option>
+                        <option value="rented">已出租</option>
+                        <option value="idle">闲置中</option>
+                        <option value="maintenance">维修中</option>
+                        <option value="used">自用</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <option value="">全部单位</option>
+                        <option value="company1">第一客运分公司</option>
+                        <option value="company2">第二客运分公司</option>
+                        <option value="maintenance">维修分公司</option>
+                        <option value="logistics">物流分公司</option>
+                    </select>
+                </div>
+                <button id="add-asset-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                    <i class="fa fa-plus mr-2"></i>
+                    添加资产
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="asset-card bg-white rounded-xl shadow-sm overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1554645702-d2bca983b71f?w=400&h=200&fit=crop" alt="火车站东广场商铺" class="asset-image w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">火车站东广场商铺</h3>
+                        <span class="status-badge bg-green-100 text-green-800">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                            已出租
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-building-o text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">第一客运分公司</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-map-marker text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">火车站东广场</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-arrows-alt text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">120㎡</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-calendar text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">租期：2024-01-01 至 2025-12-31</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-money text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">租金：¥12,000/月</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex space-x-2">
+                        <button class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-eye mr-2"></i>
+                            详情
+                        </button>
+                        <button class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-edit mr-2"></i>
+                            编辑
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="asset-card bg-white rounded-xl shadow-sm overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1560200353-b977c9b479f1?w=400&h=200&fit=crop" alt="汽车站办公楼" class="asset-image w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">汽车站办公楼</h3>
+                        <span class="status-badge bg-yellow-100 text-yellow-800">
+                            <span class="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
+                            闲置中
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-building-o text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">第二客运分公司</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-map-marker text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">汽车客运站旁</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-arrows-alt text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">850㎡</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-clock-o text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">闲置时间：6个月</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-tag text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">建议租金：¥80/㎡/月</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex space-x-2">
+                        <button class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-eye mr-2"></i>
+                            详情
+                        </button>
+                        <button class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-edit mr-2"></i>
+                            编辑
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="asset-card bg-white rounded-xl shadow-sm overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1518643875821-ce9b6c11b08e?w=400&h=200&fit=crop" alt="维修车间" class="asset-image w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">维修车间</h3>
+                        <span class="status-badge bg-red-100 text-red-800">
+                            <span class="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
+                            维修中
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-building-o text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">维修分公司</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-map-marker text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">工业园区A区</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-arrows-alt text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">600㎡</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-calendar text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">预计完工：2024-03-15</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-wrench text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">维修项目：屋顶防水</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex space-x-2">
+                        <button class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-eye mr-2"></i>
+                            详情
+                        </button>
+                        <button class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-edit mr-2"></i>
+                            编辑
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="asset-card bg-white rounded-xl shadow-sm overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1580216757385-f7fd05b88b55?w=400&h=200&fit=crop" alt="物流仓库" class="asset-image w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">物流仓库</h3>
+                        <span class="status-badge bg-green-100 text-green-800">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                            已出租
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-building-o text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">物流分公司</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-map-marker text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">物流园区</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-arrows-alt text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">1200㎡</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-calendar text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">租期：2023-06-01 至 2025-05-31</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-money text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">租金：¥60/㎡/月</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex space-x-2">
+                        <button class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-eye mr-2"></i>
+                            详情
+                        </button>
+                        <button class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-edit mr-2"></i>
+                            编辑
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="asset-card bg-white rounded-xl shadow-sm overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1555212697-194d092e3b8f?w=400&h=200&fit=crop" alt="公交枢纽站商铺" class="asset-image w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">公交枢纽站商铺</h3>
+                        <span class="status-badge bg-green-100 text-green-800">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                            已出租
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-building-o text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">公交分公司</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-map-marker text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">市中心公交枢纽站</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-arrows-alt text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">80㎡</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-calendar text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">租期：2023-10-01 至 2024-09-30</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-money text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">租金：¥15,000/月</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex space-x-2">
+                        <button class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-eye mr-2"></i>
+                            详情
+                        </button>
+                        <button class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-edit mr-2"></i>
+                            编辑
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="asset-card bg-white rounded-xl shadow-sm overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop" alt="高铁站配套用房" class="asset-image w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">高铁站配套用房</h3>
+                        <span class="status-badge bg-yellow-100 text-yellow-800">
+                            <span class="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
+                            闲置中
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-building-o text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">高铁分公司</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-map-marker text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">高铁站旁</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-arrows-alt text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">450㎡</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-clock-o text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">闲置时间：3个月</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa fa-tag text-gray-500 w-5 text-center"></i>
+                            <span class="text-sm text-gray-600">建议租金：¥90/㎡/月</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex space-x-2">
+                        <button class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-eye mr-2"></i>
+                            详情
+                        </button>
+                        <button class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center">
+                            <i class="fa fa-edit mr-2"></i>
+                            编辑
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-center">
+            <nav class="flex items-center space-x-1">
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+                <button class="px-3 py-1 bg-blue-600 text-white rounded-lg">1</button>
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">2</button>
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">3</button>
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">4</button>
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">5</button>
+                <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加资产按钮点击事件
+            document.getElementById('add-asset-btn').addEventListener('click', function() {
+                const addAssetForm = `
+                    <form id="add-asset-form">
+                        <div class="form-group">
+                            <label class="form-label" for="asset-name">资产名称 <span class="text-red-500">*</span></label>
+                            <input type="text" id="asset-name" class="form-input" placeholder="请输入资产名称" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="asset-type">资产类型 <span class="text-red-500">*</span></label>
+                                <select id="asset-type" class="form-select" required>
+                                    <option value="">请选择资产类型</option>
+                                    <option value="building">房屋建筑</option>
+                                    <option value="equipment">设备设施</option>
+                                    <option value="land">土地</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="asset-unit">所属单位 <span class="text-red-500">*</span></label>
+                                <select id="asset-unit" class="form-select" required>
+                                    <option value="">请选择所属单位</option>
+                                    <option value="company1">第一客运分公司</option>
+                                    <option value="company2">第二客运分公司</option>
+                                    <option value="maintenance">维修分公司</option>
+                                    <option value="logistics">物流分公司</option>
+                                    <option value="bus">公交分公司</option>
+                                    <option value="highspeed">高铁分公司</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="asset-status">资产状态 <span class="text-red-500">*</span></label>
+                                <select id="asset-status" class="form-select" required>
+                                    <option value="">请选择资产状态</option>
+                                    <option value="rented">已出租</option>
+                                    <option value="idle">闲置中</option>
+                                    <option value="maintenance">维修中</option>
+                                    <option value="used">自用</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="asset-area">面积 (㎡)</label>
+                                <input type="number" id="asset-area" class="form-input" placeholder="请输入面积">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="asset-location">位置信息</label>
+                            <input type="text" id="asset-location" class="form-input" placeholder="请输入位置信息">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="asset-rent">租金 (元/月)</label>
+                                <input type="number" id="asset-rent" class="form-input" placeholder="请输入租金">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="asset-value">资产价值 (万元)</label>
+                                <input type="number" id="asset-value" class="form-input" placeholder="请输入资产价值">
+                            </div>
+                        </div>
+                        <div class="form-row" id="rental-fields">
+                            <div class="form-group">
+                                <label class="form-label" for="asset-rent-start">租期开始</label>
+                                <input type="date" id="asset-rent-start" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="asset-rent-end">租期结束</label>
+                                <input type="date" id="asset-rent-end" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="asset-description">资产描述</label>
+                            <textarea id="asset-description" class="form-input" rows="3" placeholder="请输入资产描述"></textarea>
+                        </div>
+                    </form>
+                `;
+
+                showModal({
+                    title: '添加资产',
+                    content: addAssetForm,
+                    onConfirm: function() {
+                        const form = document.getElementById('add-asset-form');
+                        if (form.checkValidity()) {
+                            const assetName = document.getElementById('asset-name').value;
+                            const assetType = document.getElementById('asset-type').value;
+                            const assetUnit = document.getElementById('asset-unit').value;
+                            
+                            // 模拟添加资产操作
+                            console.log('添加资产:', {
+                                name: assetName,
+                                type: assetType,
+                                unit: assetUnit
+                            });
+                            
+                            // 显示成功提示
+                            showModal({
+                                title: '添加成功',
+                                content: `<p class="text-green-600">资产 "${assetName}" 添加成功！</p>`,
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                        } else {
+                            // 表单验证失败
+                            form.reportValidity();
+                        }
+                    }
+                });
+
+                // 根据资产状态显示/隐藏租期字段
+                const statusSelect = document.getElementById('asset-status');
+                const rentalFields = document.getElementById('rental-fields');
+                
+                function toggleRentalFields() {
+                    if (statusSelect.value === 'rented') {
+                        rentalFields.style.display = 'grid';
+                    } else {
+                        rentalFields.style.display = 'none';
+                    }
+                }
+                
+                if (statusSelect) {
+                    statusSelect.addEventListener('change', toggleRentalFields);
+                    toggleRentalFields(); // 初始状态
+                }
+            });
+        });
+    </script>
+</body>
+</html>

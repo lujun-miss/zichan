@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">资产概览</h2>
+                    <p class="text-gray-600">实时监控资产状态和使用情况</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <select id="filter-type" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <option value="year">年度</option>
+                        <option value="quarter">季度</option>
+                        <option value="month">月度</option>
+                    </select>
+                    <div id="date-selectors">
+                        <!-- 年度选择器 -->
+                        <select id="year-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="2026">2026年</option>
+                            <option value="2025">2025年</option>
+                            <option value="2024">2024年</option>
+                            <option value="2023">2023年</option>
+                            <option value="2022">2022年</option>
+                        </select>
+                        <!-- 季度选择器（初始隐藏） -->
+                        <select id="quarter-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none hidden">
+                            <option value="1">第一季度</option>
+                            <option value="2">第二季度</option>
+                            <option value="3">第三季度</option>
+                            <option value="4">第四季度</option>
+                        </select>
+                        <!-- 月度选择器（初始隐藏） -->
+                        <select id="month-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none hidden">
+                            <option value="1">1月</option>
+                            <option value="2">2月</option>
+                            <option value="3">3月</option>
+                            <option value="4">4月</option>
+                            <option value="5">5月</option>
+                            <option value="6">6月</option>
+                            <option value="7">7月</option>
+                            <option value="8">8月</option>
+                            <option value="9">9月</option>
+                            <option value="10">10月</option>
+                            <option value="11">11月</option>
+                            <option value="12">12月</option>
+                        </select>
+                    </div>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">应用筛选</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center">
+                            <p class="text-sm font-medium text-gray-500">总资产数量</p>
+                            <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="total-assets-help">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">1,248</h3>
+                        <p class="text-sm text-green-600 mt-2">
+                            <i class="fa fa-arrow-up mr-1"></i>
+                            <span>5.2%</span>
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">环比增长：与上一周期相比增长5.2%</p>
+                        <p class="text-xs text-gray-400 mt-1">计算公式：各单位资产数量总和</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fa fa-cubes text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center">
+                            <p class="text-sm font-medium text-gray-500">出租率</p>
+                            <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="rental-rate-help">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">78.5%</h3>
+                        <p class="text-sm text-green-600 mt-2">
+                            <i class="fa fa-arrow-up mr-1"></i>
+                            <span>3.1%</span>
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">环比增长：与上一周期相比提升3.1个百分点</p>
+                        <p class="text-xs text-gray-400 mt-1">计算公式：已出租资产数量 ÷ 总资产数量 × 100%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fa fa-line-chart text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center">
+                            <p class="text-sm font-medium text-gray-500">闲置资产</p>
+                            <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="idle-assets-help">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">268</h3>
+                        <p class="text-sm text-red-600 mt-2">
+                            <i class="fa fa-arrow-up mr-1"></i>
+                            <span>2.8%</span>
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">环比增长：与上一周期相比增长2.8%（需关注）</p>
+                        <p class="text-xs text-gray-400 mt-1">计算公式：出租属性且状态为"闲置中"的资产数量</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fa fa-clock-o text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center">
+                            <p class="text-sm font-medium text-gray-500">盘活资产</p>
+                            <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="activated-assets-help">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">20</h3>
+                        <p class="text-sm text-red-600 mt-2">
+                            <i class="fa fa-arrow-down mr-1"></i>
+                            <span>-87.2%</span>
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">环比增长：与上一年相比下降87.2%</p>
+                        <p class="text-xs text-gray-400 mt-1">计算公式：盘活资产数量 = 上一年出租属性闲置资产数量 - 今年出租属性闲置资产数量</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fa fa-refresh text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold text-gray-800">资产出租率趋势</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="rentalTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <h3 class="font-semibold text-gray-800">资产状态分布</h3>
+                        <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="asset-status-help">
+                            <i class="fa fa-question-circle"></i>
+                        </span>
+                    </div>
+                    <button class="text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fa fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="assetStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-gray-800">最近资产动态</h3>
+                <button class="text-sm text-blue-600 hover:text-blue-800">查看全部</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产名称</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">所属单位</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <span>状态</span>
+                                    <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="asset-status-realtime-help">
+                                        <i class="fa fa-question-circle"></i>
+                                    </span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新时间</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">火车站东广场商铺</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">第一客运分公司</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已出租</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-800 mr-3">查看</button>
+                                <button class="text-green-600 hover:text-green-800">编辑</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">汽车站办公楼</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">第二客运分公司</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">闲置中</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-10</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-800 mr-3">查看</button>
+                                <button class="text-green-600 hover:text-green-800">编辑</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">维修车间</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">维修分公司</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">维修中</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-08</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-800 mr-3">查看</button>
+                                <button class="text-green-600 hover:text-green-800">编辑</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">物流仓库</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">物流分公司</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已出租</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-05</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-800 mr-3">查看</button>
+                                <button class="text-green-600 hover:text-green-800">编辑</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 统计数据
+            const statisticsData = {
+                year: {
+                    totalAssets: 1248,
+                    totalAssetsGrowth: '5.2%',
+                    rentalRate: '78.5%',
+                    rentalRateGrowth: '3.1%',
+                    idleAssets: 268,
+                    idleAssetsGrowth: '2.8%',
+                    activatedAssets: 156,
+                    activatedAssetsGrowth: '8.3%'
+                },
+                quarter: {
+                    totalAssets: 1235,
+                    totalAssetsGrowth: '2.1%',
+                    rentalRate: '77.8%',
+                    rentalRateGrowth: '1.2%',
+                    idleAssets: 272,
+                    idleAssetsGrowth: '1.5%',
+                    activatedAssets: 152,
+                    activatedAssetsGrowth: '3.4%'
+                },
+                month: {
+                    totalAssets: 1228,
+                    totalAssetsGrowth: '0.8%',
+                    rentalRate: '77.2%',
+                    rentalRateGrowth: '0.5%',
+                    idleAssets: 275,
+                    idleAssetsGrowth: '0.7%',
+                    activatedAssets: 150,
+                    activatedAssetsGrowth: '1.3%'
+                }
+            };
+
+            // 当前选中的统计周期和日期
+            let currentPeriod = 'year';
+            let currentYear = '2026';
+            let currentQuarter = '1';
+            let currentMonth = '1';
+            
+            // 图表数据
+            const chartData = {
+                year: {
+                    labels: ['2022年', '2023年', '2024年', '2025年', '2026年'],
+                    data: [72.5, 74.2, 76.8, 77.8, 78.5]
+                },
+                quarter: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    data: [76.2, 77.5, 78.5, 79.2]
+                },
+                month: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    data: [72, 74, 73, 76, 75, 78.5]
+                }
+            };
+
+            // 更新统计数据显示
+            function updateStatistics() {
+                const data = statisticsData[currentPeriod];
+                
+                // 更新总资产数量
+                document.querySelector('.stat-card:nth-child(1) h3').textContent = data.totalAssets.toLocaleString();
+                document.querySelector('.stat-card:nth-child(1) .text-green-600 span').textContent = data.totalAssetsGrowth;
+                document.querySelector('.stat-card:nth-child(1) .text-gray-400:nth-child(4)').textContent = `环比增长：与上一${currentPeriod === 'year' ? '年度' : currentPeriod === 'quarter' ? '季度' : '月度'}相比增长${data.totalAssetsGrowth}`;
+                
+                // 更新出租率
+                document.querySelector('.stat-card:nth-child(2) h3').textContent = data.rentalRate;
+                document.querySelector('.stat-card:nth-child(2) .text-green-600 span').textContent = data.rentalRateGrowth;
+                document.querySelector('.stat-card:nth-child(2) .text-gray-400:nth-child(4)').textContent = `环比增长：与上一${currentPeriod === 'year' ? '年度' : currentPeriod === 'quarter' ? '季度' : '月度'}相比提升${data.rentalRateGrowth}`;
+                
+                // 更新闲置资产
+                document.querySelector('.stat-card:nth-child(3) h3').textContent = data.idleAssets;
+                document.querySelector('.stat-card:nth-child(3) .text-red-600 span').textContent = data.idleAssetsGrowth;
+                document.querySelector('.stat-card:nth-child(3) .text-gray-400:nth-child(4)').textContent = `环比增长：与上一${currentPeriod === 'year' ? '年度' : currentPeriod === 'quarter' ? '季度' : '月度'}相比增长${data.idleAssetsGrowth}（需关注）`;
+                document.querySelector('.stat-card:nth-child(3) .text-gray-400:nth-child(5)').textContent = `计算公式：出租属性且状态为"闲置中"的资产数量`;
+                
+                // 更新盘活资产（使用正确的计算公式）
+                document.querySelector('.stat-card:nth-child(4) h3').textContent = '20';
+                document.querySelector('.stat-card:nth-child(4) .text-red-600 span').textContent = '-87.2%';
+                document.querySelector('.stat-card:nth-child(4) .text-gray-400:nth-child(4)').textContent = `环比增长：与上一${currentPeriod === 'year' ? '年度' : currentPeriod === 'quarter' ? '季度' : '月度'}相比下降87.2%`;
+                document.querySelector('.stat-card:nth-child(4) .text-gray-400:nth-child(5)').textContent = `计算公式：盘活资产数量 = 上一${currentPeriod === 'year' ? '年度' : currentPeriod === 'quarter' ? '季度' : '月度'}出租属性闲置资产数量 - 本${currentPeriod === 'year' ? '年度' : currentPeriod === 'quarter' ? '季度' : '月度'}出租属性闲置资产数量`;
+                
+                // 更新图表数据
+                updateRentalTrendChart();
+            }
+            
+            // 更新出租率趋势图表
+            function updateRentalTrendChart() {
+                const currentChartData = chartData[currentPeriod];
+                rentalTrendChart.data.labels = currentChartData.labels;
+                rentalTrendChart.data.datasets[0].data = currentChartData.data;
+                rentalTrendChart.update();
+            }
+
+            // 筛选类型切换事件
+            document.getElementById('filter-type').addEventListener('change', function() {
+                currentPeriod = this.value;
+                
+                // 显示对应的日期选择器
+                const yearSelect = document.getElementById('year-select');
+                const quarterSelect = document.getElementById('quarter-select');
+                const monthSelect = document.getElementById('month-select');
+                
+                yearSelect.classList.remove('hidden');
+                quarterSelect.classList.add('hidden');
+                monthSelect.classList.add('hidden');
+                
+                if (currentPeriod === 'quarter') {
+                    quarterSelect.classList.remove('hidden');
+                } else if (currentPeriod === 'month') {
+                    monthSelect.classList.remove('hidden');
+                }
+                
+                updateStatistics();
+            });
+
+            // 应用筛选按钮事件
+            document.querySelector('.bg-blue-600.text-white').addEventListener('click', function() {
+                currentYear = document.getElementById('year-select').value;
+                currentQuarter = document.getElementById('quarter-select').value;
+                currentMonth = document.getElementById('month-select').value;
+                
+                // 更新统计数据（实际应用中应该根据选择的日期获取对应数据）
+                updateStatistics();
+                
+                // 显示筛选结果提示
+                let periodText = '';
+                if (currentPeriod === 'year') {
+                    periodText = `${currentYear}年`;
+                } else if (currentPeriod === 'quarter') {
+                    periodText = `${currentYear}年第${currentQuarter}季度`;
+                } else {
+                    periodText = `${currentYear}年${currentMonth}月`;
+                }
+                
+                showNotification(`已切换至${periodText}数据`);
+            });
+
+            // 显示通知
+            function showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+            
+            // 显示详细资产列表
+            function showAssetDetails(type) {
+                let title = '';
+                let content = '';
+                const periodText = currentPeriod === 'year' ? '年度' : currentPeriod === 'quarter' ? '季度' : '月度';
+                
+                switch(type) {
+                    case 'total':
+                        title = '总资产详细信息';
+                        content = `
+                            <div class="space-y-4">
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                    <h4 class="font-semibold text-blue-800 mb-2">统计范围</h4>
+                                    <p class="text-sm text-blue-700">显示${currentYear}年${currentPeriod === 'quarter' ? `第${currentQuarter}季度` : currentPeriod === 'month' ? `${currentMonth}月` : ''}的所有资产信息</p>
+                                </div>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产名称</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">面积</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex items-center">
+                                                        <span>状态</span>
+                                                        <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="asset-status-column-help">
+                                                            <i class="fa fa-question-circle"></i>
+                                                        </span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出租属性</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">火车站东广场商铺</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">房屋建筑</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">120㎡</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已出租</span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">出租</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">客运站办公楼</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">房屋建筑</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">850㎡</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">闲置中</span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">非出租</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">物流仓库</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">房屋建筑</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1500㎡</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已出租</span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">出租</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="text-center text-sm text-gray-500">
+                                    共显示3条记录，总计1,248项资产
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    
+                    case 'rental':
+                        title = '出租资产详细信息';
+                        content = `
+                            <div class="space-y-4">
+                                <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                                    <h4 class="font-semibold text-green-800 mb-2">统计范围</h4>
+                                    <p class="text-sm text-green-700">显示${currentYear}年${currentPeriod === 'quarter' ? `第${currentQuarter}季度` : currentPeriod === 'month' ? `${currentMonth}月` : ''}的已出租资产信息</p>
+                                </div>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产名称</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">面积</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">租金</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单位</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">火车站东广场商铺</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">房屋建筑</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">120㎡</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">¥12,000/月</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">第一客运分公司</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">物流仓库</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">房屋建筑</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1500㎡</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">¥30,000/月</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">物流分公司</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="text-center text-sm text-gray-500">
+                                    共显示2条记录，出租率78.5%
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    
+                    case 'idle':
+                        title = '闲置资产详细信息';
+                        content = `
+                            <div class="space-y-4">
+                                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                                    <h4 class="font-semibold text-yellow-800 mb-2">统计范围</h4>
+                                    <p class="text-sm text-yellow-700">显示${currentYear}年${currentPeriod === 'quarter' ? `第${currentQuarter}季度` : currentPeriod === 'month' ? `${currentMonth}月` : ''}的闲置资产信息（仅出租属性）</p>
+                                </div>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产名称</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">面积</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单位</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">客运站办公楼</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">房屋建筑</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">850㎡</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">第一客运分公司</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">第二客运分公司仓库</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">房屋建筑</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1200㎡</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">第二客运分公司</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="text-center text-sm text-gray-500">
+                                    共显示2条记录，总计268项闲置资产
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    
+                    case 'activated':
+                        title = '盘活资产详细信息';
+                        content = `
+                            <div class="space-y-4">
+                                <div class="bg-purple-50 border-l-4 border-purple-500 p-4">
+                                    <h4 class="font-semibold text-purple-800 mb-2">统计范围</h4>
+                                    <p class="text-sm text-purple-700">显示${currentYear}年${currentPeriod === 'quarter' ? `第${currentQuarter}季度` : currentPeriod === 'month' ? `${currentMonth}月` : ''}的盘活资产信息</p>
+                                </div>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产名称</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">面积</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单位</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">盘活时间</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">公交总站商铺</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">房屋建筑</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">200㎡</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">公交分公司</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2026年2月</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="text-center text-sm text-gray-500">
+                                    共显示1条记录，总计20项盘活资产
+                                </div>
+                            </div>
+                        `;
+                        break;
+                }
+                
+                showModal({
+                    title: title,
+                    content: content,
+                    showCancelButton: true,
+                    confirmButtonText: '关闭'
+                });
+            }
+
+            // 模态框函数
+            function showModal(options) {
+                const { title, content, showCancelButton = true, confirmButtonText = '确定', cancelButtonText = '取消', onConfirm, onCancel } = options;
+                
+                // 创建模态框背景
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modalOverlay.id = 'modal-overlay';
+                
+                // 创建模态框内容
+                const modal = document.createElement('div');
+                modal.className = 'bg-white rounded-xl shadow-xl max-w-4xl w-full mx-4';
+                
+                // 模态框头部
+                const modalHeader = document.createElement('div');
+                modalHeader.className = 'border-b border-gray-200 px-6 py-4';
+                modalHeader.innerHTML = `<h3 class="text-lg font-semibold text-gray-900">${title}</h3>`;
+                
+                // 模态框内容
+                const modalBody = document.createElement('div');
+                modalBody.className = 'px-6 py-4';
+                modalBody.innerHTML = content;
+                
+                // 模态框底部
+                const modalFooter = document.createElement('div');
+                modalFooter.className = 'border-t border-gray-200 px-6 py-4 flex justify-end space-x-3';
+                
+                if (showCancelButton) {
+                    const cancelButton = document.createElement('button');
+                    cancelButton.className = 'px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors';
+                    cancelButton.textContent = cancelButtonText;
+                    cancelButton.addEventListener('click', function() {
+                        document.body.removeChild(modalOverlay);
+                        if (onCancel) onCancel();
+                    });
+                    modalFooter.appendChild(cancelButton);
+                }
+                
+                const confirmButton = document.createElement('button');
+                confirmButton.className = 'px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors';
+                confirmButton.textContent = confirmButtonText;
+                confirmButton.addEventListener('click', function() {
+                    document.body.removeChild(modalOverlay);
+                    if (onConfirm) onConfirm();
+                });
+                modalFooter.appendChild(confirmButton);
+                
+                // 组装模态框
+                modal.appendChild(modalHeader);
+                modal.appendChild(modalBody);
+                modal.appendChild(modalFooter);
+                modalOverlay.appendChild(modal);
+                
+                // 添加到页面
+                document.body.appendChild(modalOverlay);
+                
+                // 点击背景关闭
+                modalOverlay.addEventListener('click', function(e) {
+                    if (e.target === modalOverlay) {
+                        document.body.removeChild(modalOverlay);
+                        if (onCancel) onCancel();
+                    }
+                });
+            }
+
+            // 盘活资产帮助信息点击事件
+            document.getElementById('activated-assets-help').addEventListener('click', function() {
+                showModal({
+                    title: '盘活资产说明',
+                    content: `
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                <h4 class="font-semibold text-blue-800 mb-2">盘活资产定义</h4>
+                                <p class="text-sm text-blue-700">盘活资产数量 = 上一周期出租属性闲置资产数量 - 本周期出租属性闲置资产数量</p>
+                            </div>
+                            
+                            <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                                <h4 class="font-semibold text-green-800 mb-2">环比增长率计算</h4>
+                                <p class="text-sm text-green-700">环比增长率 = (本周期出租属性盘活资产数量 - 上一周期出租属性盘活资产数量) / 上一周期出租属性盘活资产数量 × 100%</p>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <p class="text-sm font-medium text-gray-800">判断规则：</p>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
+                                    <li>上半年出租，下半年没有出租不算盘活</li>
+                                    <li>关键看统计周期结束时的状态（年底/季度末/月末）</li>
+                                    <li>若周期结束时资产处于"闲置"状态，则计入本周期闲置资产数量，不算盘活</li>
+                                    <li>此规则适用于年度、季度、月度统计</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>核心要点：</strong>盘活资产以周期结束时的状态为准，而非期间的变化。
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '我知道了'
+                });
+            });
+
+            // 闲置资产帮助信息点击事件
+            document.getElementById('idle-assets-help').addEventListener('click', function() {
+                showModal({
+                    title: '闲置资产说明',
+                    content: `
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                <h4 class="font-semibold text-blue-800 mb-2">闲置资产定义</h4>
+                                <p class="text-sm text-blue-700">闲置资产数量 = 出租属性且状态为"闲置中"的资产数量</p>
+                            </div>
+                            
+                            <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                                <h4 class="font-semibold text-green-800 mb-2">环比增长率计算</h4>
+                                <p class="text-sm text-green-700">环比增长率 = (本周期闲置资产数量 - 上一周期闲置资产数量) / 上一周期闲置资产数量 × 100%</p>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>统计范围：</strong>仅统计具有"出租"属性的闲置资产，非出租属性的资产不计入闲置资产统计。
+                                </p>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <p class="text-sm font-medium text-gray-800">说明：</p>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
+                                    <li>闲置资产是盘活资产计算的基础数据</li>
+                                    <li>盘活资产数量 = 上一周期闲置资产数量 - 本周期闲置资产数量</li>
+                                    <li>闲置资产增加表示资产利用率下降，需关注</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '我知道了'
+                });
+            });
+
+            // 出租率帮助信息点击事件
+            document.getElementById('rental-rate-help').addEventListener('click', function() {
+                showModal({
+                    title: '出租率说明',
+                    content: `
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                <h4 class="font-semibold text-blue-800 mb-2">出租率定义</h4>
+                                <p class="text-sm text-blue-700">出租率 = 已出租资产数量 ÷ 总资产数量 × 100%</p>
+                            </div>
+                            
+                            <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                                <h4 class="font-semibold text-green-800 mb-2">环比增长计算</h4>
+                                <p class="text-sm text-green-700">环比增长 = 本周期出租率 - 上一周期出租率</p>
+                                <p class="text-sm text-green-700 mt-1">注：出租率环比增长以"百分点"为单位</p>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <p class="text-sm font-medium text-gray-800">说明：</p>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
+                                    <li>已出租资产：状态为"已出租"的资产</li>
+                                    <li>总资产数量：所有具有"出租"属性的资产总数</li>
+                                    <li>出租率反映资产利用效率，越高越好</li>
+                                    <li>环比增长为正表示资产利用率提升</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '我知道了'
+                });
+            });
+
+            // 总资产数量帮助信息点击事件
+            document.getElementById('total-assets-help').addEventListener('click', function() {
+                showModal({
+                    title: '总资产数量说明',
+                    content: `
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                <h4 class="font-semibold text-blue-800 mb-2">总资产数量定义</h4>
+                                <p class="text-sm text-blue-700">总资产数量 = 各单位资产数量总和</p>
+                            </div>
+                            
+                            <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                                <h4 class="font-semibold text-green-800 mb-2">环比增长率计算</h4>
+                                <p class="text-sm text-green-700">环比增长率 = (本周期总资产数量 - 上一周期总资产数量) / 上一周期总资产数量 × 100%</p>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <p class="text-sm font-medium text-gray-800">说明：</p>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
+                                    <li>统计所有单位的资产数量总和</li>
+                                    <li>不分出租属性，包含所有类型的资产</li>
+                                    <li>反映公司整体资产规模</li>
+                                    <li>环比增长为正表示资产规模扩大</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '我知道了'
+                });
+            });
+
+            // 资产状态分布帮助信息点击事件
+            document.getElementById('asset-status-help').addEventListener('click', function() {
+                showModal({
+                    title: '资产状态分布说明',
+                    content: `
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                <h4 class="font-semibold text-blue-800 mb-2">数据说明</h4>
+                                <p class="text-sm text-blue-700">本图表展示的是实时的、当前状态的资产分布情况</p>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <p class="text-sm font-medium text-gray-800">状态分类：</p>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
+                                    <li><span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>已出租：当前处于出租状态的资产</li>
+                                    <li><span class="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>闲置中：当前未出租且可出租的资产</li>
+                                    <li><span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>维修中：正在维修无法使用的资产</li>
+                                    <li><span class="inline-block w-3 h-3 bg-gray-400 rounded-full mr-2"></span>自用：公司内部使用的资产</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>注意：</strong>本数据不随时间周期筛选变化，始终显示当前最新的资产状态分布。
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '我知道了'
+                });
+            });
+
+            // 状态列帮助信息点击事件（委托事件，因为元素是动态生成的）
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('#asset-status-column-help')) {
+                    showModal({
+                        title: '资产状态说明',
+                        content: `
+                            <div class="space-y-4">
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                    <h4 class="font-semibold text-blue-800 mb-2">状态定义</h4>
+                                    <p class="text-sm text-blue-700">以下是资产状态的详细说明，基于当前所选时间段的数据</p>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <p class="text-sm font-medium text-gray-800">状态分类：</p>
+                                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
+                                        <li><span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>已出租：在所选时间段内处于出租状态的资产</li>
+                                        <li><span class="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>闲置中：在所选时间段内未出租且可出租的资产</li>
+                                        <li><span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>维修中：在所选时间段内正在维修无法使用的资产</li>
+                                        <li><span class="inline-block w-3 h-3 bg-gray-400 rounded-full mr-2"></span>自用：在所选时间段内公司内部使用的资产</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                                    <p class="text-sm text-yellow-700">
+                                        <strong>注意：</strong>此处显示的状态是所选时间段（如2026年）的历史状态，而非当前实时状态。
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        showCancelButton: false,
+                        confirmButtonText: '我知道了'
+                    });
+                } else if (e.target.closest('#asset-status-realtime-help')) {
+                    showModal({
+                        title: '资产实时状态说明',
+                        content: `
+                            <div class="space-y-4">
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                                    <h4 class="font-semibold text-blue-800 mb-2">状态定义</h4>
+                                    <p class="text-sm text-blue-700">以下是资产实时状态的详细说明</p>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <p class="text-sm font-medium text-gray-800">状态分类：</p>
+                                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
+                                        <li><span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>已出租：当前处于出租状态的资产</li>
+                                        <li><span class="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>闲置中：当前未出租且可出租的资产</li>
+                                        <li><span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>维修中：当前正在维修无法使用的资产</li>
+                                        <li><span class="inline-block w-3 h-3 bg-gray-400 rounded-full mr-2"></span>自用：当前公司内部使用的资产</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                                    <p class="text-sm text-green-700">
+                                        <strong>注意：</strong>此处显示的是资产的实时状态，反映当前最新的资产状态信息。
+                                    </p>
+                                </div>
+                            </div>
+                        `,
+                        showCancelButton: false,
+                        confirmButtonText: '我知道了'
+                    });
+                }
+            });
+
+            // 为统计卡片添加点击事件
+            document.querySelector('.stat-card:nth-child(1)').addEventListener('click', function(e) {
+                if (!e.target.closest('#total-assets-help')) {
+                    showAssetDetails('total');
+                }
+            });
+            
+            document.querySelector('.stat-card:nth-child(2)').addEventListener('click', function(e) {
+                if (!e.target.closest('#rental-rate-help')) {
+                    showAssetDetails('rental');
+                }
+            });
+            
+            document.querySelector('.stat-card:nth-child(3)').addEventListener('click', function(e) {
+                if (!e.target.closest('#idle-assets-help')) {
+                    showAssetDetails('idle');
+                }
+            });
+            
+            document.querySelector('.stat-card:nth-child(4)').addEventListener('click', function(e) {
+                if (!e.target.closest('#activated-assets-help')) {
+                    showAssetDetails('activated');
+                }
+            });
+
+            // 初始化图表
+            const rentalTrendCtx = document.getElementById('rentalTrendChart').getContext('2d');
+            let rentalTrendChart = new Chart(rentalTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: chartData.year.labels,
+                    datasets: [{
+                        label: '出租率',
+                        data: chartData.year.data,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 60,
+                            max: 90,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const assetStatusCtx = document.getElementById('assetStatusChart').getContext('2d');
+            const assetStatusChart = new Chart(assetStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['已出租', '闲置中', '维修中', '自用'],
+                    datasets: [{
+                        data: [78.5, 20.5, 0.8, 0.2],
+                        backgroundColor: [
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#6b7280'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        });
+    </script>
+</body>
+</html>

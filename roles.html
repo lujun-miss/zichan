@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="modal.js"></script>
+    <style>
+        .role-row {
+            transition: all 0.2s ease;
+        }
+        .role-row:hover {
+            background-color: #f9fafb;
+        }
+        .permission-checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .permission-checkbox input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+        .permission-group {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+        }
+        .permission-group-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background-color: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge-purple {
+            background-color: #f3e8ff;
+            color: #7e22ce;
+        }
+        .badge-blue {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        .badge-green {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+        .badge-yellow {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">角色管理</h2>
+            <p class="text-gray-600">管理系统角色和权限设置</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
+                    <div class="relative">
+                        <input type="text" placeholder="搜索角色..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <button id="add-role-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                    <i class="fa fa-plus mr-2"></i>
+                    创建角色
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">角色名称</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">描述</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roles-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- 角色列表将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 模拟当前登录用户信息
+            const currentUser = {
+                username: 'admin',
+                unit: '系统管理员',
+                role: 'super_admin'
+            };
+
+            // 权限定义
+            const permissions = [
+                {
+                    group: '首页管理',
+                    permissions: [
+                        { id: 'home_view', name: '查看首页统计' },
+                        { id: 'home_export', name: '导出统计数据' }
+                    ]
+                },
+                {
+                    group: '单位管理',
+                    permissions: [
+                        { id: 'unit_view', name: '查看单位列表' },
+                        { id: 'unit_add', name: '添加单位' },
+                        { id: 'unit_edit', name: '编辑单位' },
+                        { id: 'unit_delete', name: '删除单位' }
+                    ]
+                },
+                {
+                    group: '资产信息',
+                    permissions: [
+                        { id: 'asset_view', name: '查看资产列表' },
+                        { id: 'asset_add', name: '添加资产' },
+                        { id: 'asset_edit', name: '编辑资产' },
+                        { id: 'asset_delete', name: '删除资产' },
+                        { id: 'asset_import', name: '导入资产' },
+                        { id: 'asset_export', name: '导出资产' }
+                    ]
+                },
+                {
+                    group: '报表统计',
+                    permissions: [
+                        { id: 'report_view', name: '查看报表' },
+                        { id: 'report_export', name: '导出报表' },
+                        { id: 'report_print', name: '打印报表' }
+                    ]
+                },
+                {
+                    group: '用户管理',
+                    permissions: [
+                        { id: 'user_view', name: '查看用户列表' },
+                        { id: 'user_add', name: '添加用户' },
+                        { id: 'user_edit', name: '编辑用户' },
+                        { id: 'user_delete', name: '删除用户' },
+                        { id: 'user_reset', name: '重置密码' }
+                    ]
+                },
+                {
+                    group: '角色管理',
+                    permissions: [
+                        { id: 'role_view', name: '查看角色列表' },
+                        { id: 'role_add', name: '添加角色' },
+                        { id: 'role_edit', name: '编辑角色' },
+                        { id: 'role_delete', name: '删除角色' }
+                    ]
+                }
+            ];
+
+            // 角色数据
+            const roles = [
+                {
+                    id: 'super_admin',
+                    name: '超级管理员',
+                    description: '拥有系统所有权限',
+                    permissions: permissions.flatMap(group => group.permissions.map(p => p.id)),
+                    color: 'purple',
+                    userCount: 1
+                },
+                {
+                    id: 'unit_admin',
+                    name: '单位管理员',
+                    description: '管理本单位的资产和用户',
+                    permissions: [
+                        'home_view',
+                        'unit_view',
+                        'asset_view',
+                        'asset_add',
+                        'asset_edit',
+                        'asset_delete',
+                        'report_view',
+                        'user_view',
+                        'user_add',
+                        'user_edit'
+                    ],
+                    color: 'blue',
+                    userCount: 2
+                },
+                {
+                    id: 'operator',
+                    name: '单位操作员',
+                    description: '操作本单位资产',
+                    permissions: [
+                        'home_view',
+                        'asset_view',
+                        'asset_add',
+                        'asset_edit',
+                        'report_view'
+                    ],
+                    color: 'green',
+                    userCount: 1
+                },
+                {
+                    id: 'viewer',
+                    name: '单位查看员',
+                    description: '查看本单位资产',
+                    permissions: [
+                        'home_view',
+                        'asset_view',
+                        'report_view'
+                    ],
+                    color: 'yellow',
+                    userCount: 1
+                }
+            ];
+
+            // 渲染角色列表
+            function renderRoles() {
+                const tableBody = document.getElementById('roles-table-body');
+                tableBody.innerHTML = '';
+
+                roles.forEach(role => {
+                    const row = document.createElement('tr');
+                    row.className = 'role-row';
+                    
+                    let badgeClass = '';
+                    if (role.color === 'purple') badgeClass = 'badge-purple';
+                    else if (role.color === 'blue') badgeClass = 'badge-blue';
+                    else if (role.color === 'green') badgeClass = 'badge-green';
+                    else if (role.color === 'yellow') badgeClass = 'badge-yellow';
+
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="text-sm font-medium text-gray-900">${role.name}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-600">${role.description}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-role-btn" data-id="${role.id}">
+                                <i class="fa fa-edit mr-1"></i>编辑
+                            </button>
+                            <button class="text-red-600 hover:text-red-900 delete-role-btn" data-id="${role.id}">
+                                <i class="fa fa-trash mr-1"></i>删除
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            // 初始化渲染
+            renderRoles();
+
+            // 创建角色按钮点击事件
+            document.getElementById('add-role-btn').addEventListener('click', function() {
+                if (currentUser.role !== 'super_admin') {
+                    showModal({
+                        title: '权限不足',
+                        content: '<p class="text-red-600">只有超级管理员可以创建角色！</p>',
+                        showCancelButton: false,
+                        confirmButtonText: '确定'
+                    });
+                    return;
+                }
+
+                let permissionHTML = '';
+                permissions.forEach(group => {
+                    permissionHTML += `
+                        <div class="permission-group">
+                            <div class="permission-group-title">${group.group}</div>
+                            ${group.permissions.map(p => `
+                                <div class="permission-checkbox">
+                                    <input type="checkbox" id="perm_${p.id}" value="${p.id}">
+                                    <label for="perm_${p.id}">${p.name}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                });
+
+                const addRoleForm = `
+                    <form id="add-role-form">
+                        <div class="form-group">
+                            <label class="form-label" for="role-name">角色名称 <span class="text-red-500">*</span></label>
+                            <input type="text" id="role-name" class="form-input" placeholder="请输入角色名称" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="role-description">角色描述</label>
+                            <textarea id="role-description" class="form-input" rows="3" placeholder="请输入角色描述"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">权限设置</label>
+                            ${permissionHTML}
+                        </div>
+                    </form>
+                `;
+
+                showModal({
+                    title: '创建角色',
+                    content: addRoleForm,
+                    onConfirm: function() {
+                        const form = document.getElementById('add-role-form');
+                        if (form.checkValidity()) {
+                            const name = document.getElementById('role-name').value;
+                            const description = document.getElementById('role-description').value;
+                            const selectedPermissions = [];
+                            
+                            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                                selectedPermissions.push(checkbox.value);
+                            });
+
+                            // 模拟创建角色
+                            const newRole = {
+                                id: 'role_' + Date.now(),
+                                name: name,
+                                description: description || '无描述',
+                                permissions: selectedPermissions,
+                                color: 'blue',
+                                userCount: 0
+                            };
+
+                            roles.push(newRole);
+                            renderRoles();
+
+                            showModal({
+                                title: '创建成功',
+                                content: `<p class="text-green-600">角色 "${name}" 创建成功！</p>`,
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                        } else {
+                            form.reportValidity();
+                        }
+                    }
+                });
+            });
+
+            // 编辑角色按钮点击事件
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('edit-role-btn') || e.target.closest('.edit-role-btn')) {
+                    const btn = e.target.classList.contains('edit-role-btn') ? e.target : e.target.closest('.edit-role-btn');
+                    const roleId = btn.dataset.id;
+                    const role = roles.find(r => r.id === roleId);
+
+                    if (role) {
+                        if (currentUser.role !== 'super_admin') {
+                            showModal({
+                                title: '权限不足',
+                                content: '<p class="text-red-600">只有超级管理员可以编辑角色！</p>',
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                            return;
+                        }
+
+                        let permissionHTML = '';
+                        permissions.forEach(group => {
+                            permissionHTML += `
+                                <div class="permission-group">
+                                    <div class="permission-group-title">${group.group}</div>
+                                    ${group.permissions.map(p => `
+                                        <div class="permission-checkbox">
+                                            <input type="checkbox" id="edit_perm_${p.id}" value="${p.id}" ${role.permissions.includes(p.id) ? 'checked' : ''}>
+                                            <label for="edit_perm_${p.id}">${p.name}</label>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                        });
+
+                        const editRoleForm = `
+                            <form id="edit-role-form">
+                                <div class="form-group">
+                                    <label class="form-label" for="edit-role-name">角色名称 <span class="text-red-500">*</span></label>
+                                    <input type="text" id="edit-role-name" class="form-input" value="${role.name}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="edit-role-description">角色描述</label>
+                                    <textarea id="edit-role-description" class="form-input" rows="3">${role.description}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">权限设置</label>
+                                    ${permissionHTML}
+                                </div>
+                            </form>
+                        `;
+
+                        showModal({
+                            title: '编辑角色',
+                            content: editRoleForm,
+                            onConfirm: function() {
+                                const form = document.getElementById('edit-role-form');
+                                if (form.checkValidity()) {
+                                    const name = document.getElementById('edit-role-name').value;
+                                    const description = document.getElementById('edit-role-description').value;
+                                    const selectedPermissions = [];
+                                    
+                                    document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                                        selectedPermissions.push(checkbox.value);
+                                    });
+
+                                    // 更新角色数据
+                                    role.name = name;
+                                    role.description = description || '无描述';
+                                    role.permissions = selectedPermissions;
+
+                                    renderRoles();
+
+                                    showModal({
+                                        title: '编辑成功',
+                                        content: `<p class="text-green-600">角色 "${name}" 编辑成功！</p>`,
+                                        showCancelButton: false,
+                                        confirmButtonText: '确定'
+                                    });
+                                } else {
+                                    form.reportValidity();
+                                }
+                            }
+                        });
+                    }
+                } else if (e.target.classList.contains('delete-role-btn') || e.target.closest('.delete-role-btn')) {
+                    const btn = e.target.classList.contains('delete-role-btn') ? e.target : e.target.closest('.delete-role-btn');
+                    const roleId = btn.dataset.id;
+                    const role = roles.find(r => r.id === roleId);
+
+                    if (role) {
+                        if (currentUser.role !== 'super_admin') {
+                            showModal({
+                                title: '权限不足',
+                                content: '<p class="text-red-600">只有超级管理员可以删除角色！</p>',
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                            return;
+                        }
+
+                        // 系统内置角色不能删除
+                        if (['super_admin', 'unit_admin', 'operator', 'viewer'].includes(role.id)) {
+                            showModal({
+                                title: '无法删除',
+                                content: '<p class="text-red-600">系统内置角色不能删除！</p>',
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                            return;
+                        }
+
+                        // 有用户使用的角色不能删除
+                        if (role.userCount > 0) {
+                            showModal({
+                                title: '无法删除',
+                                content: `<p class="text-red-600">该角色已有 ${role.userCount} 个用户使用，无法删除！</p>`,
+                                showCancelButton: false,
+                                confirmButtonText: '确定'
+                            });
+                            return;
+                        }
+
+                        showModal({
+                            title: '删除角色',
+                            content: `<p>确定要删除角色 "${role.name}" 吗？</p>`,
+                            onConfirm: function() {
+                                // 删除角色
+                                const index = roles.findIndex(r => r.id === roleId);
+                                if (index > -1) {
+                                    roles.splice(index, 1);
+                                    renderRoles();
+                                }
+
+                                showModal({
+                                    title: '删除成功',
+                                    content: `<p class="text-green-600">角色 "${role.name}" 删除成功！</p>`,
+                                    showCancelButton: false,
+                                    confirmButtonText: '确定'
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+
+            // 搜索功能
+            const searchInput = document.querySelector('input[placeholder="搜索角色..."]');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const roleRows = document.querySelectorAll('.role-row');
+
+                roleRows.forEach(row => {
+                    const roleName = row.querySelector('td:first-child .text-sm').textContent.toLowerCase();
+                    const roleDesc = row.querySelector('td:nth-child(2) .text-sm').textContent.toLowerCase();
+                    
+                    if (roleName.includes(searchTerm) || roleDesc.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
