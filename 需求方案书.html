@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产管理OA系统需求方案书</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 20px;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }
+        h3 {
+            font-size: 18px;
+            margin-left: 20px;
+        }
+        h4 {
+            font-size: 16px;
+            margin-left: 40px;
+        }
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        ul, ol {
+            margin-left: 40px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 20px 0;
+        }
+        .module {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <h1>资产管理OA系统需求方案书</h1>
+
+    <h2>1. 项目概述</h2>
+
+    <h3>1.1 项目背景</h3>
+    <p>随着交通集团资产规模的不断扩大，资产管理工作面临着日益复杂的挑战。传统的资产管理方式已经无法满足现代化管理的需求，需要建立一个集中化、规范化、智能化的资产管理OA系统，实现资产的全生命周期管理。</p>
+
+    <h3>1.2 项目目标</h3>
+    <ul>
+        <li>建立统一的资产管理平台，实现资产信息的集中管理</li>
+        <li>优化资产管理流程，提高管理效率和决策水平</li>
+        <li>实现资产的动态监控和实时统计分析</li>
+        <li>支持多维度的资产报表生成和数据导出</li>
+        <li>建立完善的用户权限管理体系</li>
+    </ul>
+
+    <h3>1.3 系统架构</h3>
+    <p>系统采用HTML+Tailwind CSS构建现代化界面，使用模块化JavaScript实现交互功能，通过iframe嵌套实现页面切换。系统采用响应式设计，适配桌面端和移动端设备。</p>
+
+    <h2>2. 功能需求</h2>
+
+    <h3>2.1 系统主页 (index.html)</h3>
+    <div class="module">
+        <h4>功能模块</h4>
+        <ul>
+            <li><strong>系统导航</strong>：左侧固定导航菜单，包含系统所有功能模块入口</li>
+            <li><strong>用户信息</strong>：顶部显示当前登录用户信息，包括用户名和邮箱</li>
+            <li><strong>内容区域</strong>：使用iframe加载各功能页面，实现无刷新页面切换</li>
+            <li><strong>响应式设计</strong>：适配不同屏幕尺寸，移动端支持菜单折叠</li>
+        </ul>
+
+        <h4>导航菜单结构</h4>
+        <ul>
+            <li>首页管理</li>
+            <li>单位管理</li>
+            <li>资产信息（子菜单：各单位列表）</li>
+            <li>报表统计（子菜单：统计报表、资产统计）</li>
+            <li>用户管理</li>
+            <li>角色管理</li>
+        </ul>
+    </div>
+
+    <h3>2.2 首页管理 (home.html)</h3>
+    <div class="module">
+        <h4>功能模块</h4>
+        <ul>
+            <li><strong>资产概览</strong>：显示核心统计指标卡片
+                <ul>
+                    <li>总资产数量：各单位资产数量总和</li>
+                    <li>出租率：已出租资产数量 ÷ 总资产数量 × 100%</li>
+                    <li>闲置资产：出租属性且状态为"闲置中"的资产数量</li>
+                    <li>盘活资产：上一周期出租属性闲置资产数量 - 本周期出租属性闲置资产数量</li>
+                </ul>
+            </li>
+            <li><strong>筛选功能</strong>：支持按年度、季度、月度进行数据筛选
+                <ul>
+                    <li>年度筛选：选择具体年份（2022-2026年）</li>
+                    <li>季度筛选：选择具体季度（Q1-Q4）</li>
+                    <li>月度筛选：选择具体月份（1-12月）</li>
+                </ul>
+            </li>
+            <li><strong>图表展示</strong>：
+                <ul>
+                    <li>资产出租率趋势图：展示不同周期的出租率变化</li>
+                    <li>资产状态分布图：展示当前资产状态分布情况</li>
+                </ul>
+            </li>
+            <li><strong>最近资产动态</strong>：展示最近更新的资产信息，包括资产名称、所属单位、状态、更新时间等</li>
+        </ul>
+
+        <h4>交互功能</h4>
+        <ul>
+            <li>点击统计卡片可查看详细资产信息</li>
+            <li>问号图标悬停显示计算公式和备注说明</li>
+            <li>点击问号图标弹出详细说明模态框</li>
+            <li>筛选条件变更后实时更新统计数据和图表</li>
+        </ul>
+    </div>
+
+    <h3>2.3 单位管理 (units.html)</h3>
+    <div class="module">
+        <h4>功能模块</h4>
+        <ul>
+            <li><strong>单位列表管理</strong>：
+                <ul>
+                    <li>显示单位卡片列表，包含单位基本信息</li>
+                    <li>支持单位名称模糊搜索</li>
+                    <li>添加新单位功能</li>
+                </ul>
+            </li>
+            <li><strong>单位详情</strong>：
+                <ul>
+                    <li>单位基本信息展示（名称、类型、负责人、联系电话等）</li>
+                    <li>单位资产统计信息（总资产数量、出租率、闲置资产等）</li>
+                    <li>创建单位管理员账号功能</li>
+                </ul>
+            </li>
+            <li><strong>资产列表管理</strong>：
+                <ul>
+                    <li>显示单位所属资产列表</li>
+                    <li>支持资产名称搜索和状态筛选</li>
+                    <li>添加新资产功能</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h4>添加资产表单字段</h4>
+        <ul>
+            <li>资产名称（必填）</li>
+            <li>资产类型（必填）：房屋建筑、土地、设备</li>
+            <li>面积</li>
+            <li>出租属性（必填）：出租、非出租</li>
+            <li>资产状态（必填）：已出租、闲置中、维修中、自用</li>
+            <li>支付周期（条件显示）：月付、季付、年付</li>
+            <li>租金金额（条件显示）</li>
+        </ul>
+
+        <h4>交互逻辑</h4>
+        <ul>
+            <li>选择出租属性时，动态显示支付周期和租金金额字段</li>
+            <li>单位卡片支持点击查看详情</li>
+            <li>资产列表支持分页显示</li>
+            <li>搜索功能实时过滤单位和资产</li>
+        </ul>
+    </div>
+
+    <h3>2.4 资产统计 (asset_stats.html)</h3>
+    <div class="module">
+        <h4>功能模块</h4>
+        <ul>
+            <li><strong>多维度筛选</strong>：
+                <ul>
+                    <li>单位筛选：全部单位或指定单位</li>
+                    <li>资产类型筛选：房屋建筑、土地、设备设施、其他</li>
+                    <li>资产状态筛选：已出租、闲置中、维修中、自用</li>
+                    <li>出租属性筛选：出租属性、非出租属性</li>
+                </ul>
+            </li>
+            <li><strong>资产列表展示</strong>：
+                <ul>
+                    <li>按单位分组展示资产信息</li>
+                    <li>支持单位展开/收起功能</li>
+                    <li>显示资产详细信息（名称、类型、面积、状态、出租属性、租金）</li>
+                </ul>
+            </li>
+            <li><strong>批量操作</strong>：
+                <ul>
+                    <li>全部展开/收起功能</li>
+                    <li>导出资产列表功能</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h4>交互功能</h4>
+        <ul>
+            <li>筛选条件变更时实时更新资产列表</li>
+            <li>点击单位标题可展开/收起该单位的资产列表</li>
+            <li>支持批量操作提高管理效率</li>
+        </ul>
+    </div>
+
+    <h3>2.5 报表统计 (reports.html)</h3>
+    <div class="module">
+        <h4>功能模块</h4>
+        <ul>
+            <li><strong>报表类型切换</strong>：
+                <ul>
+                    <li>年度报表：全年数据统计（1月1日-12月31日）</li>
+                    <li>半年度报表：上半年数据统计（1月1日-6月30日）</li>
+                    <li>季度报表：具体季度数据统计（如Q1:1-3月）</li>
+                </ul>
+            </li>
+            <li><strong>时间筛选</strong>：
+                <ul>
+                    <li>年份选择：2022-2024年</li>
+                    <li>季度选择：Q1-Q4（仅季度报表显示）</li>
+                </ul>
+            </li>
+            <li><strong>核心指标卡片</strong>：
+                <ul>
+                    <li>总资产数量及同比增长</li>
+                    <li>出租率及同比提升</li>
+                    <li>盘活资产数量及同比变化</li>
+                </ul>
+            </li>
+            <li><strong>详细数据报表</strong>：
+                <ul>
+                    <li>年度报表：显示2024年vs2023年的各项指标对比</li>
+                    <li>半年度报表：显示2024年上半年vs2023年上半年的对比</li>
+                    <li>季度报表：显示当前季度vs上一季度的环比对比</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h4>计算公式</h4>
+        <ul>
+            <li>出租率 = 已出租资产数量 ÷ 出租属性资产总数量 × 100%</li>
+            <li>闲置率 = 闲置资产数量 ÷ 总资产数量 × 100%</li>
+            <li>盘活资产数量 = 去年出租属性的闲置资产 - 今年出租属性的闲置资产</li>
+            <li>盘活资产转化率 = 出租属性的盘活资产 ÷ 出租属性的闲置资产总量</li>
+        </ul>
+    </div>
+
+    <h3>2.6 用户管理 (users.html)</h3>
+    <div class="module">
+        <h4>功能模块</h4>
+        <ul>
+            <li><strong>用户列表管理</strong>：
+                <ul>
+                    <li>显示用户基本信息（单位、账号、姓名、联系电话、权限等级、状态）</li>
+                    <li>支持按账号、单位、状态进行筛选</li>
+                    <li>支持账号搜索功能</li>
+                </ul>
+            </li>
+            <li><strong>用户操作</strong>：
+                <ul>
+                    <li>创建账号功能</li>
+                    <li>编辑用户信息功能</li>
+                    <li>启用/禁用账号功能</li>
+                </ul>
+            </li>
+            <li><strong>权限控制</strong>：
+                <ul>
+                    <li>超级管理员：可管理所有用户和角色</li>
+                    <li>单位管理员：只能管理本单位用户，且只能创建操作员和查看员角色</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h4>用户角色体系</h4>
+        <ul>
+            <li>超级管理员：拥有系统所有权限</li>
+            <li>单位管理员：管理本单位的资产和用户</li>
+            <li>单位操作员：操作本单位资产</li>
+            <li>单位查看员：查看本单位资产</li>
+        </ul>
+    </div>
+
+    <h3>2.7 角色管理 (roles.html)</h3>
+    <div class="module">
+        <h4>功能模块</h4>
+        <ul>
+            <li><strong>角色列表管理</strong>：
+                <ul>
+                    <li>显示角色基本信息（名称、描述）</li>
+                    <li>支持角色搜索功能</li>
+                </ul>
+            </li>
+            <li><strong>角色操作</strong>：
+                <ul>
+                    <li>创建角色功能（仅超级管理员）</li>
+                    <li>编辑角色功能（仅超级管理员）</li>
+                    <li>删除角色功能（仅超级管理员，系统内置角色不可删除）</li>
+                </ul>
+            </li>
+            <li><strong>权限设置</strong>：
+                <ul>
+                    <li>首页管理权限：查看首页统计、导出统计数据</li>
+                    <li>单位管理权限：查看单位列表、添加单位、编辑单位、删除单位</li>
+                    <li>资产信息权限：查看资产列表、添加资产、编辑资产、删除资产、导入资产、导出资产</li>
+                    <li>报表统计权限：查看报表、导出报表、打印报表</li>
+                    <li>用户管理权限：查看用户列表、添加用户、编辑用户、删除用户、重置密码</li>
+                    <li>角色管理权限：查看角色列表、添加角色、编辑角色、删除角色</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <h2>3. 非功能需求</h2>
+
+    <h3>3.1 性能需求</h3>
+    <ul>
+        <li>页面加载时间不超过2秒</li>
+        <li>支持至少100个并发用户访问</li>
+        <li>数据查询响应时间不超过1秒</li>
+    </ul>
+
+    <h3>3.2 安全性需求</h3>
+    <ul>
+        <li>用户认证和授权机制</li>
+        <li>数据传输加密</li>
+        <li>防止SQL注入和XSS攻击</li>
+        <li>定期数据备份</li>
+    </ul>
+
+    <h3>3.3 可用性需求</h3>
+    <ul>
+        <li>系统可用性达到99.9%</li>
+        <li>支持7×24小时运行</li>
+        <li>提供友好的错误提示和异常处理</li>
+    </ul>
+
+    <h3>3.4 兼容性需求</h3>
+    <ul>
+        <li>支持主流浏览器（Chrome、Firefox、Safari、Edge）</li>
+        <li>响应式设计，适配桌面端和移动端</li>
+        <li>支持不同屏幕分辨率</li>
+    </ul>
+
+    <h3>3.5 可维护性需求</h3>
+    <ul>
+        <li>模块化设计，便于扩展和维护</li>
+        <li>清晰的代码结构和注释</li>
+        <li>完善的文档支持</li>
+    </ul>
+
+    <h2>4. 技术实现</h2>
+
+    <h3>4.1 前端技术栈</h3>
+    <ul>
+        <li>HTML5 + CSS3 + JavaScript</li>
+        <li>Tailwind CSS：现代化UI框架</li>
+        <li>FontAwesome：图标库</li>
+        <li>Chart.js：数据可视化图表</li>
+        <li>响应式设计：适配不同设备</li>
+    </ul>
+
+    <h3>4.2 系统架构</h3>
+    <ul>
+        <li>单页面应用架构</li>
+        <li>iframe嵌套实现页面切换</li>
+        <li>模块化JavaScript设计</li>
+        <li>动态DOM操作实现内容更新</li>
+    </ul>
+
+    <h3>4.3 数据管理</h3>
+    <ul>
+        <li>前端数据模拟（实际项目中应连接后端数据库）</li>
+        <li>本地存储用于临时数据缓存</li>
+        <li>表单验证和数据校验</li>
+    </ul>
+
+    <h2>5. 项目实施计划</h2>
+
+    <h3>5.1 项目阶段</h3>
+    <ol>
+        <li><strong>需求分析与设计阶段</strong>：完成需求调研和系统设计</li>
+        <li><strong>前端开发阶段</strong>：实现各功能模块的前端界面</li>
+        <li><strong>后端开发阶段</strong>：实现数据存储和业务逻辑</li>
+        <li><strong>测试阶段</strong>：功能测试、性能测试、安全测试</li>
+        <li><strong>部署上线阶段</strong>：系统部署和用户培训</li>
+    </ol>
+
+    <h3>5.2 关键里程碑</h3>
+    <ul>
+        <li>需求文档完成：第1周</li>
+        <li>前端界面完成：第4周</li>
+        <li>后端功能完成：第6周</li>
+        <li>系统测试完成：第7周</li>
+        <li>系统上线：第8周</li>
+    </ul>
+
+    <h2>6. 验收标准</h2>
+
+    <h3>6.1 功能验收</h3>
+    <ul>
+        <li>所有功能模块按照需求文档实现</li>
+        <li>交互功能符合设计要求</li>
+        <li>数据计算准确无误</li>
+        <li>权限控制有效</li>
+    </ul>
+
+    <h3>6.2 性能验收</h3>
+    <ul>
+        <li>页面加载时间符合要求</li>
+        <li>并发用户支持符合要求</li>
+        <li>数据查询响应时间符合要求</li>
+    </ul>
+
+    <h3>6.3 安全验收</h3>
+    <ul>
+        <li>用户认证和授权机制有效</li>
+        <li>数据传输加密有效</li>
+        <li>防止常见安全漏洞</li>
+    </ul>
+
+    <h3>6.4 兼容性验收</h3>
+    <ul>
+        <li>支持所有主流浏览器</li>
+        <li>响应式设计适配不同设备</li>
+        <li>界面显示正常无错位</li>
+    </ul>
+
+    <h2>7. 风险评估</h2>
+
+    <h3>7.1 技术风险</h3>
+    <ul>
+        <li>数据量增长可能影响系统性能</li>
+        <li>浏览器兼容性问题</li>
+        <li>前端框架升级风险</li>
+    </ul>
+
+    <h3>7.2 业务风险</h3>
+    <ul>
+        <li>用户需求变更可能导致范围蔓延</li>
+        <li>数据迁移风险</li>
+        <li>用户接受度风险</li>
+    </ul>
+
+    <h3>7.3 管理风险</h3>
+    <ul>
+        <li>项目进度延迟风险</li>
+        <li>资源不足风险</li>
+        <li>沟通协调风险</li>
+    </ul>
+
+    <h2>8. 结论</h2>
+    <p>本需求方案书详细描述了资产管理OA系统的功能需求、非功能需求、技术实现方案和项目实施计划。系统采用现代化的前端技术栈，实现了资产的全生命周期管理，支持多维度的数据统计和分析。通过建立完善的用户权限管理体系，确保系统的安全性和可靠性。</p>
+    <p>该系统的实施将显著提高资产管理效率，为决策提供数据支持，实现资产管理的规范化和智能化。</p>
+
+</body>
+</html>
