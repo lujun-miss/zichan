@@ -58,21 +58,30 @@ class Modal {
         
         // 添加事件监听
         if (this.options.showCloseButton) {
-            document.getElementById('modal-close').addEventListener('click', () => this.close());
+            const closeBtn = document.getElementById('modal-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => this.close());
+            }
         }
         
         if (this.options.showConfirmButton) {
-            document.getElementById('modal-confirm').addEventListener('click', () => {
-                this.options.onConfirm();
-                this.close();
-            });
+            const confirmBtn = document.getElementById('modal-confirm');
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', () => {
+                    this.options.onConfirm();
+                    this.close();
+                });
+            }
         }
         
         if (this.options.showCancelButton) {
-            document.getElementById('modal-cancel').addEventListener('click', () => {
-                this.options.onCancel();
-                this.close();
-            });
+            const cancelBtn = document.getElementById('modal-cancel');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => {
+                    this.options.onCancel();
+                    this.close();
+                });
+            }
         }
         
         // 点击遮罩层关闭
