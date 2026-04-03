@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加KPI指标</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6">
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='kpi_library.html'" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i class="fa fa-arrow-left mr-2"></i> 返回
+                </button>
+                <h2 class="text-2xl font-bold text-gray-800">添加KPI指标</h2>
+            </div>
+            <p class="text-gray-600 mt-2">创建新的绩效考核指标</p>
+        </div>
+
+        <form id="addKpiForm">
+            <div class="space-y-6">
+                <!-- 基础信息卡片 -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fa fa-info-circle text-blue-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">基础信息</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <span class="text-red-500">*</span> 指标编码
+                            </label>
+                            <input type="text" id="kpiCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="例如：KPI-ASSET-001" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <span class="text-red-500">*</span> 指标名称
+                            </label>
+                            <input type="text" id="kpiName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="请输入指标名称" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                <span class="text-red-500">*</span> 指标类别
+                                <button type="button" id="categoryHelpBtn" class="ml-2 w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 focus:outline-none" title="查看类别说明">
+                                    <i class="fa fa-question text-xs"></i>
+                                </button>
+                            </label>
+                            <select id="kpiCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+                                <option value="">请选择指标类别</option>
+                                <option value="benefit">经营效益</option>
+                                <option value="efficiency">资产效率指标</option>
+                                <option value="preservation">资产保值指标</option>
+                                <option value="compliance">流程合规指标</option>
+                                <option value="management">管理效率指标</option>
+                            </select>
+                            
+                            <!-- 浮窗提示 -->
+                            <div id="categoryHelpTooltip" class="hidden absolute bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50 max-w-xs">
+                                <div class="space-y-2">
+                                    <p class="text-sm"><strong>经营效益：</strong>关乎收入与利润（如出租率、收益率）。</p>
+                                    <p class="text-sm"><strong>资产效率指标：</strong>关乎利用与周转（如闲置率、周转率）。</p>
+                                    <p class="text-sm"><strong>资产保值指标：</strong>关乎安全与价值（如完好率、折旧率）。</p>
+                                    <p class="text-sm"><strong>流程合规指标：</strong>关乎风险与控制（如盘点按时完成率、文档合规率）。</p>
+                                    <p class="text-sm"><strong>管理效率指标：</strong>关乎成本与操作（如管理费占比、工单处理时长）。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">适用岗位</label>
+                        <div class="flex flex-wrap gap-2">
+                            <label class="inline-flex items-center space-x-2 px-3 py-1 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" value="manager">
+                                <span class="text-sm text-gray-700">部门经理</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-2 px-3 py-1 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" value="specialist">
+                                <span class="text-sm text-gray-700">资产专员</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-2 px-3 py-1 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" value="clerk">
+                                <span class="text-sm text-gray-700">资产管理员</span>
+                            </label>
+                            <label class="inline-flex items-center space-x-2 px-3 py-1 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" value="all">
+                                <span class="text-sm text-gray-700">全部岗位</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 计算规则卡片 -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fa fa-calculator text-green-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">计算规则</h3>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <span class="text-red-500">*</span> 指标类型
+                        </label>
+                        <div class="space-y-2">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="kpiType" value="quantitative" checked class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm text-gray-700">定量计算型 ─── 考核可直接计算的数值（如：出租率）</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="kpiType" value="event" class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm text-gray-700">事件条件型 ─── 考核特定事件是否满足条件（如：到期是否续签）</span>
+                            </label>
+
+                        </div>
+                    </div>
+                    
+
+                    
+                    <!-- 定量计算型配置 -->
+                    <div id="quantitativeFields" class="border border-gray-200 rounded-lg p-4 mb-4">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">计算方式与数据源 <span class="text-red-500">*</span></label>
+                            
+                            <div class="mb-3">
+                                <label class="block text-xs text-gray-500 mb-1">取值方式：</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="radio" name="valueType" value="ratio" checked class="text-blue-600 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">比率计算</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="radio" name="valueType" value="absolute" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">绝对值引用</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="radio" name="valueType" value="manual" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">手动填写目标值</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div id="dataFieldSection" class="mb-3">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">分子：</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                            <option value="">选择分子数据点…</option>
+                                            <option value="rental_area">资产看板 > 租赁管理 > 已出租面积</option>
+                                            <option value="rental_count">资产看板 > 租赁管理 > 已出租数量</option>
+                                            <option value="idle_assets">资产看板 > 资产状态 > 闲置资产数</option>
+                                            <option value="revitalized_assets">资产看板 > 资产运营 > 盘活资产数</option>
+                                            <option value="expiring_assets">资产看板 > 资产状态 > 即将到期资产</option>
+                                            <option value="house_count">资产看板 > 资产分类 > 房屋数量</option>
+                                            <option value="equipment_count">资产看板 > 资产分类 > 设备数量</option>
+                                            <option value="land_count">资产看板 > 资产分类 > 土地数量</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">分母：</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                            <option value="">选择分母数据点…</option>
+                                            <option value="total_area">资产看板 > 资产总览 > 总面积</option>
+                                            <option value="total_count">资产看板 > 资产总览 > 总资产数量</option>
+                                            <option value="house_total">资产看板 > 资产分类 > 房屋总数</option>
+                                            <option value="equipment_total">资产看板 > 资产分类 > 设备总数</option>
+                                            <option value="land_total">资产看板 > 资产分类 > 土地总数</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">（例如：已出租面积 / 总面积 × 100% = 出租率）</p>
+                            </div>
+                            
+                            <div id="formulaSection" class="mb-3">
+                                <label class="block text-xs text-gray-500 mb-1">计算方式：</label>
+                                <div class="flex space-x-2">
+                                    <input type="text" id="formulaInput" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="[分子] / [分母] * 100%" readonly>
+                                    <button id="autoFormulaBtn" class="px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm">自动生成</button>
+                                    <button class="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm">测试计算</button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">（公式将根据选择的数据字段自动生成）</p>
+                            </div>
+                            
+                            <div id="targetValueSection" class="hidden">
+                                <label class="block text-xs text-gray-500 mb-1">目标值：</label>
+                                <div class="flex space-x-2">
+                                    <input type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="输入目标值">
+                                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                        <option value="">单位</option>
+                                        <option value="percent">%</option>
+                                        <option value="count">个</option>
+                                        <option value="area">㎡</option>
+                                        <option value="amount">万元</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 事件条件型配置 -->
+                    <div id="eventFields" class="border border-gray-200 rounded-lg p-4 mb-4 hidden">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">考核依据 <span class="text-red-500">*</span></label>
+                            
+                            <div class="mb-3">
+                                <label class="block text-xs text-gray-500 mb-1">数据模块：</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                    <option value="">选择数据模块…</option>
+                                    <option value="contract">合同管理系统</option>
+                                    <option value="asset">资产管理系统</option>
+                                    <option value="maintenance">维保管理系统</option>
+                                    <option value="rental">租赁管理系统</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="block text-xs text-gray-500 mb-1">检查字段：</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="inline-flex items-center space-x-2 px-3 py-1 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                        <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" value="contract_end_date">
+                                        <span class="text-sm text-gray-700">合同到期日</span>
+                                    </label>
+                                    <label class="inline-flex items-center space-x-2 px-3 py-1 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                        <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" value="renewal_status">
+                                        <span class="text-sm text-gray-700">续约流程状态</span>
+                                    </label>
+                                    <label class="inline-flex items-center space-x-2 px-3 py-1 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                        <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" value="maintenance_status">
+                                        <span class="text-sm text-gray-700">维保状态</span>
+                                    </label>
+                                    <label class="inline-flex items-center space-x-2 px-3 py-1 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                        <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" value="payment_status">
+                                        <span class="text-sm text-gray-700">付款状态</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">判定规则 <span class="text-red-500">*</span></label>
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                    <div class="space-y-3">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm text-gray-700">当</span>
+                                            <select class="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                                <option value="distance_end_date">距离合同到期日</option>
+                                                <option value="maintenance_days">维保剩余天数</option>
+                                                <option value="payment_due_days">付款逾期天数</option>
+                                            </select>
+                                            <select class="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                                <option value="lt">小于</option>
+                                                <option value="lte">小于等于</option>
+                                                <option value="eq">等于</option>
+                                                <option value="gte">大于等于</option>
+                                                <option value="gt">大于</option>
+                                            </select>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="30" min="0">
+                                            <span class="text-sm text-gray-700">天时，检查</span>
+                                            <select class="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                                <option value="renewal_status">续约流程状态</option>
+                                                <option value="maintenance_status">维保状态</option>
+                                                <option value="payment_status">付款状态</option>
+                                            </select>
+                                            <select class="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                                <option value="eq">等于</option>
+                                                <option value="neq">不等于</option>
+                                                <option value="in">包含</option>
+                                                <option value="nin">不包含</option>
+                                            </select>
+                                            <select class="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                                <option value="not_started">未发起</option>
+                                                <option value="in_progress">进行中</option>
+                                                <option value="completed">已完成</option>
+                                                <option value="rejected">已驳回</option>
+                                            </select>
+                                        </div>
+                                        <p class="text-xs text-gray-500">（例如：距离合同到期日小于等于30天时，检查续约流程状态是否不等于未发起）</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">统计周期</label>
+                            <select id="statCycle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                <option value="month">月度</option>
+                                <option value="quarter">季度</option>
+                                <option value="halfyear">半年度</option>
+                                <option value="year">年度</option>
+                                <option value="project">项目周期</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <span class="text-red-500">*</span> 权重
+                            </label>
+                            <div class="flex items-center space-x-2">
+                                <input type="number" id="kpiWeight" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="10" step="0.1" min="0" max="100" required>
+                                <span>%</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">（提示：本指标在考核中的占比）</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 目标与评分卡片 -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fa fa-bullseye text-yellow-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">目标与评分</h3>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">基准值（参考当前值）</label>
+                        <input type="text" id="benchmarkValue" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="例如：78.5%" readonly>
+                        <p class="text-xs text-gray-500 mt-1">（系统自动获取当前看板数据作为基准参考）</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">目标值（设定提升目标）</label>
+                        <input type="text" id="targetValue" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="例如：80%">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">评分标准</label>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-700 w-20">优秀（100分）：</span>
+                                <input type="text" id="excellent" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="> 82%">
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-700 w-20">良好（85分）：</span>
+                                <input type="text" id="good" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="80% - 82%">
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-700 w-20">合格（70分）：</span>
+                                <input type="text" id="qualified" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="76% - 80%">
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-700 w-20">不合格（60分）：</span>
+                                <input type="text" id="unqualified" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="< 76%">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm">
+                            <i class="fa fa-refresh mr-1"></i> 从看板获取当前值
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 其他信息卡片 -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fa fa-ellipsis-h text-purple-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">其他信息</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                            <select id="kpiStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                <option value="active">启用</option>
+                                <option value="inactive">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">指标描述</label>
+                        <textarea id="kpiDescription" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" rows="4" placeholder="请输入指标描述"></textarea>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="window.location.href='kpi_library.html'" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                            取消
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            保存指标
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 指标类型切换
+        document.querySelectorAll('input[name="kpiType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const quantitativeFields = document.getElementById('quantitativeFields');
+                const eventFields = document.getElementById('eventFields');
+                
+                // 隐藏所有配置区域
+                quantitativeFields.classList.add('hidden');
+                eventFields.classList.add('hidden');
+                
+                // 根据选择显示对应的配置区域
+                if (this.value === 'quantitative') {
+                    quantitativeFields.classList.remove('hidden');
+                } else if (this.value === 'event') {
+                    eventFields.classList.remove('hidden');
+                }
+            });
+        });
+        
+        // 指标类别帮助浮窗
+        const categoryHelpBtn = document.getElementById('categoryHelpBtn');
+        const categoryHelpTooltip = document.getElementById('categoryHelpTooltip');
+        
+        categoryHelpBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const btnRect = categoryHelpBtn.getBoundingClientRect();
+            const parentRect = categoryHelpBtn.offsetParent.getBoundingClientRect();
+            
+            // 计算浮窗位置
+            categoryHelpTooltip.style.left = (btnRect.left - parentRect.left + btnRect.width) + 'px';
+            categoryHelpTooltip.style.top = (btnRect.top - parentRect.top) + 'px';
+            
+            // 切换显示/隐藏
+            categoryHelpTooltip.classList.toggle('hidden');
+        });
+        
+        // 点击其他地方关闭浮窗
+        document.addEventListener('click', function(e) {
+            if (!categoryHelpBtn.contains(e.target) && !categoryHelpTooltip.contains(e.target)) {
+                categoryHelpTooltip.classList.add('hidden');
+            }
+        });
+        
+        // 取值方式切换
+        document.querySelectorAll('input[name="valueType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const dataFieldSection = document.getElementById('dataFieldSection');
+                const formulaSection = document.getElementById('formulaSection');
+                const targetValueSection = document.getElementById('targetValueSection');
+                
+                if (this.value === 'manual') {
+                    dataFieldSection.classList.add('hidden');
+                    formulaSection.classList.add('hidden');
+                    targetValueSection.classList.remove('hidden');
+                } else {
+                    dataFieldSection.classList.remove('hidden');
+                    formulaSection.classList.remove('hidden');
+                    targetValueSection.classList.add('hidden');
+                }
+            });
+        });
+        
+        // 自动生成公式
+        document.getElementById('autoFormulaBtn').addEventListener('click', function() {
+            const numeratorSelect = document.querySelectorAll('#dataFieldSection select')[0];
+            const denominatorSelect = document.querySelectorAll('#dataFieldSection select')[1];
+            const formulaInput = document.getElementById('formulaInput');
+            
+            const numerator = numeratorSelect.options[numeratorSelect.selectedIndex].text || '[分子]';
+            const denominator = denominatorSelect.options[denominatorSelect.selectedIndex].text || '[分母]';
+            
+            formulaInput.value = `${numerator} / ${denominator} * 100%`;
+        });
+        
+        // 从看板获取当前值
+        const getCurrentValueBtn = Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.includes('从看板获取当前值'));
+        if (getCurrentValueBtn) {
+            getCurrentValueBtn.addEventListener('click', function() {
+                // 模拟从看板获取数据
+                const benchmarkValue = document.getElementById('benchmarkValue');
+                benchmarkValue.value = '78.5%'; // 模拟当前出租率
+                alert('已从看板获取当前值！');
+            });
+        }
+        
+        // 公式构建器按钮
+        const formulaBuilderBtn = Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.includes('公式构建器'));
+        if (formulaBuilderBtn) {
+            formulaBuilderBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('公式构建器功能开发中...');
+            });
+        }
+        
+        // 测试计算按钮
+        const testCalcBtn = Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.includes('测试计算'));
+        if (testCalcBtn) {
+            testCalcBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('测试计算功能开发中...');
+            });
+        }
+        
+        document.getElementById('addKpiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const kpiType = document.querySelector('input[name="kpiType"]:checked').value;
+            
+            // 获取表单数据
+            const kpiData = {
+                code: document.getElementById('kpiCode').value,
+                name: document.getElementById('kpiName').value,
+                category: document.getElementById('kpiCategory').value,
+                type: kpiType,
+                weight: document.getElementById('kpiWeight').value,
+                statCycle: document.getElementById('statCycle').value,
+                status: document.getElementById('kpiStatus').value,
+                description: document.getElementById('kpiDescription').value,
+                excellent: document.getElementById('excellent').value,
+                good: document.getElementById('good').value,
+                qualified: document.getElementById('qualified').value,
+                unqualified: document.getElementById('unqualified').value
+            };
+            
+            // 根据指标类型收集特定数据
+            if (kpiType === 'quantitative') {
+                kpiData.valueType = document.querySelector('input[name="valueType"]:checked').value;
+                kpiData.formula = document.getElementById('formulaInput').value;
+            } else if (kpiType === 'event') {
+                // 收集事件条件型数据
+                kpiData.dataModule = document.querySelectorAll('#eventFields select')[0].value;
+                kpiData.checkFields = Array.from(document.querySelectorAll('#eventFields input[type="checkbox"]:checked')).map(cb => cb.value);
+            }
+            
+            // 这里可以添加数据验证和提交逻辑
+            console.log('添加KPI指标:', kpiData);
+            
+            // 模拟成功提示
+            alert('指标添加成功！');
+            window.location.href = 'kpi_library.html';
+        });
+    </script>
+</body>
+</html>

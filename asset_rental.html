@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产出租管理 - 资产管理OA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-draft {
+            background-color: #fefce8;
+            color: #ca8a04;
+        }
+        .status-approved {
+            background-color: #ecfdf5;
+            color: #16a34a;
+        }
+        .status-active {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+        .status-expired {
+            background-color: #fef2f2;
+            color: #dc2626;
+        }
+        .status-terminated {
+            background-color: #f8fafc;
+            color: #64748b;
+        }
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        .sortable:hover {
+            background-color: #f1f5f9;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: #64748b;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="w-full p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 w-full">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">资产使用 &gt; 资产出租管理</h2>
+                <a href="add_rental.html" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fa fa-plus mr-1"></i> 新增出租资产
+                </a>
+            </div>
+            
+            <!-- 搜索区域 -->
+            <div class="mb-6">
+                <div class="flex items-center space-x-4 flex-wrap">
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">合同编号:</label>
+                        <input type="text" id="search-contract-code" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="请输入合同编号">
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">合同名称:</label>
+                        <input type="text" id="search-contract-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="请输入合同名称">
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">所属单位:</label>
+                        <input type="text" id="search-department" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="请输入所属单位">
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">承租方:</label>
+                        <input type="text" id="search-tenant" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="请输入承租方名称">
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">合同状态:</label>
+                        <select id="search-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="">全部</option>
+                            <option value="草稿">草稿</option>
+                            <option value="审批中">审批中</option>
+                            <option value="已生效">已生效</option>
+                            <option value="履行中">履行中</option>
+                            <option value="已到期">已到期</option>
+                            <option value="已终止">已终止</option>
+                            <option value="已解约">已解约</option>
+                        </select>
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">租赁开始:</label>
+                        <input type="date" id="search-start-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">租赁结束:</label>
+                        <input type="date" id="search-end-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="flex items-end space-x-2">
+                        <button onclick="searchRental()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fa fa-search mr-1"></i> 查询
+                        </button>
+                        <button onclick="resetSearch()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                            <i class="fa fa-refresh mr-1"></i> 重置
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 操作按钮区域 -->
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <span class="text-sm text-gray-500">共 <span id="total-count">0</span> 条数据</span>
+                </div>
+            </div>
+            
+            <!-- 表格区域 -->
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">合同编号</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">合同名称</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">所属单位</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">租赁资产</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">承租方</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable" onclick="sortTable('startTime')">租赁期间 <i class="fa fa-sort"></i></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable" onclick="sortTable('totalAmount')">租金总额 <i class="fa fa-sort"></i></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">合同状态</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rental-table-body">
+                        <!-- 数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 分页区域 -->
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-sm text-gray-500">
+                    20/页
+                </div>
+                <div class="flex items-center space-x-1">
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50" onclick="changePage(1)">
+                        <i class="fa fa-chevron-left"></i>
+                    </button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50" onclick="changePage(currentPage - 1)">
+                        <i class="fa fa-step-backward"></i>
+                    </button>
+                    <span class="text-sm text-gray-600">第 <span id="current-page">1</span> 页，共 <span id="total-pages">1</span> 页</span>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50" onclick="changePage(currentPage + 1)">
+                        <i class="fa fa-step-forward"></i>
+                    </button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50" onclick="changePage(totalPages)">
+                        <i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div>
+                    <span class="text-sm text-gray-500">
+                        转到 <input type="text" class="w-12 px-2 py-1 border border-gray-300 rounded text-center text-sm" value="1"> 页
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let totalCount = 0;
+        let pageSize = 10;
+        let sortField = null;
+        let sortDirection = 'asc';
+
+        // 模拟数据
+        const rentalData = [
+            {
+                id: 1,
+                contractCode: 'ZL-2024-0001',
+                contractName: 'XX大厦A座1001室租赁合同',
+                department: '集团总部',
+                assets: ['房屋-XX大厦A座1001室'],
+                tenant: '北京科技有限公司',
+                startTime: '2024-01-01',
+                endTime: '2024-12-31',
+                totalAmount: 120000,
+                status: '履行中'
+            },
+            {
+                id: 2,
+                contractCode: 'ZL-2024-0002',
+                contractName: 'XX工业园B区厂房租赁合同',
+                department: '华东分公司',
+                assets: ['房屋-XX工业园B区厂房'],
+                tenant: '上海制造有限公司',
+                startTime: '2024-02-01',
+                endTime: '2025-01-31',
+                totalAmount: 240000,
+                status: '已生效'
+            },
+            {
+                id: 3,
+                contractCode: 'ZL-2024-0003',
+                contractName: 'XX商业广场一层商铺租赁合同',
+                department: '华南分公司',
+                assets: ['房屋-XX商业广场一层商铺'],
+                tenant: '广州零售有限公司',
+                startTime: '2024-03-01',
+                endTime: '2026-02-28',
+                totalAmount: 360000,
+                status: '履行中'
+            },
+            {
+                id: 4,
+                contractCode: 'ZL-2024-0004',
+                contractName: 'XX办公楼501室租赁合同',
+                department: '集团总部',
+                assets: ['房屋-XX办公楼501室'],
+                tenant: '深圳科技有限公司',
+                startTime: '2023-01-01',
+                endTime: '2023-12-31',
+                totalAmount: 100000,
+                status: '已到期'
+            },
+            {
+                id: 5,
+                contractCode: 'ZL-2024-0005',
+                contractName: 'XX仓库租赁合同',
+                department: '华北分公司',
+                assets: ['房屋-XX仓库'],
+                tenant: '杭州物流有限公司',
+                startTime: '2024-04-01',
+                endTime: '2025-03-31',
+                totalAmount: 180000,
+                status: '审批中'
+            }
+        ];
+
+        function getStatusClass(status) {
+            switch(status) {
+                case '草稿': return 'status-draft';
+                case '审批中': return 'status-approved';
+                case '已生效': return 'status-approved';
+                case '履行中': return 'status-active';
+                case '已到期': return 'status-expired';
+                case '已终止': return 'status-terminated';
+                case '已解约': return 'status-terminated';
+                default: return '';
+            }
+        }
+
+        function getActionButtons(item) {
+            const buttons = [];
+            
+            // 所有状态都显示查看按钮
+            buttons.push(`
+                <button class="text-blue-600 hover:text-blue-800" onclick="viewRental(${item.id})">
+                    <i class="fa fa-eye mr-1"></i>查看
+                </button>
+            `);
+            
+            // 根据状态显示不同按钮
+            switch(item.status) {
+                case '审批中':
+                    buttons.push(`
+                        <button class="text-blue-600 hover:text-blue-800" onclick="approveRental(${item.id})">
+                            <i class="fa fa-check mr-1"></i>审核
+                        </button>
+                        <button class="text-yellow-600 hover:text-yellow-800" onclick="withdrawRental(${item.id})">
+                            <i class="fa fa-undo mr-1"></i>撤回
+                        </button>
+                    `);
+                    break;
+                case '已生效':
+                case '履行中':
+                    buttons.push(`
+                        <button class="text-blue-600 hover:text-blue-800" onclick="changeRental(${item.id})">
+                            <i class="fa fa-pencil mr-1"></i>变更
+                        </button>
+                        <button class="text-yellow-600 hover:text-yellow-800" onclick="terminateRental(${item.id})">
+                            <i class="fa fa-ban mr-1"></i>解约
+                        </button>
+                        <button class="text-green-600 hover:text-green-800" onclick="receivePayment(${item.id})">
+                            <i class="fa fa-money mr-1"></i>收款
+                        </button>
+                    `);
+                    break;
+                case '已到期':
+                    buttons.push(`
+                        <button class="text-blue-600 hover:text-blue-800" onclick="renewRental(${item.id})">
+                            <i class="fa fa-refresh mr-1"></i>续租
+                        </button>
+                        <button class="text-green-600 hover:text-green-800" onclick="archiveRental(${item.id})">
+                            <i class="fa fa-archive mr-1"></i>归档
+                        </button>
+                    `);
+                    break;
+                default:
+                    buttons.push(`
+                        <button class="text-blue-600 hover:text-blue-800" onclick="editRental(${item.id})">
+                            <i class="fa fa-edit mr-1"></i>编辑
+                        </button>
+                        <button class="text-red-600 hover:text-red-800" onclick="deleteRental(${item.id})">
+                            <i class="fa fa-trash mr-1"></i>删除
+                        </button>
+                    `);
+            }
+            
+            return buttons.join('');
+        }
+
+        // 排序功能
+        function sortTable(field) {
+            if (sortField === field) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortField = field;
+                sortDirection = 'asc';
+            }
+            
+            currentPage = 1;
+            searchRental();
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('rental-table-body');
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="px-6 py-12 text-center">
+                            <div class="empty-state">
+                                <i class="fa fa-folder-open-o"></i>
+                                <p>暂无出租资产记录</p>
+                                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mt-2" onclick="window.location.href='add_rental.html'">
+                                    <i class="fa fa-plus mr-1"></i> 新增出租资产
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = data.map(item => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${item.contractCode}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">${item.contractName}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${item.department}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-500" title="${item.assets.join('、')}">${item.assets.join('<br>')}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">${item.tenant}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${item.startTime} 至 ${item.endTime}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">¥${item.totalAmount.toLocaleString()}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="status-badge ${getStatusClass(item.status)}">${item.status}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center space-x-2">
+                            ${getActionButtons(item)}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function searchRental() {
+            const contractCode = document.getElementById('search-contract-code').value;
+            const contractName = document.getElementById('search-contract-name').value;
+            const department = document.getElementById('search-department').value;
+            const tenant = document.getElementById('search-tenant').value;
+            const status = document.getElementById('search-status').value;
+            const startDate = document.getElementById('search-start-date').value;
+            const endDate = document.getElementById('search-end-date').value;
+
+            let filteredData = rentalData;
+
+            if (contractCode) {
+                filteredData = filteredData.filter(item => item.contractCode.includes(contractCode));
+            }
+            if (contractName) {
+                filteredData = filteredData.filter(item => item.contractName.includes(contractName));
+            }
+            if (department) {
+                filteredData = filteredData.filter(item => item.department.includes(department));
+            }
+            if (tenant) {
+                filteredData = filteredData.filter(item => item.tenant.includes(tenant));
+            }
+            if (status) {
+                filteredData = filteredData.filter(item => item.status === status);
+            }
+            if (startDate) {
+                filteredData = filteredData.filter(item => item.startTime >= startDate);
+            }
+            if (endDate) {
+                filteredData = filteredData.filter(item => item.endTime <= endDate);
+            }
+
+            // 应用排序
+            if (sortField) {
+                filteredData.sort((a, b) => {
+                    let aVal = a[sortField];
+                    let bVal = b[sortField];
+                    
+                    // 根据字段类型进行比较
+                    if (sortField === 'totalAmount') {
+                        aVal = parseFloat(aVal);
+                        bVal = parseFloat(bVal);
+                    }
+                    
+                    if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            totalCount = filteredData.length;
+            totalPages = Math.ceil(totalCount / pageSize);
+            currentPage = 1;
+
+            updatePagination();
+            renderTable(filteredData.slice(0, pageSize));
+        }
+
+        function resetSearch() {
+            document.getElementById('search-contract-code').value = '';
+            document.getElementById('search-contract-name').value = '';
+            document.getElementById('search-department').value = '';
+            document.getElementById('search-tenant').value = '';
+            document.getElementById('search-status').value = '';
+            document.getElementById('search-start-date').value = '';
+            document.getElementById('search-end-date').value = '';
+            
+            currentPage = 1;
+            totalCount = rentalData.length;
+            totalPages = Math.ceil(totalCount / pageSize);
+            
+            updatePagination();
+            renderTable(rentalData.slice(0, pageSize));
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            updatePagination();
+            searchRental();
+        }
+
+        function updatePagination() {
+            document.getElementById('current-page').textContent = currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+            document.getElementById('total-count').textContent = totalCount;
+        }
+
+        function viewRental(id) {
+            alert(`查看出租合同：${id}`);
+        }
+
+        function editRental(id) {
+            alert(`编辑出租合同：${id}`);
+        }
+
+        function deleteRental(id) {
+            if (confirm('确定要删除这条记录吗？')) {
+                alert(`删除出租合同：${id}`);
+            }
+        }
+
+        function approveRental(id) {
+            alert(`审核出租合同：${id}`);
+        }
+
+        function withdrawRental(id) {
+            alert(`撤回出租合同：${id}`);
+        }
+
+        function changeRental(id) {
+            alert(`变更出租合同：${id}`);
+        }
+
+        function terminateRental(id) {
+            alert(`解约出租合同：${id}`);
+        }
+
+        function receivePayment(id) {
+            alert(`收取租金：${id}`);
+        }
+
+        function renewRental(id) {
+            alert(`续租出租合同：${id}`);
+        }
+
+        function archiveRental(id) {
+            alert(`归档出租合同：${id}`);
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            totalCount = rentalData.length;
+            totalPages = Math.ceil(totalCount / pageSize);
+            updatePagination();
+            renderTable(rentalData.slice(0, pageSize));
+        });
+    </script>
+</body>
+</html>

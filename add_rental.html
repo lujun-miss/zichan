@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增出租资产 - 资产管理OA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .form-select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .form-textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s;
+        }
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        .steps-container {
+            margin-bottom: 2rem;
+        }
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background-color: #e2e8f0;
+            z-index: 1;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        .step.active .step-number {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .step-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #64748b;
+            transition: color 0.2s;
+        }
+        .step.active .step-title {
+            color: #1e293b;
+        }
+        .step-content {
+            display: none;
+        }
+        .step-content.active {
+            display: block;
+        }
+        .collapsible-section {
+            margin-top: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            overflow: hidden;
+        }
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: #f8fafc;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .collapsible-header:hover {
+            background-color: #f1f5f9;
+        }
+        .collapsible-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        .collapsible-hint {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .collapsible-content {
+            padding: 1rem;
+            display: none;
+        }
+        .collapsible-section.expanded .collapsible-content {
+            display: block;
+        }
+        .calculation-preview {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .calculation-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .calculation-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .calculation-result {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1e293b;
+        }
+        .asset-selector {
+            border: 1px dashed #cbd5e1;
+            border-radius: 0.375rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .asset-selector:hover {
+            border-color: #3b82f6;
+            background-color: #f8fafc;
+        }
+        .asset-selector i {
+            font-size: 2rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+        .asset-selector p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        .asset-list {
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .asset-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background-color: #f8fafc;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+        }
+        .asset-info {
+            flex: 1;
+        }
+        .asset-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+        .asset-detail {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .asset-remove {
+            color: #ef4444;
+            cursor: pointer;
+        }
+        .asset-remove:hover {
+            color: #dc2626;
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .schedule-table th,
+        .schedule-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .schedule-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+        }
+        .schedule-table tr:hover {
+            background-color: #f8fafc;
+        }
+        .file-upload {
+            border: 1px dashed #cbd5e1;
+            border-radius: 0.375rem;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .file-upload:hover {
+            border-color: #3b82f6;
+            background-color: #f8fafc;
+        }
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        .file-info {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: #f8fafc;
+            border-radius: 0.375rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-name {
+            flex: 1;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        .file-size {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .file-remove {
+            color: #ef4444;
+            cursor: pointer;
+        }
+        .file-remove:hover {
+            color: #dc2626;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-full {
+            grid-column: span 2;
+        }
+        .required {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="w-full p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 w-full">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">资产使用 &gt; 新增出租资产</h2>
+                <button class="btn btn-secondary" onclick="goBack()">
+                    <i class="fa fa-arrow-left mr-1"></i> 返回
+                </button>
+            </div>
+
+            <form id="rental-form">
+                <!-- 1. 合同概要 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">合同概要</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 合同编号
+                            </label>
+                            <input type="text" id="contract-code" class="form-input" value="ZL-2024-0006" readonly>
+                            <p class="text-xs text-gray-500">自动生成（规则：ZL-2024-0001）</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 所属单位
+                            </label>
+                            <select id="unit" class="form-select" required>
+                                <option value="">请选择所属单位</option>
+                                <option value="总公司">总公司</option>
+                                <option value="第一分公司">第一分公司</option>
+                                <option value="第二分公司">第二分公司</option>
+                                <option value="第三分公司">第三分公司</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 合同名称
+                            </label>
+                            <input type="text" id="contract-name" class="form-input" placeholder="如：XX大厦A座1001室租赁合同" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 合同状态
+                            </label>
+                            <select id="contract-status" class="form-select" required>
+                                <option value="">请选择合同状态</option>
+                                <option value="草稿">草稿</option>
+                                <option value="审批中">审批中</option>
+                                <option value="已生效">已生效</option>
+                                <option value="履行中">履行中</option>
+                                <option value="已到期">已到期</option>
+                                <option value="已终止">已终止</option>
+                                <option value="已解约">已解约</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 合同版本
+                            </label>
+                            <input type="number" id="contract-version" class="form-input" value="1" min="1">
+                            <p class="text-xs text-gray-500">默认值为1，用于合同变更、续签时生成新版</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">关联原合同</label>
+                            <select id="original-contract" class="form-select">
+                                <option value="">请选择（仅续签、变更时填写）</option>
+                                <option value="ZL-2023-0001">ZL-2023-0001 - XX大厦A座1001室租赁合同</option>
+                                <option value="ZL-2023-0002">ZL-2023-0002 - XX工业园B区厂房租赁合同</option>
+                            </select>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- 2. 租赁标的 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">租赁标的</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required">*</span> 租赁资产
+                        </label>
+                        <select id="rental-asset" class="form-select" required>
+                            <option value="">请选择租赁资产</option>
+                            <option value="ZC-2024-0001">ZC-2024-0001 - XX大厦A座1002室</option>
+                            <option value="ZC-2024-0002">ZC-2024-0002 - XX工业园B区仓库</option>
+                            <option value="ZC-2024-0003">ZC-2024-0003 - XX商业广场二层商铺</option>
+                            <option value="ZC-2024-0004">ZC-2024-0004 - XX办公楼601室</option>
+                            <option value="ZC-2024-0005">ZC-2024-0005 - XX物流园区仓库</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">租赁物信息</label>
+                        <textarea id="asset-info" class="form-textarea" placeholder="从所选资产自动带出名称、规格等信息（只读）" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+
+                <!-- 3. 双方当事人 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">双方当事人</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 出租方
+                            </label>
+                            <select id="lessor" class="form-select" required>
+                                <option value="本公司">本公司</option>
+                                <option value="第一事业部">第一事业部</option>
+                                <option value="第二事业部">第二事业部</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 承租方类型
+                            </label>
+                            <select id="tenant-type" class="form-select" required>
+                                <option value="">请选择承租方类型</option>
+                                <option value="个人">个人</option>
+                                <option value="企业">企业</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 承租方名称
+                            </label>
+                            <input type="text" id="tenant-name" class="form-input" placeholder="个人姓名或企业全称" required>
+                        </div>
+                        
+                        <!-- 企业类型字段 -->
+                        <div id="enterprise-fields" class="form-group" style="display:none;">
+                            <label class="form-label">
+                                <span class="required">*</span> 统一社会信用代码
+                            </label>
+                            <input type="text" id="credit-code" class="form-input" placeholder="请输入统一社会信用代码" required>
+                        </div>
+                        <div id="legal-representative-field" class="form-group" style="display:none;">
+                            <label class="form-label">
+                                <span class="required">*</span> 法定代表人
+                            </label>
+                            <input type="text" id="legal-representative" class="form-input" placeholder="请输入法定代表人姓名" required>
+                        </div>
+                        
+                        <!-- 个人类型字段 -->
+                        <div id="individual-fields" class="form-group" style="display:none;">
+                            <label class="form-label">
+                                <span class="required">*</span> 证件类型
+                            </label>
+                            <select id="id-type" class="form-select" required>
+                                <option value="">请选择证件类型</option>
+                                <option value="身份证">身份证</option>
+                                <option value="护照">护照</option>
+                                <option value="港澳通行证">港澳通行证</option>
+                                <option value="台湾通行证">台湾通行证</option>
+                            </select>
+                        </div>
+                        <div id="id-number-field" class="form-group" style="display:none;">
+                            <label class="form-label">
+                                <span class="required">*</span> 证件号码
+                            </label>
+                            <input type="text" id="id-number" class="form-input" placeholder="请输入证件号码" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 联系人
+                            </label>
+                            <input type="text" id="tenant-contact" class="form-input" placeholder="请输入联系人姓名" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 联系电话
+                            </label>
+                            <input type="tel" id="tenant-phone" class="form-input" placeholder="请输入联系电话" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 联系地址
+                            </label>
+                            <input type="text" id="tenant-address" class="form-input" placeholder="请输入联系地址" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">送达地址</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="same-address" class="form-checkbox">
+                                <label for="same-address" class="form-label">同联系地址</label>
+                            </div>
+                            <input type="text" id="service-address" class="form-input" placeholder="请输入送达地址">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- 4. 租赁条款 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">租赁条款</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 租赁开始日期
+                            </label>
+                            <input type="date" id="rental-start" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 租赁结束日期
+                            </label>
+                            <input type="date" id="rental-end" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 计租方式
+                            </label>
+                            <select id="rental-method" class="form-select" required>
+                                <option value="">请选择计租方式</option>
+                                <option value="按面积">按面积</option>
+                                <option value="按套">按套</option>
+                                <option value="按间">按间</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 按面积计算相关字段 -->
+                        <div id="area-calculation-fields" class="form-group" style="display:none;">
+                            <label class="form-label">资产面积</label>
+                            <input type="number" id="asset-area" class="form-input" placeholder="自动带入所选资产面积" step="0.01" readonly>
+                        </div>
+                        <div id="unit-price-field" class="form-group" style="display:none;">
+                            <label class="form-label">单价/平米/周期</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="number" id="unit-price" class="form-input" placeholder="请输入单价" step="0.01">
+                                <span>元/㎡/周期</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 租金总额
+                            </label>
+                            <input type="number" id="total-rent" class="form-input" placeholder="合同总金额" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 支付周期
+                            </label>
+                            <select id="payment-period" class="form-select" required>
+                                <option value="">请选择支付周期</option>
+                                <option value="月付">月付</option>
+                                <option value="季付">季付</option>
+                                <option value="年付">年付</option>
+                                <option value="一次性付">一次性付</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 租金金额/期
+                            </label>
+                            <input type="number" id="rent-per-period" class="form-input" placeholder="每期应收金额（可自动计算）" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">押金金额</label>
+                            <input type="number" id="deposit" class="form-input" placeholder="租赁押金" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 付款日
+                            </label>
+                            <input type="number" id="payment-day" class="form-input" placeholder="每期几号付款" min="1" max="31" required>
+                        </div>
+                        
+                        <!-- 缺失条款 -->
+                        <div class="form-group">
+                            <label class="form-label">免租期开始日</label>
+                            <input type="date" id="free-rent-start">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">免租期结束日</label>
+                            <input type="date" id="free-rent-end">
+                            <p class="text-xs text-gray-500">商业租赁常见条款，用于装修期等</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">租金递增约定</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="number" id="rent-increase-rate" class="form-input" placeholder="递增比例" step="0.01" min="0">
+                                <span>%</span>
+                                <select id="rent-increase-period" class="form-select">
+                                    <option value="">递增周期</option>
+                                    <option value="每年">每年</option>
+                                    <option value="每两年">每两年</option>
+                                    <option value="每三年">每三年</option>
+                                </select>
+                            </div>
+                            <p class="text-xs text-gray-500">如：每年递增5%</p>
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">违约金条款</label>
+                            <textarea id="penalty-clause" class="form-textarea" placeholder="提前解约的违约责任约定，如：提前解约需支付相当于3个月租金的违约金"></textarea>
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">其他费用条款</label>
+                            <textarea id="other-fees" class="form-textarea" placeholder="如物业费、水电费承担方等"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- 5. 收款计划 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <div class="flex items-center">
+                            <h3 class="text-lg font-semibold text-gray-800">收款计划</h3>
+                            <button type="button" class="ml-2 text-gray-400 hover:text-gray-600" onclick="showRuleModal()" title="查看生成规则">
+                                <i class="fa fa-question-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-sm text-gray-500">填写完租赁条款后，点击生成按钮查看收款计划预览</p>
+                        <button type="button" class="btn btn-primary" onclick="generateSchedulePreview()">
+                            <i class="fa fa-calculator"></i> 生成预览
+                        </button>
+                    </div>
+                    
+                    <div id="schedule-preview" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 hidden">
+                        <h4 class="font-semibold text-blue-800 mb-3">收款计划预览（前3期）</h4>
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-blue-100">
+                                    <th class="border border-blue-200 px-3 py-2 text-sm">期次</th>
+                                    <th class="border border-blue-200 px-3 py-2 text-sm">应收日期</th>
+                                    <th class="border border-blue-200 px-3 py-2 text-sm">本期租金</th>
+                                    <th class="border border-blue-200 px-3 py-2 text-sm">状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-body">
+                                <!-- 预览数据将动态生成 -->
+                            </tbody>
+                        </table>
+                        <p class="text-xs text-blue-600 mt-2">注：以上为模拟预览，实际收款计划将根据完整信息生成</p>
+                    </div>
+                    
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>期次</th>
+                                <th>应收日期</th>
+                                <th>应收金额</th>
+                                <th>已收金额</th>
+                                <th>状态</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-body">
+                            <!-- 数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+                <!-- 6. 合同文本 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">合同文本</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">合同模板</label>
+                            <div class="flex items-center space-x-2">
+                                <select id="contract-template" class="form-select">
+                                    <option value="">请选择标准合同模板</option>
+                                    <option value="房屋租赁合同模板">房屋租赁合同模板</option>
+                                    <option value="厂房租赁合同模板">厂房租赁合同模板</option>
+                                    <option value="商铺租赁合同模板">商铺租赁合同模板</option>
+                                </select>
+                                <button type="button" class="btn btn-sm btn-secondary" onclick="previewTemplate()" title="预览模板">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="downloadTemplate()" title="下载模板">
+                                    <i class="fa fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 电子合同文件
+                            </label>
+                            <label class="file-upload">
+                                <input type="file" id="contract-file" accept=".pdf,.doc,.docx" required>
+                                <i class="fa fa-upload"></i>
+                                <p>点击上传签约后的正式合同扫描件</p>
+                            </label>
+                            <div id="file-info" class="file-info hidden">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa fa-file-pdf-o text-red-500"></i>
+                                    <div class="flex-1">
+                                        <div class="file-name" id="file-name"></div>
+                                        <div class="file-size" id="file-size"></div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="viewFile()" title="查看文件">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="removeFile()" title="删除文件">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="required">*</span> 签约日期
+                            </label>
+                            <input type="date" id="sign-date" class="form-input" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- 7. 履约与终止 -->
+                <div class="mb-8" id="performance-section">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <div class="flex items-center">
+                            <h3 class="text-lg font-semibold text-gray-800">履约与终止</h3>
+                            <span class="ml-2 text-xs px-2 py-1 bg-gray-200 text-gray-600 rounded" id="performance-status">合同生效后填写</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4" id="performance-content">
+                        <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">实际起租日</label>
+                            <input type="date" id="actual-start">
+                            <p class="text-xs text-gray-500">≤ 合同开始日期，记录实际交接日</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">实际终止日期</label>
+                            <input type="date" id="actual-end">
+                            <p class="text-xs text-gray-500">记录提前解约或退租日</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">终止原因</label>
+                            <select id="termination-reason" class="form-select">
+                                <option value="">请选择终止原因</option>
+                                <option value="合同到期">合同到期</option>
+                                <option value="提前解约">提前解约</option>
+                                <option value="承租方违约">承租方违约</option>
+                                <option value="出租方违约">出租方违约</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">押金处理记录</label>
+                            <textarea id="deposit-handling" class="form-textarea" placeholder="记录扣除、退还情况"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <div class="mt-8 flex items-center justify-end space-x-4">
+                    <!-- 按钮将根据合同状态动态显示 -->
+                    <button type="button" class="btn btn-secondary" id="save-draft-btn" onclick="saveDraft()">
+                        <i class="fa fa-save"></i> 保存草稿
+                    </button>
+                    <button type="button" class="btn btn-primary" id="submit-approval-btn" onclick="submitForApproval()">
+                        <i class="fa fa-paper-plane"></i> 提交审批
+                    </button>
+                    <button type="button" class="btn btn-warning" id="resubmit-btn" onclick="resubmitApproval()" style="display:none;">
+                        <i class="fa fa-refresh"></i> 再次提交
+                    </button>
+                    <button type="button" class="btn btn-gray" id="approval-pending-btn" disabled style="display:none;">
+                        <i class="fa fa-spinner fa-spin"></i> 审批中...
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 规则说明浮窗 -->
+    <div id="rule-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:8px; padding:20px; width:90%; max-width:500px; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:18px; font-weight:bold;">收款计划生成规则</h3>
+                <button onclick="closeRuleModal()" style="background:none; border:none; font-size:20px; color:#666; cursor:pointer;">&times;</button>
+            </div>
+            <div style="margin-bottom:20px;">
+                <div style="margin-bottom:10px; display:flex;">
+                    <span style="width:24px; height:24px; background:#3b82f6; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:10px; flex-shrink:0;">1</span>
+                    <span>根据租赁开始日期和结束日期计算总租赁期间</span>
+                </div>
+                <div style="margin-bottom:10px; display:flex;">
+                    <span style="width:24px; height:24px; background:#3b82f6; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:10px; flex-shrink:0;">2</span>
+                    <span>根据支付周期（月付/季付/年付/一次性付）计算期数</span>
+                </div>
+                <div style="margin-bottom:10px; display:flex;">
+                    <span style="width:24px; height:24px; background:#3b82f6; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:10px; flex-shrink:0;">3</span>
+                    <span>自动计算每期的应收日期（从开始日期起，按支付周期递增）</span>
+                </div>
+                <div style="margin-bottom:10px; display:flex;">
+                    <span style="width:24px; height:24px; background:#3b82f6; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:10px; flex-shrink:0;">4</span>
+                    <span>根据租金金额/期计算每期应收金额</span>
+                </div>
+                <div style="margin-bottom:10px; display:flex;">
+                    <span style="width:24px; height:24px; background:#3b82f6; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:10px; flex-shrink:0;">5</span>
+                    <span>初始状态默认为"未收款"</span>
+                </div>
+                <div style="margin-bottom:10px; display:flex;">
+                    <span style="width:24px; height:24px; background:#3b82f6; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:10px; flex-shrink:0;">6</span>
+                    <span>支持手动调整每期的备注信息</span>
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <button onclick="closeRuleModal()" style="background:#6b7280; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+        
+        // 租赁资产数据
+        const rentalAssets = {
+            'ZC-2024-0001': { name: 'XX大厦A座1002室', category: '房屋', area: '120.5', status: '空闲/待租' },
+            'ZC-2024-0002': { name: 'XX工业园B区仓库', category: '房屋', area: '500.0', status: '空闲/待租' },
+            'ZC-2024-0003': { name: 'XX商业广场二层商铺', category: '房屋', area: '80.0', status: '空闲/待租' },
+            'ZC-2024-0004': { name: 'XX办公楼601室', category: '房屋', area: '150.0', status: '空闲/待租' },
+            'ZC-2024-0005': { name: 'XX物流园区仓库', category: '房屋', area: '1000.0', status: '空闲/待租' }
+        };
+
+        // 租赁资产选择事件
+        document.getElementById('rental-asset').addEventListener('change', function() {
+            const assetCode = this.value;
+            const assetInfo = document.getElementById('asset-info');
+            
+            if (assetCode && rentalAssets[assetCode]) {
+                const asset = rentalAssets[assetCode];
+                assetInfo.value = `${asset.name}（${assetCode}）- ${asset.category} - ${asset.area}平方米 - ${asset.status}`;
+            } else {
+                assetInfo.value = '';
+            }
+        });
+
+        // 承租方类型联动
+        document.getElementById('tenant-type').addEventListener('change', function() {
+            const tenantType = this.value;
+            
+            // 隐藏所有动态字段
+            document.getElementById('enterprise-fields').style.display = 'none';
+            document.getElementById('legal-representative-field').style.display = 'none';
+            document.getElementById('individual-fields').style.display = 'none';
+            document.getElementById('id-number-field').style.display = 'none';
+            
+            // 根据选择显示相应字段
+            if (tenantType === '企业') {
+                document.getElementById('enterprise-fields').style.display = 'block';
+                document.getElementById('legal-representative-field').style.display = 'block';
+            } else if (tenantType === '个人') {
+                document.getElementById('individual-fields').style.display = 'block';
+                document.getElementById('id-number-field').style.display = 'block';
+            }
+        });
+
+        // 送达地址联动
+        document.getElementById('same-address').addEventListener('change', function() {
+            const contactAddress = document.getElementById('tenant-address').value;
+            const serviceAddress = document.getElementById('service-address');
+            
+            if (this.checked) {
+                serviceAddress.value = contactAddress;
+                serviceAddress.readOnly = true;
+            } else {
+                serviceAddress.readOnly = false;
+            }
+        });
+
+        // 联系地址变化时同步更新送达地址
+        document.getElementById('tenant-address').addEventListener('input', function() {
+            const sameAddressCheckbox = document.getElementById('same-address');
+            const serviceAddress = document.getElementById('service-address');
+            
+            if (sameAddressCheckbox.checked) {
+                serviceAddress.value = this.value;
+            }
+        });
+
+        // 计租方式联动
+        document.getElementById('rental-method').addEventListener('change', function() {
+            const rentalMethod = this.value;
+            const areaFields = document.getElementById('area-calculation-fields');
+            const unitPriceField = document.getElementById('unit-price-field');
+            
+            if (rentalMethod === '按面积') {
+                areaFields.style.display = 'block';
+                unitPriceField.style.display = 'block';
+                
+                // 自动带入所选资产的面积
+                const assetCode = document.getElementById('rental-asset').value;
+                if (assetCode && rentalAssets[assetCode]) {
+                    document.getElementById('asset-area').value = rentalAssets[assetCode].area;
+                }
+            } else {
+                areaFields.style.display = 'none';
+                unitPriceField.style.display = 'none';
+            }
+            
+            // 重新计算租金
+            calculateRent();
+        });
+
+        // 租赁资产选择变化时更新面积
+        document.getElementById('rental-asset').addEventListener('change', function() {
+            const assetCode = this.value;
+            const assetInfo = document.getElementById('asset-info');
+            
+            if (assetCode && rentalAssets[assetCode]) {
+                const asset = rentalAssets[assetCode];
+                assetInfo.value = `${asset.name}（${assetCode}）- ${asset.category} - ${asset.area}平方米 - ${asset.status}`;
+                
+                // 如果当前是按面积计算，更新面积字段
+                if (document.getElementById('rental-method').value === '按面积') {
+                    document.getElementById('asset-area').value = asset.area;
+                }
+            } else {
+                assetInfo.value = '';
+                document.getElementById('asset-area').value = '';
+            }
+            
+            // 重新计算租金
+            calculateRent();
+        });
+
+        // 租金计算函数
+        function calculateRent() {
+            const rentalMethod = document.getElementById('rental-method').value;
+            const assetArea = parseFloat(document.getElementById('asset-area').value) || 0;
+            const unitPrice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const totalRent = parseFloat(document.getElementById('total-rent').value) || 0;
+            const paymentPeriod = document.getElementById('payment-period').value;
+            
+            if (rentalMethod === '按面积' && assetArea > 0 && unitPrice > 0) {
+                // 按面积计算租金金额/期
+                const rentPerPeriod = assetArea * unitPrice;
+                document.getElementById('rent-per-period').value = rentPerPeriod.toFixed(2);
+                
+                // 根据支付周期计算租金总额
+                let totalPeriods = 0;
+                const startDate = new Date(document.getElementById('rental-start').value);
+                const endDate = new Date(document.getElementById('rental-end').value);
+                
+                if (startDate && endDate) {
+                    const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                                      (endDate.getMonth() - startDate.getMonth());
+                    
+                    switch (paymentPeriod) {
+                        case '月付':
+                            totalPeriods = totalMonths;
+                            break;
+                        case '季付':
+                            totalPeriods = Math.ceil(totalMonths / 3);
+                            break;
+                        case '年付':
+                            totalPeriods = Math.ceil(totalMonths / 12);
+                            break;
+                        case '一次性付':
+                            totalPeriods = 1;
+                            break;
+                    }
+                    
+                    if (totalPeriods > 0) {
+                        document.getElementById('total-rent').value = (rentPerPeriod * totalPeriods).toFixed(2);
+                    }
+                }
+            } else if (totalRent > 0 && paymentPeriod) {
+                // 根据租金总额和支付周期计算每期租金
+                let totalPeriods = 0;
+                const startDate = new Date(document.getElementById('rental-start').value);
+                const endDate = new Date(document.getElementById('rental-end').value);
+                
+                if (startDate && endDate) {
+                    const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                                      (endDate.getMonth() - startDate.getMonth());
+                    
+                    switch (paymentPeriod) {
+                        case '月付':
+                            totalPeriods = totalMonths;
+                            break;
+                        case '季付':
+                            totalPeriods = Math.ceil(totalMonths / 3);
+                            break;
+                        case '年付':
+                            totalPeriods = Math.ceil(totalMonths / 12);
+                            break;
+                        case '一次性付':
+                            totalPeriods = 1;
+                            break;
+                    }
+                    
+                    if (totalPeriods > 0) {
+                        document.getElementById('rent-per-period').value = (totalRent / totalPeriods).toFixed(2);
+                    }
+                }
+            }
+        }
+
+        // 单价变化时重新计算租金
+        document.getElementById('unit-price').addEventListener('input', calculateRent);
+        
+        // 租金总额变化时重新计算每期租金
+        document.getElementById('total-rent').addEventListener('input', calculateRent);
+        
+        // 支付周期变化时重新计算租金
+        document.getElementById('payment-period').addEventListener('change', calculateRent);
+        
+        // 日期变化时重新计算租金
+        document.getElementById('rental-start').addEventListener('change', calculateRent);
+        document.getElementById('rental-end').addEventListener('change', calculateRent);
+
+        // 显示规则说明浮窗
+        function showRuleModal() {
+            document.getElementById('rule-modal').style.display = 'flex';
+        }
+
+        // 关闭规则说明浮窗
+        function closeRuleModal() {
+            document.getElementById('rule-modal').style.display = 'none';
+        }
+
+        // 生成收款计划预览
+        function generateSchedulePreview() {
+            const startDate = document.getElementById('rental-start').value;
+            const paymentPeriod = document.getElementById('payment-period').value;
+            const rentPerPeriod = parseFloat(document.getElementById('rent-per-period').value) || 0;
+            const paymentDay = parseInt(document.getElementById('payment-day').value) || 1;
+            
+            // 验证必要信息
+            if (!startDate || !paymentPeriod || rentPerPeriod <= 0) {
+                alert('请先填写完整的租赁条款信息');
+                return;
+            }
+            
+            const start = new Date(startDate);
+            const previewBody = document.getElementById('preview-body');
+            let html = '';
+            
+            // 生成前3期预览
+            for (let i = 0; i < 3; i++) {
+                const currentDate = new Date(start);
+                
+                // 根据支付周期计算日期
+                switch (paymentPeriod) {
+                    case '月付':
+                        currentDate.setMonth(currentDate.getMonth() + i);
+                        break;
+                    case '季付':
+                        currentDate.setMonth(currentDate.getMonth() + i * 3);
+                        break;
+                    case '年付':
+                        currentDate.setFullYear(currentDate.getFullYear() + i);
+                        break;
+                    case '一次性付':
+                        // 一次性付只有1期
+                        if (i === 0) {
+                            // 使用开始日期
+                        } else {
+                            break; // 只显示第一期
+                        }
+                }
+                
+                // 设置付款日
+                currentDate.setDate(paymentDay);
+                
+                // 格式化日期
+                const formattedDate = currentDate.toISOString().split('T')[0];
+                
+                html += `
+                    <tr>
+                        <td class="border border-blue-200 px-3 py-2 text-sm">${i + 1}</td>
+                        <td class="border border-blue-200 px-3 py-2 text-sm">${formattedDate}</td>
+                        <td class="border border-blue-200 px-3 py-2 text-sm">¥${rentPerPeriod.toFixed(2)}</td>
+                        <td class="border border-blue-200 px-3 py-2 text-sm"><span class="status-badge status-pending">未收款</span></td>
+                    </tr>
+                `;
+                
+                // 一次性付只显示一期
+                if (paymentPeriod === '一次性付') {
+                    break;
+                }
+            }
+            
+            previewBody.innerHTML = html;
+            document.getElementById('schedule-preview').style.display = 'block';
+        }
+
+        // 根据合同状态动态显示按钮
+        function updateActionButtons(status) {
+            const saveDraftBtn = document.getElementById('save-draft-btn');
+            const submitApprovalBtn = document.getElementById('submit-approval-btn');
+            const resubmitBtn = document.getElementById('resubmit-btn');
+            const approvalPendingBtn = document.getElementById('approval-pending-btn');
+            
+            // 隐藏所有按钮
+            saveDraftBtn.style.display = 'none';
+            submitApprovalBtn.style.display = 'none';
+            resubmitBtn.style.display = 'none';
+            approvalPendingBtn.style.display = 'none';
+            
+            // 根据状态显示相应按钮
+            switch (status) {
+                case '草稿':
+                    saveDraftBtn.style.display = 'inline-block';
+                    submitApprovalBtn.style.display = 'inline-block';
+                    break;
+                case '审批中':
+                    saveDraftBtn.style.display = 'inline-block';
+                    approvalPendingBtn.style.display = 'inline-block';
+                    break;
+                case '已驳回':
+                    saveDraftBtn.style.display = 'inline-block';
+                    resubmitBtn.style.display = 'inline-block';
+                    break;
+                default:
+                    saveDraftBtn.style.display = 'inline-block';
+                    submitApprovalBtn.style.display = 'inline-block';
+            }
+        }
+
+        // 合同状态变化时更新按钮
+        document.getElementById('contract-status').addEventListener('change', function() {
+            updateActionButtons(this.value);
+        });
+
+        // 保存草稿
+        function saveDraft() {
+            if (validateForm()) {
+                alert('合同草稿已保存！');
+            }
+        }
+
+        // 提交审批
+        function submitForApproval() {
+            if (validateForm()) {
+                alert('合同已提交审批！');
+                document.getElementById('contract-status').value = '审批中';
+                updateActionButtons('审批中');
+            }
+        }
+
+        // 再次提交
+        function resubmitApproval() {
+            if (validateForm()) {
+                alert('合同已再次提交审批！');
+                document.getElementById('contract-status').value = '审批中';
+                updateActionButtons('审批中');
+            }
+        }
+
+        // 预览合同模板
+        function previewTemplate() {
+            const template = document.getElementById('contract-template').value;
+            if (!template) {
+                alert('请先选择合同模板');
+                return;
+            }
+            
+            alert(`正在预览：${template}`);
+            // 实际项目中可以打开新窗口或模态框显示模板内容
+        }
+
+        // 下载合同模板
+        function downloadTemplate() {
+            const template = document.getElementById('contract-template').value;
+            if (!template) {
+                alert('请先选择合同模板');
+                return;
+            }
+            
+            alert(`正在下载：${template}`);
+            // 实际项目中可以生成下载链接
+        }
+
+        // 文件上传处理
+        document.getElementById('contract-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('file-name').textContent = file.name;
+                document.getElementById('file-size').textContent = formatFileSize(file.size);
+                document.getElementById('file-info').classList.remove('hidden');
+            }
+        });
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 查看文件
+        function viewFile() {
+            alert('正在查看上传的合同文件');
+            // 实际项目中可以打开文件预览
+        }
+
+        // 移除文件
+        function removeFile() {
+            document.getElementById('contract-file').value = '';
+            document.getElementById('file-info').classList.add('hidden');
+        }
+
+        // 更新履约与终止区域显示状态
+        function updatePerformanceSection(status) {
+            const performanceSection = document.getElementById('performance-section');
+            const performanceContent = document.getElementById('performance-content');
+            const performanceStatus = document.getElementById('performance-status');
+            const inputs = performanceContent.querySelectorAll('input, select, textarea');
+            
+            // 定义可编辑的状态
+            const editableStatuses = ['履行中', '已终止'];
+            
+            if (editableStatuses.includes(status)) {
+                // 开放填写
+                performanceStatus.textContent = '可填写';
+                performanceStatus.className = 'ml-2 text-xs px-2 py-1 bg-green-200 text-green-600 rounded';
+                
+                inputs.forEach(input => {
+                    input.disabled = false;
+                    input.classList.remove('bg-gray-100');
+                });
+            } else {
+                // 置灰不可编辑
+                performanceStatus.textContent = '合同生效后填写';
+                performanceStatus.className = 'ml-2 text-xs px-2 py-1 bg-gray-200 text-gray-600 rounded';
+                
+                inputs.forEach(input => {
+                    input.disabled = true;
+                    input.classList.add('bg-gray-100');
+                });
+            }
+        }
+
+        // 合同状态变化时更新履约与终止区域
+        document.getElementById('contract-status').addEventListener('change', function() {
+            updateActionButtons(this.value);
+            updatePerformanceSection(this.value);
+        });
+
+        // 页面加载时初始化履约与终止区域状态
+        document.addEventListener('DOMContentLoaded', function() {
+            const status = document.getElementById('contract-status').value;
+            updatePerformanceSection(status);
+        });
+
+        // 生成收款计划
+        function generateSchedule() {
+            const startDate = document.getElementById('rental-start').value;
+            const endDate = document.getElementById('rental-end').value;
+            const paymentPeriod = document.getElementById('payment-period').value;
+            const rentPerPeriod = parseFloat(document.getElementById('rent-per-period').value) || 0;
+            
+            if (!startDate || !endDate || !paymentPeriod) return;
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const schedule = [];
+            let currentDate = new Date(start);
+            let period = 1;
+
+            while (currentDate <= end) {
+                schedule.push({
+                    period: period++,
+                    date: currentDate.toISOString().split('T')[0],
+                    amount: rentPerPeriod,
+                    received: 0,
+                    status: '未收款'
+                });
+
+                // 根据支付周期计算下一期日期
+                switch(paymentPeriod) {
+                    case '月付':
+                        currentDate.setMonth(currentDate.getMonth() + 1);
+                        break;
+                    case '季付':
+                        currentDate.setMonth(currentDate.getMonth() + 3);
+                        break;
+                    case '年付':
+                        currentDate.setFullYear(currentDate.getFullYear() + 1);
+                        break;
+                    case '一次性付':
+                        currentDate = new Date(end.getTime() + 1); // 结束循环
+                        break;
+                }
+            }
+
+            renderSchedule(schedule);
+        }
+
+        function renderSchedule(schedule) {
+            const tbody = document.getElementById('schedule-body');
+            tbody.innerHTML = schedule.map(item => `
+                <tr>
+                    <td>${item.period}</td>
+                    <td>${item.date}</td>
+                    <td>¥${item.amount.toFixed(2)}</td>
+                    <td>¥${item.received.toFixed(2)}</td>
+                    <td><span class="status-badge ${item.status === '未收款' ? 'status-expired' : 'status-active'}">${item.status}</span></td>
+                    <td><input type="text" class="form-input" placeholder="备注"></td>
+                </tr>
+            `).join('');
+        }
+
+        // 文件上传处理
+        document.getElementById('contract-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('file-name').textContent = file.name;
+                document.getElementById('file-size').textContent = formatFileSize(file.size);
+                document.getElementById('file-info').classList.remove('hidden');
+            }
+        });
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function removeFile() {
+            document.getElementById('contract-file').value = '';
+            document.getElementById('file-info').classList.add('hidden');
+        }
+
+        // 表单提交处理
+        function saveDraft() {
+            if (validateForm()) {
+                alert('草稿保存成功！');
+            }
+        }
+
+        function submitForApproval() {
+            if (validateForm()) {
+                alert('合同已提交审批！');
+            }
+        }
+
+
+
+        function validateForm() {
+            // 基本验证
+            const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#ef4444';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '#e2e8f0';
+                }
+            });
+
+            // 验证资产选择
+            if (selectedAssets.length === 0) {
+                alert('请选择租赁资产！');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // 监听日期变化，自动生成收款计划
+        ['rental-start', 'rental-end', 'payment-period', 'rent-per-period'].forEach(id => {
+            document.getElementById(id).addEventListener('change', generateSchedule);
+        });
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置默认日期
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('rental-start').value = today;
+            
+            // 设置结束日期为一年后
+            const nextYear = new Date();
+            nextYear.setFullYear(nextYear.getFullYear() + 1);
+            document.getElementById('rental-end').value = nextYear.toISOString().split('T')[0];
+            
+            // 设置签约日期为今天
+            document.getElementById('sign-date').value = today;
+        });
+    </script>
+</body>
+</html>

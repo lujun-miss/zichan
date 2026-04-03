@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>审批中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            border-bottom: 2px solid #3b82f6;
+            color: #3b82f6;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-blue {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        .status-red {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        .status-green {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+        .status-yellow {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">审批中心</h2>
+        </div>
+
+        <!-- 选项卡 -->
+        <div class="bg-white rounded-lg shadow-sm mb-6">
+            <div class="border-b border-gray-200">
+                <div class="flex">
+                    <button class="tab-button px-6 py-4 text-gray-600 hover:text-blue-600 font-medium active" onclick="switchTab('my-initiated')">
+                        我发起的
+                    </button>
+                    <button class="tab-button px-6 py-4 text-gray-600 hover:text-blue-600 font-medium" onclick="switchTab('pending')">
+                        待我审核
+                    </button>
+                    <button class="tab-button px-6 py-4 text-gray-600 hover:text-blue-600 font-medium" onclick="switchTab('reviewed')">
+                        我已审核
+                    </button>
+                    <button class="tab-button px-6 py-4 text-gray-600 hover:text-blue-600 font-medium" onclick="switchTab('cc')">
+                        抄送给我
+                    </button>
+                </div>
+            </div>
+
+            <!-- 查询条件 -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="请输入">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">单号</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="请输入">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">申请类型</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="">请选择</option>
+                            <option value="purchase">采购订单</option>
+                            <option value="asset-receive">资产验收</option>
+                            <option value="asset-disposal">资产处置</option>
+                            <option value="asset-transfer">资产调拨</option>
+                            <option value="asset-return">资产归还</option>
+                            <option value="asset-warehouse">资产入库</option>
+                            <option value="asset-repair">资产报修</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">申请日期</label>
+                        <div class="flex space-x-2">
+                            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <span class="flex items-center text-gray-500">至</span>
+                            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="">请选择</option>
+                            <option value="pending">待审核</option>
+                            <option value="approved">已通过</option>
+                            <option value="rejected">已驳回</option>
+                            <option value="completed">已完成</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">创建人</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="请输入">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                        重置
+                    </button>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        查询
+                    </button>
+                </div>
+            </div>
+
+            <!-- 表格 -->
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">序号</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">标题</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单号</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申请日期</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申请类型</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">上一节点</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">上一节点处理人</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">上节点提交时间</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- 我发起的 -->
+                        <tr id="my-initiated-content" class="tab-content active">
+                            <td colspan="11" class="px-6 py-4">
+                                <div class="space-y-4">
+                                    <!-- 数据行 -->
+                                    <div class="flex items-center justify-between border-b border-gray-200 py-4">
+                                        <div class="flex items-center space-x-4">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-500">1</span>
+                                            <span class="status-badge status-blue">待审核</span>
+                                            <span class="text-sm font-medium text-gray-900">办公用品采购</span>
+                                            <span class="text-sm text-gray-500">XZ2024001</span>
+                                            <span class="text-sm text-gray-500">2024-01-05</span>
+                                            <span class="text-sm text-gray-500">采购订单</span>
+                                            <span class="text-sm text-gray-500">初审</span>
+                                            <span class="text-sm text-gray-500">张三</span>
+                                            <span class="text-sm text-gray-500">2024-08-28 10:00:00</span>
+                                        </div>
+                                        <div>
+                                            <button class="text-blue-600 hover:text-blue-800 text-sm">查看</button>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-gray-200 py-4">
+                                        <div class="flex items-center space-x-4">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-500">2</span>
+                                            <span class="status-badge status-blue">待审核</span>
+                                            <span class="text-sm font-medium text-gray-900">电脑采购</span>
+                                            <span class="text-sm text-gray-500">XZ2024002</span>
+                                            <span class="text-sm text-gray-500">2024-01-06</span>
+                                            <span class="text-sm text-gray-500">采购订单</span>
+                                            <span class="text-sm text-gray-500">部门审核</span>
+                                            <span class="text-sm text-gray-500">李四</span>
+                                            <span class="text-sm text-gray-500">2024-08-27 17:45:00</span>
+                                        </div>
+                                        <div>
+                                            <button class="text-blue-600 hover:text-blue-800 text-sm">查看</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- 待我审核 -->
+                        <tr id="pending-content" class="tab-content">
+                            <td colspan="11" class="px-6 py-4">
+                                <div class="space-y-4">
+                                    <!-- 数据行 -->
+                                    <div class="flex items-center justify-between border-b border-gray-200 py-4">
+                                        <div class="flex items-center space-x-4">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-500">1</span>
+                                            <span class="status-badge status-blue">待审核</span>
+                                            <span class="text-sm font-medium text-gray-900">建筑工程项目资产验收</span>
+                                            <span class="text-sm text-gray-500">XZ2024003</span>
+                                            <span class="text-sm text-gray-500">2024-01-07</span>
+                                            <span class="text-sm text-gray-500">资产验收</span>
+                                            <span class="text-sm text-gray-500">财务审核</span>
+                                            <span class="text-sm text-gray-500">王五</span>
+                                            <span class="text-sm text-gray-500">2024-08-27 13:30:00</span>
+                                        </div>
+                                        <div>
+                                            <button class="text-blue-600 hover:text-blue-800 text-sm">查看</button>
+                                            <button class="text-green-600 hover:text-green-800 text-sm ml-3">通过</button>
+                                            <button class="text-red-600 hover:text-red-800 text-sm ml-3">驳回</button>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-gray-200 py-4">
+                                        <div class="flex items-center space-x-4">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-500">2</span>
+                                            <span class="status-badge status-blue">待审核</span>
+                                            <span class="text-sm font-medium text-gray-900">资产购置与验收记录</span>
+                                            <span class="text-sm text-gray-500">XZ2024004</span>
+                                            <span class="text-sm text-gray-500">2024-01-08</span>
+                                            <span class="text-sm text-gray-500">资产处置</span>
+                                            <span class="text-sm text-gray-500">项目经理审核</span>
+                                            <span class="text-sm text-gray-500">赵六</span>
+                                            <span class="text-sm text-gray-500">2024-08-26 17:15:00</span>
+                                        </div>
+                                        <div>
+                                            <button class="text-blue-600 hover:text-blue-800 text-sm">查看</button>
+                                            <button class="text-green-600 hover:text-green-800 text-sm ml-3">通过</button>
+                                            <button class="text-red-600 hover:text-red-800 text-sm ml-3">驳回</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- 我已审核 -->
+                        <tr id="reviewed-content" class="tab-content">
+                            <td colspan="11" class="px-6 py-4">
+                                <div class="space-y-4">
+                                    <!-- 数据行 -->
+                                    <div class="flex items-center justify-between border-b border-gray-200 py-4">
+                                        <div class="flex items-center space-x-4">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-500">1</span>
+                                            <span class="status-badge status-green">已通过</span>
+                                            <span class="text-sm font-medium text-gray-900">笔记本电脑借用申请</span>
+                                            <span class="text-sm text-gray-500">XZ2024005</span>
+                                            <span class="text-sm text-gray-500">2024-01-09</span>
+                                            <span class="text-sm text-gray-500">资产调拨</span>
+                                            <span class="text-sm text-gray-500">合规审核</span>
+                                            <span class="text-sm text-gray-500">钱七</span>
+                                            <span class="text-sm text-gray-500">2024-08-26 14:00:00</span>
+                                        </div>
+                                        <div>
+                                            <button class="text-blue-600 hover:text-blue-800 text-sm">查看</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- 抄送给我 -->
+                        <tr id="cc-content" class="tab-content">
+                            <td colspan="11" class="px-6 py-4">
+                                <div class="space-y-4">
+                                    <!-- 数据行 -->
+                                    <div class="flex items-center justify-between border-b border-gray-200 py-4">
+                                        <div class="flex items-center space-x-4">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-500">1</span>
+                                            <span class="status-badge status-blue">待审核</span>
+                                            <span class="text-sm font-medium text-gray-900">投影仪借用登记</span>
+                                            <span class="text-sm text-gray-500">XZ2024006</span>
+                                            <span class="text-sm text-gray-500">2024-01-10</span>
+                                            <span class="text-sm text-gray-500">资产归还</span>
+                                            <span class="text-sm text-gray-500">风险评估</span>
+                                            <span class="text-sm text-gray-500">孙八</span>
+                                            <span class="text-sm text-gray-500">2024-08-26 16:45:00</span>
+                                        </div>
+                                        <div>
+                                            <button class="text-blue-600 hover:text-blue-800 text-sm">查看</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 导出按钮 -->
+            <div class="px-6 py-4 border-t border-gray-200">
+                <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i class="fa fa-download mr-2"></i> 导出
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // 移除所有选项卡的active状态
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // 隐藏所有内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 激活当前选项卡
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-content').classList.add('active');
+        }
+
+        // 根据URL参数切换选项卡
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab) {
+                switchTab(tab);
+                // 更新按钮状态
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.classList.remove('active');
+                    if (button.textContent.trim() === getTabName(tab)) {
+                        button.classList.add('active');
+                    }
+                });
+            }
+        });
+
+        function getTabName(tab) {
+            const tabMap = {
+                'my-initiated': '我发起的',
+                'pending': '待我审核',
+                'reviewed': '我已审核',
+                'cc': '抄送给我'
+            };
+            return tabMap[tab] || '我发起的';
+        }
+    </script>
+</body>
+</html>

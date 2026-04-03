@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增资产</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- 高德地图API -->
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=e8a4d7b6b7e8f9a0b1c2d3e4f5a6b7c8"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        #asset-province, #asset-city, #asset-district, #asset-street {
+            width: 80px;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="w-full p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 w-full">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">资产管理 &gt; 新增资产</h2>
+                <button class="btn btn-secondary" onclick="goBack()">
+                    <i class="fa fa-arrow-left mr-1"></i> 返回
+                </button>
+            </div>
+            
+            <form id="add-asset-form">
+                <!-- 1. 基础信息 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">基础信息</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <table class="w-full">
+                            <tbody>
+                                <tr>
+                                    <td class="py-2 pr-4 w-1/4"><label class="form-label">资产编码</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="asset-code" class="form-input" placeholder="保存后自动生成" disabled></td>
+                                    <td class="py-2 px-4 w-1/4"><label class="form-label">资产名称 <span class="text-red-500">*</span></label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="asset-name" class="form-input" placeholder="请输入资产名称" required></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">资产分类 <span class="text-red-500">*</span></label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="asset-category" class="form-input" required onchange="updateFieldsByCategory(this.value)">
+                                            <option value="">请选择资产分类</option>
+                                            <option value="房屋">房屋</option>
+                                            <option value="土地">土地</option>
+                                            <option value="设备">设备</option>
+                                        </select>
+                                    </td>
+                                    <td class="py-2 px-4"><label class="form-label">规格型号</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="asset-model" class="form-input" placeholder="请输入"></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">品牌</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="asset-brand" class="form-input" placeholder="请输入"></td>
+                                    <td class="py-2 px-4"><label class="form-label">序列号/出厂编号</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="asset-serial" class="form-input" placeholder="请输入"></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">计量单位</label></td>
+                                    <td colspan="3" class="py-2 pb-4">
+                                        <select id="asset-unit" class="form-input">
+                                            <option value="">请选择</option>
+                                            <option value="个">个</option>
+                                            <option value="台">台</option>
+                                            <option value="套">套</option>
+                                            <option value="间">间</option>
+                                            <option value="平方米">平方米</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">资产用途</label></td>
+                                    <td colspan="3" class="py-2 pb-4"><input type="text" id="asset-purpose" class="form-input" placeholder="请输入"></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">面积</label></td>
+                                    <td class="py-2 pb-4"><input type="number" id="asset-area" class="form-input" placeholder="请输入面积" step="0.01"></td>
+                                    <td class="py-2 px-4"><label class="form-label">面积单位</label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="asset-area-unit" class="form-input">
+                                            <option value="平方米">平方米</option>
+                                            <option value="平方分米">平方分米</option>
+                                            <option value="平方厘米">平方厘米</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 2. 状态与生命周期 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">状态与生命周期</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <table class="w-full">
+                            <tbody>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">业务类型</label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="asset-business-type" class="form-input">
+                                            <option value="">请选择业务类型</option>
+                                            <option value="自用">自用</option>
+                                            <option value="出租">出租</option>
+                                            <option value="出借">出借</option>
+                                            <option value="待处置">待处置</option>
+                                        </select>
+                                    </td>
+                                    <td class="py-2 px-4"><label class="form-label">资产状态 <span class="text-red-500">*</span></label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="asset-status" class="form-input" required>
+                                            <option value="">请选择资产状态</option>
+                                            <option value="在用">在用</option>
+                                            <option value="闲置">闲置</option>
+                                            <option value="维修中">维修中</option>
+                                            <option value="已报废">已报废</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">启用日期</label></td>
+                                    <td class="py-2 pb-4"><input type="date" id="asset-start-date" class="form-input"></td>
+                                    <td class="py-2 px-4"><label class="form-label">维保状态</label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="maintenance-status" class="form-input">
+                                            <option value="">请选择</option>
+                                            <option value="在保">在保</option>
+                                            <option value="过期">过期</option>
+                                            <option value="未维保">未维保</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">维保到期日期</label></td>
+                                    <td colspan="3" class="py-2 pb-4"><input type="date" id="maintenance-end-date" class="form-input"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 3. 财务价值 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">财务价值</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <table class="w-full">
+                            <tbody>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">资产原值 <span class="text-red-500">*</span></label></td>
+                                    <td class="py-2 pb-4"><input type="number" id="asset-original-value" class="form-input" placeholder="请输入" step="0.01" required></td>
+                                    <td class="py-2 px-4"><label class="form-label">累计折旧</label></td>
+                                    <td class="py-2 pb-4"><input type="number" id="asset-accumulated-depreciation" class="form-input" placeholder="系统自动计算" disabled></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">资产净值</label></td>
+                                    <td class="py-2 pb-4"><input type="number" id="asset-net-value" class="form-input" placeholder="原值 - 累计折旧" disabled></td>
+                                    <td class="py-2 px-4"><label class="form-label">折旧方法 <span class="text-red-500">*</span></label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="asset-depreciation-method" class="form-input" required>
+                                            <option value="">请选择</option>
+                                            <option value="平均年限法">平均年限法</option>
+                                            <option value="工作量法">工作量法</option>
+                                            <option value="双倍余额递减法">双倍余额递减法</option>
+                                            <option value="年数总和法">年数总和法</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">预计使用年限（年） <span class="text-red-500">*</span></label></td>
+                                    <td class="py-2 pb-4"><input type="number" id="asset-useful-life" class="form-input" placeholder="请输入" min="1" required></td>
+                                    <td class="py-2 px-4"><label class="form-label">预计净残值率（%）</label></td>
+                                    <td class="py-2 pb-4"><input type="number" id="asset-salvage-rate" class="form-input" placeholder="请输入" min="0" max="100" step="0.01"></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">开始计提折旧日期 <span class="text-red-500">*</span></label></td>
+                                    <td class="py-2 pb-4"><input type="date" id="asset-depreciation-start-date" class="form-input" required></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. 权责与位置 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">权责与位置</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <table class="w-full">
+                            <tbody>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">使用部门</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="asset-department" class="form-input" placeholder="请输入"></td>
+                                    <td class="py-2 px-4"><label class="form-label">使用人</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="asset-user" class="form-input" placeholder="请输入"></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">资产管理员</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="asset-manager" class="form-input" placeholder="请输入"></td>
+                                    <td class="py-2 px-4"><label class="form-label">资产管理部门</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="asset-management-department" class="form-input" placeholder="请输入"></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">资产存放位置</label></td>
+                                    <td colspan="3" class="py-2 pb-4">
+                                        <div class="space-y-2">
+                                            <div class="flex space-x-1">
+                                                <select id="asset-province" class="form-input" placeholder="省">
+                                                    <option value="">省</option>
+                                                    <option value="北京">北京</option>
+                                                    <option value="上海">上海</option>
+                                                    <option value="广东">广东</option>
+                                                    <option value="浙江">浙江</option>
+                                                    <option value="江苏">江苏</option>
+                                                </select>
+                                                <select id="asset-city" class="form-input" placeholder="市">
+                                                    <option value="">市</option>
+                                                </select>
+                                                <select id="asset-district" class="form-input" placeholder="区">
+                                                    <option value="">区</option>
+                                                </select>
+                                                <select id="asset-street" class="form-input" placeholder="街道">
+                                                    <option value="">街道</option>
+                                                </select>
+                                                <button type="button" id="select-location-btn" class="btn btn-sm btn-primary">
+                                                    <i class="fa fa-map-marker mr-1"></i> 地图选择
+                                                </button>
+                                            </div>
+                                            <input type="text" id="asset-address" class="form-input" placeholder="门牌号（如：XX街道XX号）">
+                                            <p class="text-xs text-gray-500 mt-1">标准地址库：省-市-区-街道-门牌号级联选择</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">详细存放位置</label></td>
+                                    <td colspan="3" class="py-2 pb-4">
+                                        <div class="flex space-x-2">
+                                            <input type="text" id="asset-building-code" class="form-input flex-1" placeholder="楼宇编码（如：B01）">
+                                            <input type="text" id="asset-floor" class="form-input flex-1" placeholder="楼层（如：12F）">
+                                            <input type="text" id="asset-room" class="form-input flex-1" placeholder="房间号（如：1203）">
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-1">标准位置编码：楼宇编码-楼层-房间号/区域号（如：B01-12F-1203）</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 5. 采购与来源 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">采购与来源</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <table class="w-full">
+                            <tbody>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">来源</label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="asset-source" class="form-input">
+                                            <option value="">请选择</option>
+                                            <option value="采购">采购</option>
+                                            <option value="捐赠">捐赠</option>
+                                            <option value="调拨">调拨</option>
+                                            <option value="其他">其他</option>
+                                        </select>
+                                    </td>
+                                    <td class="py-2 px-4"><label class="form-label">采购订单</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="purchase-order" class="form-input" placeholder="请输入"></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">采购日期</label></td>
+                                    <td class="py-2 pb-4"><input type="date" id="purchase-date" class="form-input"></td>
+                                    <td class="py-2 px-4"><label class="form-label">采购部门</label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="purchase-department" class="form-input">
+                                            <option value="">请选择</option>
+                                            <option value="采购部">采购部</option>
+                                            <option value="行政部">行政部</option>
+                                            <option value="财务部">财务部</option>
+                                            <option value="其他">其他</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">采购人</label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="purchase-person" class="form-input">
+                                            <option value="">请选择</option>
+                                            <option value="张三">张三</option>
+                                            <option value="李四">李四</option>
+                                            <option value="王五">王五</option>
+                                        </select>
+                                    </td>
+                                    <td class="py-2 px-4"><label class="form-label">供应商</label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="supplier" class="form-input">
+                                            <option value="">请选择</option>
+                                            <option value="供应商A">供应商A</option>
+                                            <option value="供应商B">供应商B</option>
+                                            <option value="供应商C">供应商C</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">供应商联系人</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="supplier-contact" class="form-input" placeholder="请输入"></td>
+                                    <td class="py-2 px-4"><label class="form-label">联系方式</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="supplier-phone" class="form-input" placeholder="请输入"></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">生产厂家</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="manufacturer" class="form-input" placeholder="请输入"></td>
+                                    <td class="py-2 px-4"><label class="form-label">出厂日期</label></td>
+                                    <td class="py-2 pb-4"><input type="date" id="asset-production-date" class="form-input"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+
+                
+
+
+                <!-- 6. 维保与支持 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">维保与支持</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <table class="w-full">
+                            <tbody>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">维保厂商</label></td>
+                                    <td class="py-2 pb-4">
+                                        <select id="maintenance-vendor" class="form-input">
+                                            <option value="">请选择</option>
+                                            <option value="维保厂商A">维保厂商A</option>
+                                            <option value="维保厂商B">维保厂商B</option>
+                                            <option value="维保厂商C">维保厂商C</option>
+                                        </select>
+                                    </td>
+                                    <td class="py-2 px-4"><label class="form-label">维保厂商编码</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="maintenance-vendor-code" class="form-input" placeholder="保存后自动生成" disabled></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">售后联系人</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="maintenance-contact" class="form-input" placeholder="请输入"></td>
+                                    <td class="py-2 px-4"><label class="form-label">售后联系方式</label></td>
+                                    <td class="py-2 pb-4"><input type="text" id="maintenance-phone" class="form-input" placeholder="请输入"></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">维保开始日期</label></td>
+                                    <td class="py-2 pb-4"><input type="date" id="maintenance-start-date" class="form-input"></td>
+                                    <td class="py-2 px-4"><label class="form-label">保修期（月）</label></td>
+                                    <td class="py-2 pb-4"><input type="number" id="maintenance-period" class="form-input" placeholder="请输入"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 7. 附件档案 -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1 h-6 bg-blue-500 mr-3"></div>
+                        <h3 class="text-lg font-semibold text-gray-800">附件档案</h3>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <table class="w-full">
+                            <tbody>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">资产照片</label></td>
+                                    <td colspan="3" class="py-2">
+                                        <div class="flex items-center space-x-2">
+                                            <input type="file" id="asset-photo" class="form-input" accept="image/*" onchange="previewImage(event)">
+                                            <button type="button" class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" onclick="clearPhoto()">清除</button>
+                                        </div>
+                                        <div id="photo-preview" class="mt-2 hidden">
+                                            <img id="photo-img" src="" alt="资产照片预览" class="max-w-xs h-auto rounded">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 pr-4"><label class="form-label">备注</label></td>
+                                    <td colspan="3" class="py-2"><textarea id="asset-remark" class="form-input" rows="2" placeholder="请输入备注信息"></textarea></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="mt-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <i class="fa fa-paperclip text-gray-400 mr-2"></i>
+                                    <span class="text-sm text-gray-600">支持上传图片、PDF、Word等格式文件</span>
+                                </div>
+                                <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                                    <i class="fa fa-plus mr-2"></i>
+                                    上传附件
+                                </button>
+                            </div>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                                <i class="fa fa-cloud-upload text-gray-400 text-4xl mb-4"></i>
+                                <p class="text-gray-500 mb-2">点击或拖拽文件到此处上传</p>
+                                <p class="text-xs text-gray-400">支持单个文件最大10MB</p>
+                            </div>
+                            <div class="mt-4">
+                                <h4 class="text-sm font-semibold text-gray-700 mb-2">已上传附件</h4>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                                        <div class="flex items-center">
+                                            <i class="fa fa-file-pdf-o text-red-500 mr-3"></i>
+                                            <span class="text-sm text-gray-700">资产购买合同.pdf</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <button class="text-blue-600 hover:text-blue-900 text-sm">下载</button>
+                                            <button class="text-red-600 hover:text-red-900 text-sm">删除</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex items-center justify-end space-x-4">
+                    <button type="button" class="btn btn-secondary" onclick="goBack()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!-- 地图选择模态窗口 -->
+    <div id="map-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-lg w-11/12 max-w-4xl">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h3 class="text-lg font-semibold text-gray-800">选择位置</h3>
+                <button type="button" onclick="closeMapSelector()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                <div id="map-container" style="height: 400px; width: 100%;"></div>
+            </div>
+            <div class="flex items-center justify-end p-4 border-t space-x-3">
+                <button type="button" onclick="closeMapSelector()" class="btn btn-secondary">取消</button>
+                <button type="button" onclick="confirmLocation()" class="btn btn-primary">确认位置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+        
+        // 地图对象和选择的位置
+        let map = null;
+        let selectedMarker = null;
+        let selectedLocation = null;
+        
+        // 根据资产分类更新字段显示
+        function updateFieldsByCategory(category) {
+            const assetAreaField = document.getElementById('asset-area');
+            const assetAreaUnitField = document.getElementById('asset-area-unit');
+            const assetAreaLabel = assetAreaField.parentElement.previousElementSibling;
+            
+            // 对于设备类型，隐藏面积字段（设备通常不需要面积）
+            if (category === '设备') {
+                assetAreaField.style.display = 'none';
+                assetAreaUnitField.style.display = 'none';
+                const areaStar = assetAreaLabel.querySelector('.text-red-500');
+                if (areaStar) areaStar.remove();
+                assetAreaField.required = false;
+            } 
+            // 对于土地和房屋类型，显示面积字段（房屋/土地需要面积）
+            else if (category === '房屋' || category === '土地') {
+                assetAreaField.style.display = 'block';
+                assetAreaUnitField.style.display = 'block';
+            }
+            // 默认状态
+            else {
+                // 默认显示面积字段
+                assetAreaField.style.display = 'block';
+                assetAreaUnitField.style.display = 'block';
+            }
+        }
+        
+        // 资产照片预览功能
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('photo-preview');
+                    const img = document.getElementById('photo-img');
+                    img.src = e.target.result;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // 清除资产照片
+        function clearPhoto() {
+            const input = document.getElementById('asset-photo');
+            const preview = document.getElementById('photo-preview');
+            input.value = '';
+            preview.classList.add('hidden');
+        }
+        
+        // 打开地图选择器
+        function openMapSelector() {
+            const modal = document.getElementById('map-modal');
+            modal.classList.remove('hidden');
+            
+            // 初始化地图
+            initMap();
+        }
+        
+        // 关闭地图选择器
+        function closeMapSelector() {
+            const modal = document.getElementById('map-modal');
+            modal.classList.add('hidden');
+        }
+        
+        // 初始化地图
+        function initMap() {
+            // 检查地图容器是否存在
+            const container = document.getElementById('map-container');
+            if (!container) return;
+            
+            // 使用高德地图API
+            if (typeof AMap !== 'undefined') {
+                // 创建地图实例
+                if (!map) {
+                    map = new AMap.Map('map-container', {
+                        zoom: 13,
+                        center: [116.397428, 39.90923] // 默认北京坐标
+                    });
+                    
+                    // 添加点击事件
+                    map.on('click', function(e) {
+                        const lnglat = e.lnglat;
+                        
+                        // 移除之前的标记
+                        if (selectedMarker) {
+                            map.remove(selectedMarker);
+                        }
+                        
+                        // 添加新标记
+                        selectedMarker = new AMap.Marker({
+                            position: lnglat,
+                            title: '选中位置'
+                        });
+                        map.add(selectedMarker);
+                        
+                        // 保存选择的位置
+                        selectedLocation = {
+                            longitude: lnglat.getLng(),
+                            latitude: lnglat.getLat()
+                        };
+                        
+                        // 逆地理编码获取地址
+                        const geocoder = new AMap.Geocoder({
+                            radius: 1000,
+                            extensions: 'all'
+                        });
+                        
+                        geocoder.getAddress(lnglat, function(status, result) {
+                            if (status === 'complete' && result.regeocode) {
+                                const formattedAddress = result.regeocode.formattedAddress;
+                                const addressComponent = result.regeocode.addressComponent;
+                                
+                                // 填充地址信息
+                                document.getElementById('asset-province').value = addressComponent.province || '';
+                                document.getElementById('asset-city').value = addressComponent.city || '';
+                                document.getElementById('asset-district').value = addressComponent.district || '';
+                                document.getElementById('asset-street').value = addressComponent.township || '';
+                                document.getElementById('asset-address').value = formattedAddress;
+                            }
+                        });
+                    });
+                }
+            } else {
+                // 如果地图API未加载，显示提示信息
+                container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500"><i class="fa fa-map-o mr-2"></i> 地图加载中...</div>';
+                
+                // 动态加载高德地图API
+                loadAMapScript();
+            }
+        }
+        
+        // 加载高德地图API
+        function loadAMapScript() {
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://webapi.amap.com/maps?v=2.0&key=您的高德地图API密钥';
+            script.onload = function() {
+                initMap();
+            };
+            document.head.appendChild(script);
+        }
+        
+        // 确认位置选择
+        function confirmLocation() {
+            closeMapSelector();
+        }
+        
+        // 初始化字段显示
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('asset-category');
+            const provinceSelect = document.getElementById('asset-province');
+            const citySelect = document.getElementById('asset-city');
+            const districtSelect = document.getElementById('asset-district');
+            const streetSelect = document.getElementById('asset-street');
+            const selectLocationBtn = document.getElementById('select-location-btn');
+            
+            // 初始化字段显示
+            updateFieldsByCategory(categorySelect.value);
+            
+            // 资产分类变更事件
+            categorySelect.addEventListener('change', function() {
+                updateFieldsByCategory(this.value);
+            });
+            
+            // 级联选择数据
+            const cityData = {
+                '北京': ['北京市'],
+                '上海': ['上海市'],
+                '广东': ['广州市', '深圳市', '佛山市', '东莞市'],
+                '浙江': ['杭州市', '宁波市', '温州市', '绍兴市'],
+                '江苏': ['南京市', '苏州市', '无锡市', '常州市']
+            };
+            
+            const districtData = {
+                '北京市': ['东城区', '西城区', '朝阳区', '海淀区', '丰台区', '石景山区'],
+                '上海市': ['黄浦区', '徐汇区', '长宁区', '静安区', '普陀区', '虹口区'],
+                '广州市': ['越秀区', '海珠区', '荔湾区', '天河区', '白云区', '黄埔区'],
+                '深圳市': ['罗湖区', '福田区', '南山区', '宝安区', '龙岗区', '盐田区'],
+                '杭州市': ['上城区', '下城区', '江干区', '拱墅区', '西湖区', '滨江区'],
+                '南京市': ['玄武区', '秦淮区', '鼓楼区', '建邺区', '栖霞区', '雨花台区']
+            };
+            
+            const streetData = {
+                '东城区': ['东华门街道', '景山街道', '交道口街道', '安定门街道'],
+                '西城区': ['西长安街街道', '新街口街道', '德胜街道', '月坛街道'],
+                '朝阳区': ['三里屯街道', '朝外街道', '劲松街道', '呼家楼街道'],
+                '海淀区': ['海淀街道', '中关村街道', '清华园街道', '燕园街道'],
+                '黄浦区': ['南京东路街道', '外滩街道', '豫园街道', '老西门街道'],
+                '徐汇区': ['天平路街道', '湖南路街道', '斜土路街道', '枫林路街道'],
+                '越秀区': ['洪桥街道', '广卫街道', '北京街道', '六榕街道'],
+                '海珠区': ['赤岗街道', '新港街道', '昌岗街道', '江南中街道'],
+                '罗湖区': ['桂园街道', '东门街道', '南湖街道', '桂园街道'],
+                '福田区': ['南园街道', '园岭街道', '福田街道', '沙头街道'],
+                '上城区': ['清波街道', '湖滨街道', '小营街道', '望江街道'],
+                '西湖区': ['北山街道', '西溪街道', '翠苑街道', '古荡街道'],
+                '玄武区': ['兰园街道', '红山街道', '锁金村街道', '孝陵卫街道'],
+                '鼓楼区': ['华侨路街道', '宁海路街道', '湖南路街道', '中央门街道']
+            };
+            
+            // 省份选择变更事件
+            provinceSelect.addEventListener('change', function() {
+                const province = this.value;
+                citySelect.innerHTML = '<option value="">请选择城市</option>';
+                
+                if (province && cityData[province]) {
+                    cityData[province].forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city;
+                        option.textContent = city;
+                        citySelect.appendChild(option);
+                    });
+                }
+                
+                // 清空后续选择
+                districtSelect.innerHTML = '<option value="">请选择区县</option>';
+                streetSelect.innerHTML = '<option value="">请选择街道</option>';
+            });
+            
+            // 城市选择变更事件
+            citySelect.addEventListener('change', function() {
+                const city = this.value;
+                districtSelect.innerHTML = '<option value="">请选择区县</option>';
+                
+                if (city && districtData[city]) {
+                    districtData[city].forEach(district => {
+                        const option = document.createElement('option');
+                        option.value = district;
+                        option.textContent = district;
+                        districtSelect.appendChild(option);
+                    });
+                }
+                
+                // 清空后续选择
+                streetSelect.innerHTML = '<option value="">请选择街道</option>';
+            });
+            
+            // 区县选择变更事件
+            districtSelect.addEventListener('change', function() {
+                const district = this.value;
+                streetSelect.innerHTML = '<option value="">请选择街道</option>';
+                
+                if (district && streetData[district]) {
+                    streetData[district].forEach(street => {
+                        const option = document.createElement('option');
+                        option.value = street;
+                        option.textContent = street;
+                        streetSelect.appendChild(option);
+                    });
+                }
+            });
+            
+            // 地图选择按钮点击事件
+            selectLocationBtn.addEventListener('click', function() {
+                openMapSelector();
+            });
+            
+            // 资产净值自动计算
+            const assetOriginalValue = document.getElementById('asset-original-value');
+            const assetAccumulatedDepreciation = document.getElementById('asset-accumulated-depreciation');
+            const assetNetValue = document.getElementById('asset-net-value');
+            
+            function calculateNetValue() {
+                const originalValue = parseFloat(assetOriginalValue.value) || 0;
+                const accumulatedDepreciation = parseFloat(assetAccumulatedDepreciation.value) || 0;
+                const netValue = originalValue - accumulatedDepreciation;
+                assetNetValue.value = netValue.toFixed(2);
+            }
+            
+            assetOriginalValue.addEventListener('input', calculateNetValue);
+            assetAccumulatedDepreciation.addEventListener('input', calculateNetValue);
+            
+            // 维保到期日自动计算
+            const maintenanceStartDate = document.getElementById('maintenance-start-date');
+            const maintenancePeriod = document.getElementById('maintenance-period');
+            const maintenanceEndDate = document.getElementById('maintenance-end-date');
+            
+            function calculateMaintenanceEndDate() {
+                const startDate = new Date(maintenanceStartDate.value);
+                const period = parseInt(maintenancePeriod.value);
+                
+                if (!isNaN(startDate.getTime()) && period > 0) {
+                    const endDate = new Date(startDate);
+                    endDate.setMonth(startDate.getMonth() + period);
+                    maintenanceEndDate.value = endDate.toISOString().split('T')[0];
+                }
+            }
+            
+            maintenanceStartDate.addEventListener('input', calculateMaintenanceEndDate);
+            maintenancePeriod.addEventListener('input', calculateMaintenanceEndDate);
+            
+            // 增强搜索与选择功能
+            function createSearchableSelect(selectId) {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+                
+                // 创建搜索输入框
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.className = 'form-input mb-2';
+                searchInput.placeholder = '搜索...';
+                
+                // 保存原始选项
+                const originalOptions = Array.from(select.options).map(option => ({
+                    value: option.value,
+                    text: option.text
+                }));
+                
+                // 将搜索框插入到选择框前面
+                select.parentNode.insertBefore(searchInput, select);
+                
+                // 搜索功能
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    select.innerHTML = '';
+                    
+                    originalOptions.forEach(option => {
+                        if (option.text.toLowerCase().includes(searchTerm)) {
+                            const newOption = document.createElement('option');
+                            newOption.value = option.value;
+                            newOption.textContent = option.text;
+                            select.appendChild(newOption);
+                        }
+                    });
+                });
+            }
+            
+            // 将供应商和维保厂商转换为支持搜索的选择框
+            createSearchableSelect('supplier');
+            createSearchableSelect('maintenance-vendor');
+            
+            // 表单提交事件
+            document.getElementById('add-asset-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 获取表单数据
+                const formData = {
+                    // 基础信息
+                    code: document.getElementById('asset-code').value,
+                    name: document.getElementById('asset-name').value,
+                    model: document.getElementById('asset-model').value,
+                    unit: document.getElementById('asset-unit').value,
+                    category: document.getElementById('asset-category').value,
+                    serial: document.getElementById('asset-serial').value,
+                    source: document.getElementById('asset-source').value,
+                    manager: document.getElementById('asset-manager').value,
+                    user: document.getElementById('asset-user').value,
+                    department: document.getElementById('asset-department').value,
+                    managementDepartment: document.getElementById('asset-management-department').value,
+                    status: document.getElementById('asset-status').value,
+                    // 标准地址库位置信息
+                    location: {
+                        province: document.getElementById('asset-province').value,
+                        city: document.getElementById('asset-city').value,
+                        district: document.getElementById('asset-district').value,
+                        street: document.getElementById('asset-street').value,
+                        address: document.getElementById('asset-address').value
+                    },
+                    // 标准位置编码
+                    detailedLocation: (function() {
+                        const buildingCode = document.getElementById('asset-building-code').value;
+                        const floor = document.getElementById('asset-floor').value;
+                        const room = document.getElementById('asset-room').value;
+                        if (buildingCode && floor && room) {
+                            return `${buildingCode}-${floor}-${room}`;
+                        }
+                        return `${buildingCode || ''}${floor ? '-' + floor : ''}${room ? '-' + room : ''}`;
+                    })(),
+                    purpose: document.getElementById('asset-purpose').value,
+                    productionDate: document.getElementById('asset-production-date').value,
+                    startDate: document.getElementById('asset-start-date').value,
+                    // 财务信息
+                    originalValue: document.getElementById('asset-original-value').value,
+                    accumulatedDepreciation: document.getElementById('asset-accumulated-depreciation').value,
+                    netValue: document.getElementById('asset-net-value').value,
+                    depreciationMethod: document.getElementById('asset-depreciation-method').value,
+                    usefulLife: document.getElementById('asset-useful-life').value,
+                    salvageRate: document.getElementById('asset-salvage-rate').value,
+                    depreciationStartDate: document.getElementById('asset-depreciation-start-date').value,
+                    // 业务用途信息
+                    businessType: document.getElementById('asset-business-type').value,
+                    area: document.getElementById('asset-area').value,
+                    paymentPeriod: document.getElementById('payment-period').value,
+                    rentalAmount: document.getElementById('rental-amount').value,
+                    // 资产照片
+                    photo: document.getElementById('asset-photo').files[0],
+                    remark: document.getElementById('asset-remark').value,
+                    
+                    // 采购信息
+                    purchaseOrder: document.getElementById('purchase-order').value,
+                    purchaseDate: document.getElementById('purchase-date').value,
+                    purchaseDepartment: document.getElementById('purchase-department').value,
+                    purchasePerson: document.getElementById('purchase-person').value,
+                    supplier: document.getElementById('supplier').value,
+                    supplierContact: document.getElementById('supplier-contact').value,
+                    supplierPhone: document.getElementById('supplier-phone').value,
+                    
+                    // 维保信息
+                    maintenanceVendor: document.getElementById('maintenance-vendor').value,
+                    maintenanceVendorCode: document.getElementById('maintenance-vendor-code').value,
+                    maintenanceContact: document.getElementById('maintenance-contact').value,
+                    maintenancePhone: document.getElementById('maintenance-phone').value,
+                    maintenanceStartDate: document.getElementById('maintenance-start-date').value,
+                    maintenancePeriod: document.getElementById('maintenance-period').value,
+                    maintenanceEndDate: document.getElementById('maintenance-end-date').value,
+                    maintenanceStatus: document.getElementById('maintenance-status').value
+                };
+                
+                // 这里可以添加表单验证和提交逻辑
+                console.log('表单数据:', formData);
+                
+                // 模拟保存成功
+                alert('资产添加成功！');
+                goBack();
+            });
+        });
+    </script>
+</body>
+</html>

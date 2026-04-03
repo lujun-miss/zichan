@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建考核周期</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6">
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='performance_flow.html'" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i class="fa fa-arrow-left mr-2"></i> 返回
+                </button>
+                <h2 class="text-2xl font-bold text-gray-800">创建考核周期</h2>
+            </div>
+            <p class="text-gray-600 mt-2">设置新的绩效考核周期</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <form id="createPerformanceForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <span class="text-red-500">*</span> 考核周期名称
+                        </label>
+                        <input type="text" id="cycleName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="例如：2026年第一季度考核" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">考核类型</label>
+                        <select id="cycleType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="quarterly">季度考核</option>
+                            <option value="yearly">年度考核</option>
+                            <option value="special">专项考核</option>
+                            <option value="monthly">月度考核</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <span class="text-red-500">*</span> 开始日期
+                        </label>
+                        <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <span class="text-red-500">*</span> 结束日期
+                        </label>
+                        <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">考核任务模板</label>
+                    <select id="flowTemplate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <option value="quarterly">季度考核任务</option>
+                        <option value="yearly">年度考核任务</option>
+                        <option value="special">专项考核任务</option>
+                        <option value="custom">自定义任务</option>
+                    </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">负责人</label>
+                        <select id="manager" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="">请选择负责人</option>
+                            <option value="zhangsan">张三</option>
+                            <option value="lisi">李四</option>
+                            <option value="wangwu">王五</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">考核对象</label>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="targetType" value="department" checked class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm text-gray-700">按部门选择</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="targetType" value="position" class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm text-gray-700">按岗位选择</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="inline-flex items-center space-x-2">
+                                <input type="radio" name="targetType" value="individual" class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm text-gray-700">按个人选择</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">选择部门</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <label class="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                            <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" checked>
+                            <span class="text-sm text-gray-700">资产管理部</span>
+                        </label>
+                        <label class="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                            <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">财务部</span>
+                        </label>
+                        <label class="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                            <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">人力资源部</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">选择KPI指标</label>
+                    
+                    <!-- 指标1：资产利用率 -->
+                    <div class="border border-gray-200 rounded-lg mb-3">
+                        <div class="flex items-center justify-between p-3 cursor-pointer" onclick="toggleKpiConfig('assetUtilization')">
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" checked>
+                                <span class="text-sm text-gray-700">资产利用率</span>
+                            </div>
+                            <button type="button" id="assetUtilizationToggle" class="text-gray-500 hover:text-gray-700">
+                                <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- 配置面板 -->
+                        <div id="assetUtilizationConfig" class="border-t border-gray-200 p-4 hidden">
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">指标定义（来自指标库，仅展示）：</h4>
+                                <ul class="text-sm text-gray-600 space-y-1 pl-4">
+                                    <li>• 计算方式：已出租面积 / 总面积 * 100%</li>
+                                    <li>• 统计周期：月度</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 pt-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">本次考核设定（请填写）：</h4>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button" onclick="getBenchmarkValue('assetUtilization')" class="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded hover:bg-blue-100 focus:outline-none">自动获取</button>
+                                        <span class="text-sm text-gray-700">基准值（截至本月）：</span>
+                                        <span id="assetUtilizationBenchmark" class="text-sm font-medium text-gray-900">79.2%</span>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">目标值：</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="82" min="0" max="100">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">权重：</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="15" min="0" max="100">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-gray-200 pt-4 mt-4">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">本次评分标准（可随目标值自动生成并调整）：</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetUtilizationScore" value="excellent" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">优秀（100分）：</span>
+                                            <span class="text-sm text-gray-700">≥</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="84" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetUtilizationScore" value="good" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">良好（85分）：</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="82" min="0" max="100">
+                                            <span>%</span>
+                                            <span>-</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="84" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetUtilizationScore" value="qualified" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">合格（70分）：</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="79" min="0" max="100">
+                                            <span>%</span>
+                                            <span>-</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="82" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetUtilizationScore" value="unqualified" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">不合格（60分）：</span>
+                                            <span class="text-sm text-gray-700">&lt;</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="79" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 指标2：资产周转率 -->
+                    <div class="border border-gray-200 rounded-lg mb-3">
+                        <div class="flex items-center justify-between p-3 cursor-pointer" onclick="toggleKpiConfig('assetTurnover')">
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" checked>
+                                <span class="text-sm text-gray-700">资产周转率</span>
+                            </div>
+                            <button type="button" id="assetTurnoverToggle" class="text-gray-500 hover:text-gray-700">
+                                <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- 配置面板 -->
+                        <div id="assetTurnoverConfig" class="border-t border-gray-200 p-4 hidden">
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">指标定义（来自指标库，仅展示）：</h4>
+                                <ul class="text-sm text-gray-600 space-y-1 pl-4">
+                                    <li>• 计算方式：营业收入 / 平均资产总额</li>
+                                    <li>• 统计周期：季度</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 pt-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">本次考核设定（请填写）：</h4>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button" onclick="getBenchmarkValue('assetTurnover')" class="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded hover:bg-blue-100 focus:outline-none">自动获取</button>
+                                        <span class="text-sm text-gray-700">基准值（截至本月）：</span>
+                                        <span id="assetTurnoverBenchmark" class="text-sm font-medium text-gray-900">3.2次/年</span>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">目标值：</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="3.5" min="0" step="0.1">
+                                                <span>次/年</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">权重：</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="12" min="0" max="100">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-gray-200 pt-4 mt-4">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">本次评分标准（可随目标值自动生成并调整）：</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetTurnoverScore" value="excellent" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">优秀（100分）：</span>
+                                            <span class="text-sm text-gray-700">≥</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="3.8" min="0" step="0.1">
+                                            <span>次/年</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetTurnoverScore" value="good" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">良好（85分）：</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="3.5" min="0" step="0.1">
+                                            <span>次/年</span>
+                                            <span>-</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="3.8" min="0" step="0.1">
+                                            <span>次/年</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetTurnoverScore" value="qualified" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">合格（70分）：</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="3.2" min="0" step="0.1">
+                                            <span>次/年</span>
+                                            <span>-</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="3.5" min="0" step="0.1">
+                                            <span>次/年</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetTurnoverScore" value="unqualified" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">不合格（60分）：</span>
+                                            <span class="text-sm text-gray-700">&lt;</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="3.2" min="0" step="0.1">
+                                            <span>次/年</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 指标3：资产保值率 -->
+                    <div class="border border-gray-200 rounded-lg mb-3">
+                        <div class="flex items-center justify-between p-3 cursor-pointer" onclick="toggleKpiConfig('assetPreservation')">
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" checked>
+                                <span class="text-sm text-gray-700">资产保值率</span>
+                            </div>
+                            <button type="button" id="assetPreservationToggle" class="text-gray-500 hover:text-gray-700">
+                                <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- 配置面板 -->
+                        <div id="assetPreservationConfig" class="border-t border-gray-200 p-4 hidden">
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">指标定义（来自指标库，仅展示）：</h4>
+                                <ul class="text-sm text-gray-600 space-y-1 pl-4">
+                                    <li>• 计算方式：期末资产净值 / 期初资产净值 * 100%</li>
+                                    <li>• 统计周期：年度</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 pt-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">本次考核设定（请填写）：</h4>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button" onclick="getBenchmarkValue('assetPreservation')" class="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded hover:bg-blue-100 focus:outline-none">自动获取</button>
+                                        <span class="text-sm text-gray-700">基准值（截至本月）：</span>
+                                        <span id="assetPreservationBenchmark" class="text-sm font-medium text-gray-900">98.5%</span>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">目标值：</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="99" min="0" max="100">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">权重：</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="10" min="0" max="100">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-gray-200 pt-4 mt-4">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">本次评分标准（可随目标值自动生成并调整）：</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetPreservationScore" value="excellent" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">优秀（100分）：</span>
+                                            <span class="text-sm text-gray-700">≥</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="99.5" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetPreservationScore" value="good" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">良好（85分）：</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="99" min="0" max="100">
+                                            <span>%</span>
+                                            <span>-</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="99.5" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetPreservationScore" value="qualified" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">合格（70分）：</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="98.5" min="0" max="100">
+                                            <span>%</span>
+                                            <span>-</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="99" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="assetPreservationScore" value="unqualified" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">不合格（60分）：</span>
+                                            <span class="text-sm text-gray-700">&lt;</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="98.5" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 指标4：流程合规率 -->
+                    <div class="border border-gray-200 rounded-lg mb-3">
+                        <div class="flex items-center justify-between p-3 cursor-pointer" onclick="toggleKpiConfig('processCompliance')">
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" checked>
+                                <span class="text-sm text-gray-700">流程合规率</span>
+                            </div>
+                            <button type="button" id="processComplianceToggle" class="text-gray-500 hover:text-gray-700">
+                                <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- 配置面板 -->
+                        <div id="processComplianceConfig" class="border-t border-gray-200 p-4 hidden">
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">指标定义（来自指标库，仅展示）：</h4>
+                                <ul class="text-sm text-gray-600 space-y-1 pl-4">
+                                    <li>• 计算方式：合规流程数 / 总流程数 * 100%</li>
+                                    <li>• 统计周期：月度</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 pt-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">本次考核设定（请填写）：</h4>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button" onclick="getBenchmarkValue('processCompliance')" class="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded hover:bg-blue-100 focus:outline-none">自动获取</button>
+                                        <span class="text-sm text-gray-700">基准值（截至本月）：</span>
+                                        <span id="processComplianceBenchmark" class="text-sm font-medium text-gray-900">92.3%</span>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">目标值：</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="95" min="0" max="100">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">权重：</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="8" min="0" max="100">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-gray-200 pt-4 mt-4">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">本次评分标准（可随目标值自动生成并调整）：</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="processComplianceScore" value="excellent" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">优秀（100分）：</span>
+                                            <span class="text-sm text-gray-700">≥</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="98" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="processComplianceScore" value="good" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">良好（85分）：</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="95" min="0" max="100">
+                                            <span>%</span>
+                                            <span>-</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="98" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="processComplianceScore" value="qualified" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">合格（70分）：</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="92" min="0" max="100">
+                                            <span>%</span>
+                                            <span>-</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="95" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="processComplianceScore" value="unqualified" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">不合格（60分）：</span>
+                                            <span class="text-sm text-gray-700">&lt;</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="92" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 指标5：审批及时率 -->
+                    <div class="border border-gray-200 rounded-lg mb-3">
+                        <div class="flex items-center justify-between p-3 cursor-pointer" onclick="toggleKpiConfig('approvalTimeliness')">
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500" checked>
+                                <span class="text-sm text-gray-700">审批及时率</span>
+                            </div>
+                            <button type="button" id="approvalTimelinessToggle" class="text-gray-500 hover:text-gray-700">
+                                <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- 配置面板 -->
+                        <div id="approvalTimelinessConfig" class="border-t border-gray-200 p-4 hidden">
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">指标定义（来自指标库，仅展示）：</h4>
+                                <ul class="text-sm text-gray-600 space-y-1 pl-4">
+                                    <li>• 计算方式：及时审批数 / 总审批数 * 100%</li>
+                                    <li>• 统计周期：月度</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 pt-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">本次考核设定（请填写）：</h4>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button" onclick="getBenchmarkValue('approvalTimeliness')" class="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded hover:bg-blue-100 focus:outline-none">自动获取</button>
+                                        <span class="text-sm text-gray-700">基准值（截至本月）：</span>
+                                        <span id="approvalTimelinessBenchmark" class="text-sm font-medium text-gray-900">88.7%</span>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">目标值：</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="92" min="0" max="100">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">权重：</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="7" min="0" max="100">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-gray-200 pt-4 mt-4">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">本次评分标准（可随目标值自动生成并调整）：</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="approvalTimelinessScore" value="excellent" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">优秀（100分）：</span>
+                                            <span class="text-sm text-gray-700">≥</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="95" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="approvalTimelinessScore" value="good" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">良好（85分）：</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="92" min="0" max="100">
+                                            <span>%</span>
+                                            <span>-</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="95" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="approvalTimelinessScore" value="qualified" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">合格（70分）：</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="88" min="0" max="100">
+                                            <span>%</span>
+                                            <span>-</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="92" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="radio" name="approvalTimelinessScore" value="unqualified" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">不合格（60分）：</span>
+                                            <span class="text-sm text-gray-700">&lt;</span>
+                                            <input type="number" class="w-16 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="88" min="0" max="100">
+                                            <span>%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">考核说明</label>
+                    <textarea id="description" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" rows="4" placeholder="请输入考核说明"></textarea>
+                </div>
+
+
+
+                <div class="mt-8 flex justify-end space-x-3">
+                    <button type="button" onclick="window.location.href='performance_flow.html'" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                        取消
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        创建考核周期
+                    </button>
+                </div>
+            </form>
+        </div>
+
+
+    </div>
+
+    <script>
+        // 指标配置面板展开/收起功能
+        function toggleKpiConfig(id) {
+            const configDiv = document.getElementById(id + 'Config');
+            const toggleBtn = document.getElementById(id + 'Toggle');
+            
+            if (configDiv.classList.contains('hidden')) {
+                configDiv.classList.remove('hidden');
+                toggleBtn.innerHTML = '<i class="fa fa-chevron-up"></i>';
+            } else {
+                configDiv.classList.add('hidden');
+                toggleBtn.innerHTML = '<i class="fa fa-chevron-down"></i>';
+            }
+        }
+        
+        // 自动获取基准值功能
+        function getBenchmarkValue(id) {
+            const benchmarkSpan = document.getElementById(id + 'Benchmark');
+            benchmarkSpan.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>获取中...';
+            
+            // 模拟API调用获取基准值
+            setTimeout(() => {
+                // 根据不同指标返回不同的基准值
+                const benchmarkValues = {
+                    assetUtilization: '79.2%',
+                    assetTurnover: '3.2次/年',
+                    assetPreservation: '98.5%',
+                    processCompliance: '92.3%',
+                    approvalTimeliness: '88.7%'
+                };
+                
+                benchmarkSpan.textContent = benchmarkValues[id] || '0%';
+            }, 1000);
+        }
+        
+        document.getElementById('createPerformanceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const performanceData = {
+                cycleName: document.getElementById('cycleName').value,
+                cycleType: document.getElementById('cycleType').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                flowTemplate: document.getElementById('flowTemplate').value,
+                manager: document.getElementById('manager').value,
+                description: document.getElementById('description').value
+            };
+            
+            // 这里可以添加数据验证和提交逻辑
+            console.log('创建考核周期:', performanceData);
+            
+            // 模拟成功提示
+            alert('考核周期创建成功！');
+            window.location.href = 'performance_flow.html';
+        });
+    </script>
+</body>
+</html>

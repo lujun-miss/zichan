@@ -1,416 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>首页管理</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-    <style>
-        .stat-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-    </style>
-</head>
-<body class="bg-gray-50">
-    <div class="p-6">
-        <div class="mb-6">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">资产概览</h2>
-                    <p class="text-gray-600">实时监控资产状态和使用情况</p>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <select id="asset-type-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                        <option value="all">全部类型</option>
-                        <option value="房屋建筑">房屋建筑</option>
-                        <option value="土地">土地</option>
-                        <option value="设备">设备</option>
-                    </select>
-                    <select id="unit-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                        <option value="all">全部单位</option>
-                        <option value="第一客运分公司">第一客运分公司</option>
-                        <option value="第二客运分公司">第二客运分公司</option>
-                        <option value="维修分公司">维修分公司</option>
-                        <option value="物流分公司">物流分公司</option>
-                    </select>
-                    <select id="filter-type" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                        <option value="year">年度</option>
-                        <option value="quarter">季度</option>
-                        <option value="month">月度</option>
-                    </select>
-                    <div id="date-selectors">
-                        <!-- 年度选择器 -->
-                        <select id="year-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                            <option value="2026">2026年</option>
-                            <option value="2025">2025年</option>
-                            <option value="2024">2024年</option>
-                            <option value="2023">2023年</option>
-                            <option value="2022">2022年</option>
-                        </select>
-                        <!-- 季度选择器（初始隐藏） -->
-                        <select id="quarter-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none hidden">
-                            <option value="1">第一季度</option>
-                            <option value="2">第二季度</option>
-                            <option value="3">第三季度</option>
-                            <option value="4">第四季度</option>
-                        </select>
-                        <!-- 月度选择器（初始隐藏） -->
-                        <select id="month-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none hidden">
-                            <option value="1">1月</option>
-                            <option value="2">2月</option>
-                            <option value="3">3月</option>
-                            <option value="4">4月</option>
-                            <option value="5">5月</option>
-                            <option value="6">6月</option>
-                            <option value="7">7月</option>
-                            <option value="8">8月</option>
-                            <option value="9">9月</option>
-                            <option value="10">10月</option>
-                            <option value="11">11月</option>
-                            <option value="12">12月</option>
-                        </select>
-                    </div>
-                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">应用筛选</button>
-                </div>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
-            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center">
-                            <p class="text-sm font-medium text-gray-500">总资产数量</p>
-                            <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="total-assets-help">
-                                <i class="fa fa-question-circle"></i>
-                            </span>
-                        </div>
-                        <h3 class="text-3xl font-bold text-gray-800 mt-1">1,248</h3>
-                        <p class="text-sm text-green-600 mt-2">
-                            <i class="fa fa-arrow-up mr-1"></i>
-                            <span>5.2%</span>
-                        </p>
-                        <div class="mt-3 space-y-1">
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">房屋：</span>
-                                <span class="text-xs font-medium text-gray-800">1,000</span>
-                                <span class="ml-2 text-xs text-green-600">↑4.8%</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">设备：</span>
-                                <span class="text-xs font-medium text-gray-800">200</span>
-                                <span class="ml-2 text-xs text-green-600">↑5.5%</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">土地：</span>
-                                <span class="text-xs font-medium text-gray-800">48</span>
-                                <span class="ml-2 text-xs text-green-600">↑6.2%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <i class="fa fa-cubes text-blue-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center">
-                            <p class="text-sm font-medium text-gray-500">出租率</p>
-                            <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="rental-rate-help">
-                                <i class="fa fa-question-circle"></i>
-                            </span>
-                        </div>
-                        <h3 class="text-3xl font-bold text-gray-800 mt-1">78.5%</h3>
-                        <p class="text-sm text-green-600 mt-2">
-                            <i class="fa fa-arrow-up mr-1"></i>
-                            <span>3.1%</span>
-                        </p>
-                        <div class="mt-3 space-y-1">
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">房屋：</span>
-                                <span class="text-xs font-medium text-gray-800">82.0%</span>
-                                <span class="ml-2 text-xs text-green-600">↑3.5%</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">设备：</span>
-                                <span class="text-xs font-medium text-gray-800">68.0%</span>
-                                <span class="ml-2 text-xs text-green-600">↑2.2%</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">土地：</span>
-                                <span class="text-xs font-medium text-gray-800">75.0%</span>
-                                <span class="ml-2 text-xs text-green-600">↑2.8%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <i class="fa fa-line-chart text-green-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center">
-                            <p class="text-sm font-medium text-gray-500">闲置资产</p>
-                            <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="idle-assets-help">
-                                <i class="fa fa-question-circle"></i>
-                            </span>
-                        </div>
-                        <h3 class="text-3xl font-bold text-gray-800 mt-1">268</h3>
-                        <p class="text-sm text-red-600 mt-2">
-                            <i class="fa fa-arrow-up mr-1"></i>
-                            <span>2.8%</span>
-                        </p>
-                        <div class="mt-3 space-y-1">
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">房屋：</span>
-                                <span class="text-xs font-medium text-gray-800">185</span>
-                                <span class="ml-2 text-xs text-red-600">↑2.5%</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">设备：</span>
-                                <span class="text-xs font-medium text-gray-800">25</span>
-                                <span class="ml-2 text-xs text-red-600">↑2.0%</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">土地：</span>
-                                <span class="text-xs font-medium text-gray-800">58</span>
-                                <span class="ml-2 text-xs text-red-600">↑3.2%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                        <i class="fa fa-clock-o text-yellow-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center">
-                            <p class="text-sm font-medium text-gray-500">盘活资产</p>
-                            <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="activated-assets-help">
-                                <i class="fa fa-question-circle"></i>
-                            </span>
-                        </div>
-                        <h3 class="text-3xl font-bold text-gray-800 mt-1">20</h3>
-                        <p class="text-sm text-red-600 mt-2">
-                            <i class="fa fa-arrow-down mr-1"></i>
-                            <span>-87.2%</span>
-                        </p>
-                        <div class="mt-3 space-y-1">
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">房屋：</span>
-                                <span class="text-xs font-medium text-gray-800">12</span>
-                                <span class="ml-2 text-xs text-green-600">↑7.8%</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">设备：</span>
-                                <span class="text-xs font-medium text-gray-800">5</span>
-                                <span class="ml-2 text-xs text-green-600">↑6.7%</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">土地：</span>
-                                <span class="text-xs font-medium text-gray-800">3</span>
-                                <span class="ml-2 text-xs text-green-600">↑9.5%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <i class="fa fa-refresh text-purple-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center">
-                            <p class="text-sm font-medium text-gray-500">即将到期</p>
-                            <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="expiring-assets-help">
-                                <i class="fa fa-question-circle"></i>
-                            </span>
-                        </div>
-                        <h3 class="text-3xl font-bold text-red-600 mt-1">5</h3>
-                        <p class="text-sm text-red-600 mt-2">
-                            <i class="fa fa-exclamation-circle mr-1"></i>
-                            <span>需处理</span>
-                        </p>
-                        <div class="mt-3 space-y-1">
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">房屋：</span>
-                                <span class="text-xs font-medium text-red-600">3</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">设备：</span>
-                                <span class="text-xs font-medium text-red-600">1</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-xs text-gray-500 w-24">土地：</span>
-                                <span class="text-xs font-medium text-red-600">1</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                        <i class="fa fa-calendar-times-o text-red-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-semibold text-gray-800">资产出租率趋势</h3>
-                </div>
-                <div class="flex space-x-2 mb-4">
-                    <button class="asset-type-tab px-3 py-1 bg-blue-600 text-white rounded-lg text-sm font-medium" data-type="房屋">房屋</button>
-                    <button class="asset-type-tab px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium" data-type="设备">设备</button>
-                    <button class="asset-type-tab px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium" data-type="土地">土地</button>
-                </div>
-                <div class="chart-container">
-                    <canvas id="rentalTrendChart"></canvas>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center">
-                        <h3 class="font-semibold text-gray-800">资产状态分布</h3>
-                        <span class="ml-1 text-blue-600 hover:text-blue-800 cursor-pointer" id="asset-status-help">
-                            <i class="fa fa-question-circle"></i>
-                        </span>
-                    </div>
-                    <button class="text-sm text-blue-600 hover:text-blue-800">
-                        <i class="fa fa-ellipsis-v"></i>
-                    </button>
-                </div>
-                <div class="flex space-x-2 mb-4">
-                    <button class="asset-type-tab px-3 py-1 bg-blue-600 text-white rounded-lg text-sm font-medium" data-type="房屋">房屋</button>
-                    <button class="asset-type-tab px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium" data-type="设备">设备</button>
-                    <button class="asset-type-tab px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium" data-type="土地">土地</button>
-                </div>
-                <div class="chart-container">
-                    <canvas id="assetStatusChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-4">
-                    <h3 class="font-semibold text-gray-800">即将到期的资产</h3>
-                    <select id="expiring-asset-type-filter" class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
-                        <option value="all">全部类型</option>
-                        <option value="房屋建筑">房屋建筑</option>
-                        <option value="土地">土地</option>
-                        <option value="设备">设备</option>
-                    </select>
-                </div>
-                <button class="text-sm text-blue-600 hover:text-blue-800">查看全部</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table id="expiring-assets-table" class="min-w-full">
-                    <thead>
-                        <tr class="border-b border-gray-200">
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产名称</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">所属单位</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">租金</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">到期时间</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b border-gray-100 hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">火车站东广场商铺</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">房屋建筑</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-500">第一客运分公司</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥12,000/月</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">2026-04-05</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <button class="text-blue-600 hover:text-blue-800">查看</button>
-                            </td>
-                        </tr>
-                        <tr class="border-b border-gray-100 hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">站前商铺</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">房屋建筑</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-500">第一客运分公司</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥8,000/月</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">2026-04-15</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <button class="text-blue-600 hover:text-blue-800">查看</button>
-                            </td>
-                        </tr>
-                        <tr class="border-b border-gray-100 hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">客运办公楼商铺</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">房屋建筑</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-500">第一客运分公司</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥15,000/月</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">2026-12-31</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <button class="text-blue-600 hover:text-blue-800">查看</button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">物流仓库</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">设备</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-500">物流分公司</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥20,000/月</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">2026-05-20</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <button class="text-blue-600 hover:text-blue-800">查看</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 统计数据
             const statisticsData = {
@@ -1147,8 +735,6 @@
                 });
             });
 
-        });
-
             // 闲置资产帮助信息点击事件
             document.getElementById('idle-assets-help').addEventListener('click', function() {
                 showModal({
@@ -1184,46 +770,7 @@
                     showCancelButton: false,
                     confirmButtonText: '我知道了'
                 });
-
-            // 资产类型切换事件监听
-            document.querySelectorAll('.asset-type-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const assetType = this.dataset.type;
-                    
-                    // 更新当前选中的资产类型
-                    currentAssetType = assetType;
-                    
-                    // 更新标签样式
-                    document.querySelectorAll('.asset-type-tab').forEach(t => {
-                        t.classList.remove('bg-blue-600', 'text-white');
-                        t.classList.add('bg-gray-100', 'text-gray-700');
-                    });
-                    this.classList.remove('bg-gray-100', 'text-gray-700');
-                    this.classList.add('bg-blue-600', 'text-white');
-                    
-                    // 更新图表数据
-                    updateRentalTrendChart();
-                });
             });
-            
-            // 即将到期资产类型筛选事件
-            document.getElementById('expiring-asset-type-filter').addEventListener('change', function() {
-                const selectedType = this.value;
-                const rows = document.querySelectorAll('#expiring-assets-table tbody tr');
-                
-                rows.forEach(row => {
-                    const typeSpan = row.querySelector('span[class*="rounded-full"]');
-                    const assetType = typeSpan.textContent.trim();
-                    
-                    if (selectedType === 'all' || assetType === selectedType) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-        });
 
             // 即将到期资产帮助信息点击事件
             document.getElementById('expiring-assets-help').addEventListener('click', function() {
@@ -1255,46 +802,6 @@
                     showCancelButton: false,
                     confirmButtonText: '我知道了'
                 });
-
-            // 资产类型切换事件监听
-            document.querySelectorAll('.asset-type-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const assetType = this.dataset.type;
-                    
-                    // 更新当前选中的资产类型
-                    currentAssetType = assetType;
-                    
-                    // 更新标签样式
-                    document.querySelectorAll('.asset-type-tab').forEach(t => {
-                        t.classList.remove('bg-blue-600', 'text-white');
-                        t.classList.add('bg-gray-100', 'text-gray-700');
-                    });
-                    this.classList.remove('bg-gray-100', 'text-gray-700');
-                    this.classList.add('bg-blue-600', 'text-white');
-                    
-                    // 更新图表数据
-                    updateRentalTrendChart();
-                });
-            });
-            
-            // 即将到期资产类型筛选事件
-            document.getElementById('expiring-asset-type-filter').addEventListener('change', function() {
-                const selectedType = this.value;
-                const rows = document.querySelectorAll('#expiring-assets-table tbody tr');
-                
-                rows.forEach(row => {
-                    const typeSpan = row.querySelector('span[class*="rounded-full"]');
-                    const assetType = typeSpan.textContent.trim();
-                    
-                    if (selectedType === 'all' || assetType === selectedType) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-        });
 
             // 出租率帮助信息点击事件
             document.getElementById('rental-rate-help').addEventListener('click', function() {
@@ -1328,46 +835,6 @@
                     confirmButtonText: '我知道了'
                 });
 
-            // 资产类型切换事件监听
-            document.querySelectorAll('.asset-type-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const assetType = this.dataset.type;
-                    
-                    // 更新当前选中的资产类型
-                    currentAssetType = assetType;
-                    
-                    // 更新标签样式
-                    document.querySelectorAll('.asset-type-tab').forEach(t => {
-                        t.classList.remove('bg-blue-600', 'text-white');
-                        t.classList.add('bg-gray-100', 'text-gray-700');
-                    });
-                    this.classList.remove('bg-gray-100', 'text-gray-700');
-                    this.classList.add('bg-blue-600', 'text-white');
-                    
-                    // 更新图表数据
-                    updateRentalTrendChart();
-                });
-            });
-            
-            // 即将到期资产类型筛选事件
-            document.getElementById('expiring-asset-type-filter').addEventListener('change', function() {
-                const selectedType = this.value;
-                const rows = document.querySelectorAll('#expiring-assets-table tbody tr');
-                
-                rows.forEach(row => {
-                    const typeSpan = row.querySelector('span[class*="rounded-full"]');
-                    const assetType = typeSpan.textContent.trim();
-                    
-                    if (selectedType === 'all' || assetType === selectedType) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-        });
-
             // 总资产数量帮助信息点击事件
             document.getElementById('total-assets-help').addEventListener('click', function() {
                 showModal({
@@ -1398,46 +865,6 @@
                     showCancelButton: false,
                     confirmButtonText: '我知道了'
                 });
-
-            // 资产类型切换事件监听
-            document.querySelectorAll('.asset-type-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const assetType = this.dataset.type;
-                    
-                    // 更新当前选中的资产类型
-                    currentAssetType = assetType;
-                    
-                    // 更新标签样式
-                    document.querySelectorAll('.asset-type-tab').forEach(t => {
-                        t.classList.remove('bg-blue-600', 'text-white');
-                        t.classList.add('bg-gray-100', 'text-gray-700');
-                    });
-                    this.classList.remove('bg-gray-100', 'text-gray-700');
-                    this.classList.add('bg-blue-600', 'text-white');
-                    
-                    // 更新图表数据
-                    updateRentalTrendChart();
-                });
-            });
-            
-            // 即将到期资产类型筛选事件
-            document.getElementById('expiring-asset-type-filter').addEventListener('change', function() {
-                const selectedType = this.value;
-                const rows = document.querySelectorAll('#expiring-assets-table tbody tr');
-                
-                rows.forEach(row => {
-                    const typeSpan = row.querySelector('span[class*="rounded-full"]');
-                    const assetType = typeSpan.textContent.trim();
-                    
-                    if (selectedType === 'all' || assetType === selectedType) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-        });
 
             // 资产状态分布帮助信息点击事件
             document.getElementById('asset-status-help').addEventListener('click', function() {
@@ -1470,46 +897,6 @@
                     showCancelButton: false,
                     confirmButtonText: '我知道了'
                 });
-
-            // 资产类型切换事件监听
-            document.querySelectorAll('.asset-type-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const assetType = this.dataset.type;
-                    
-                    // 更新当前选中的资产类型
-                    currentAssetType = assetType;
-                    
-                    // 更新标签样式
-                    document.querySelectorAll('.asset-type-tab').forEach(t => {
-                        t.classList.remove('bg-blue-600', 'text-white');
-                        t.classList.add('bg-gray-100', 'text-gray-700');
-                    });
-                    this.classList.remove('bg-gray-100', 'text-gray-700');
-                    this.classList.add('bg-blue-600', 'text-white');
-                    
-                    // 更新图表数据
-                    updateRentalTrendChart();
-                });
-            });
-            
-            // 即将到期资产类型筛选事件
-            document.getElementById('expiring-asset-type-filter').addEventListener('change', function() {
-                const selectedType = this.value;
-                const rows = document.querySelectorAll('#expiring-assets-table tbody tr');
-                
-                rows.forEach(row => {
-                    const typeSpan = row.querySelector('span[class*="rounded-full"]');
-                    const assetType = typeSpan.textContent.trim();
-                    
-                    if (selectedType === 'all' || assetType === selectedType) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-        });
 
             // 状态列帮助信息点击事件（委托事件，因为元素是动态生成的）
             document.addEventListener('click', function(e) {
@@ -1607,76 +994,84 @@
                 }
             });
 
+            // 声明图表变量
+            let rentalTrendChart;
+            let assetStatusChart;
+            
             // 初始化图表
-            const rentalTrendCtx = document.getElementById('rentalTrendChart').getContext('2d');
-            let rentalTrendChart = new Chart(rentalTrendCtx, {
-                type: 'line',
-                data: {
-                    labels: chartData.year[currentAssetType].labels,
-                    datasets: [{
-                        label: '出租率',
-                        data: chartData.year[currentAssetType].data,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            min: 60,
-                            max: 90,
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
+            setTimeout(function() {
+                try {
+                    const rentalTrendCtx = document.getElementById('rentalTrendChart').getContext('2d');
+                    rentalTrendChart = new Chart(rentalTrendCtx, {
+                        type: 'line',
+                        data: {
+                            labels: chartData.year[currentAssetType].labels,
+                            datasets: [{
+                                label: '出租率',
+                                data: chartData.year[currentAssetType].data,
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    min: 60,
+                                    max: 90,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value + '%';
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-            });
+                    });
 
-            const assetStatusCtx = document.getElementById('assetStatusChart').getContext('2d');
-            const assetStatusChart = new Chart(assetStatusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['已出租', '闲置中', '维修中', '自用'],
-                    datasets: [{
-                        data: [78.5, 20.5, 0.8, 0.2],
-                        backgroundColor: [
-                            '#10b981',
-                            '#f59e0b',
-                            '#ef4444',
-                            '#6b7280'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                boxWidth: 12,
-                                padding: 15
-                            }
+                    const assetStatusCtx = document.getElementById('assetStatusChart').getContext('2d');
+                    assetStatusChart = new Chart(assetStatusCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['已出租', '闲置中', '维修中', '自用'],
+                            datasets: [{
+                                data: [78.5, 20.5, 0.8, 0.2],
+                                backgroundColor: [
+                                    '#10b981',
+                                    '#f59e0b',
+                                    '#ef4444',
+                                    '#6b7280'
+                                ],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        boxWidth: 12,
+                                        padding: 15
+                                    }
+                                }
+                            },
+                            cutout: '70%'
                         }
-                    },
-                    cutout: '70%'
+                    });
+                } catch (error) {
+                    console.error('图表初始化失败:', error);
                 }
-            });
+            }, 100);
         });
-    </script>
-</body>
-</html>
+    

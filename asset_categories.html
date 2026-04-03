@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产分类维护</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #10b981;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 8px;
+            position: relative;
+        }
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+        .close:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="w-full p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 w-full">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">资产管理 &gt; 资产分类</h2>
+            </div>
+            
+            <!-- 搜索区域 -->
+            <div class="mb-6">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">类别名称:</label>
+                        <input type="text" id="category-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="请输入">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">类别编号:</label>
+                        <input type="text" id="category-code" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="请输入">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">状态:</label>
+                        <select id="category-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="">请选择</option>
+                            <option value="active">启用</option>
+                            <option value="inactive">禁用</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end space-x-2">
+                        <button id="search-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fa fa-search mr-1"></i> 查询
+                        </button>
+                        <button id="reset-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                            <i class="fa fa-refresh mr-1"></i> 重置
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 操作按钮区域 -->
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <span class="text-sm text-gray-500">共 29 条数据</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="add-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fa fa-plus mr-1"></i> 新增
+                    </button>
+                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                        <i class="fa fa-download mr-1"></i> 导出
+                    </button>
+                    <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        <i class="fa fa-trash mr-1"></i> 删除
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 表格区域 -->
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" class="rounded text-blue-600">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类别名称</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类别编号</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备注</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="category-table-body">
+                        <!-- 数据行将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 分页区域 -->
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-sm text-gray-500">
+                    20/页
+                </div>
+                <div class="flex items-center space-x-1">
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                        <i class="fa fa-chevron-left"></i>
+                    </button>
+                    <button class="px-3 py-1 border border-blue-500 bg-blue-50 text-blue-600 rounded-lg">1</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">2</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">3</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">4</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">...</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">8</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">
+                        <i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div>
+                    <span class="text-sm text-gray-500">
+                        转到 <input type="text" class="w-12 px-2 py-1 border border-gray-300 rounded text-center text-sm" value="1"> 页
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新增模态框 -->
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">新增</h3>
+            </div>
+            <form id="add-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">上级分类:</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg" id="parent-category-select">
+                        <option value="">请选择</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">类别名称:</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="请输入资产名称">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">类别编号:</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="请输入资产名称">
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">备注:</label>
+                    <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg" rows="3" placeholder="请输入备注"></textarea>
+                </div>
+                <div class="flex items-center justify-end space-x-3">
+                    <button type="button" id="cancel-btn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">取消</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        const categoryData = [
+            { id: 1, name: '房屋', code: 'HOUSE001', parentId: null, remark: '房屋建筑类资产', status: 'active', children: [
+                { id: 2, name: '住宅', code: 'HOUSE00101', parentId: 1, remark: '住宅类房屋', status: 'active', children: [
+                    { id: 3, name: '普通住宅', code: 'HOUSE0010101', parentId: 2, remark: '普通商品住宅', status: 'active' },
+                    { id: 4, name: '公寓', code: 'HOUSE0010102', parentId: 2, remark: '公寓式住宅', status: 'active' },
+                    { id: 5, name: '别墅', code: 'HOUSE0010103', parentId: 2, remark: '别墅类住宅', status: 'inactive' }
+                ]},
+                { id: 6, name: '商业', code: 'HOUSE00102', parentId: 1, remark: '商业用途房屋', status: 'active', children: [
+                    { id: 7, name: '商铺', code: 'HOUSE0010201', parentId: 6, remark: '商业店铺', status: 'active' },
+                    { id: 8, name: '写字楼', code: 'HOUSE0010202', parentId: 6, remark: '办公写字楼', status: 'active' },
+                    { id: 9, name: '酒店', code: 'HOUSE0010203', parentId: 6, remark: '酒店宾馆', status: 'active' }
+                ]},
+                { id: 10, name: '工业', code: 'HOUSE00103', parentId: 1, remark: '工业用途房屋', status: 'active', children: [
+                    { id: 11, name: '厂房', code: 'HOUSE0010301', parentId: 10, remark: '生产厂房', status: 'active' },
+                    { id: 12, name: '仓库', code: 'HOUSE0010302', parentId: 10, remark: '仓储用房', status: 'active' }
+                ]}
+            ]},
+            { id: 13, name: '土地', code: 'LAND001', parentId: null, remark: '土地类资产', status: 'active', children: [
+                { id: 14, name: '商业用地', code: 'LAND00101', parentId: 13, remark: '商业用途土地', status: 'active' },
+                { id: 15, name: '工业用地', code: 'LAND00102', parentId: 13, remark: '工业用途土地', status: 'active' },
+                { id: 16, name: '住宅用地', code: 'LAND00103', parentId: 13, remark: '住宅用途土地', status: 'active' },
+                { id: 17, name: '综合用地', code: 'LAND00104', parentId: 13, remark: '综合用途土地', status: 'inactive' }
+            ]},
+            { id: 18, name: '设备', code: 'EQUIP001', parentId: null, remark: '设备类资产', status: 'active', children: [
+                { id: 19, name: '办公设备', code: 'EQUIP00101', parentId: 18, remark: '办公用设备', status: 'active', children: [
+                    { id: 20, name: '电脑', code: 'EQUIP0010101', parentId: 19, remark: '办公电脑', status: 'active' },
+                    { id: 21, name: '打印机', code: 'EQUIP0010102', parentId: 19, remark: '打印设备', status: 'active' },
+                    { id: 22, name: '复印机', code: 'EQUIP0010103', parentId: 19, remark: '复印设备', status: 'active' }
+                ]},
+                { id: 23, name: '生产设备', code: 'EQUIP00102', parentId: 18, remark: '生产用设备', status: 'active', children: [
+                    { id: 24, name: '机器设备', code: 'EQUIP0010201', parentId: 23, remark: '生产机器', status: 'active' },
+                    { id: 25, name: '生产线', code: 'EQUIP0010202', parentId: 23, remark: '生产流水线', status: 'active' }
+                ]},
+                { id: 26, name: '交通工具', code: 'EQUIP00103', parentId: 18, remark: '交通设备', status: 'active', children: [
+                    { id: 27, name: '汽车', code: 'EQUIP0010301', parentId: 26, remark: '小型汽车', status: 'active' },
+                    { id: 28, name: '货车', code: 'EQUIP0010302', parentId: 26, remark: '货运车辆', status: 'active' },
+                    { id: 29, name: '客车', code: 'EQUIP0010303', parentId: 26, remark: '客运车辆', status: 'active' }
+                ]}
+            ]}
+        ];
+        
+        // 生成多级分类下拉选项
+        function generateCategoryOptions(data, selectElement, level = 0) {
+            data.forEach(item => {
+                const option = document.createElement('option');
+                const indent = '　'.repeat(level); // 使用全角空格实现缩进
+                option.value = item.id;
+                option.textContent = `${indent}${item.name}`;
+                selectElement.appendChild(option);
+                
+                if (item.children && item.children.length > 0) {
+                    generateCategoryOptions(item.children, selectElement, level + 1);
+                }
+            });
+        }
+        
+        // 渲染表格数据
+        function renderTable(data) {
+            const tbody = document.getElementById('category-table-body');
+            tbody.innerHTML = '';
+            
+            function renderRow(item, level = 0) {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-100 hover:bg-gray-50';
+                
+                const indent = level * 20;
+                const hasChildren = item.children && item.children.length > 0;
+                
+                // 默认展开房屋分类，折叠土地和设备分类
+                const isDefaultCollapsed = level === 0 && (item.name === '土地' || item.name === '设备');
+                const iconClass = isDefaultCollapsed ? 'fa-chevron-right' : 'fa-chevron-down';
+                
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="rounded text-blue-600">
+                    </td>
+                    <td class="px-6 py-4">
+                        <div style="padding-left: ${indent}px;" class="flex items-center">
+                            ${hasChildren ? `<i class="fa ${iconClass} text-xs mr-2 toggle-icon"></i>` : ''}
+                            <span class="text-sm font-medium text-gray-900">${item.name}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${item.code}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-500">${item.remark || '-'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <label class="switch">
+                            <input type="checkbox" ${item.status === 'active' ? 'checked' : ''} data-id="${item.id}">
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center space-x-2">
+                            <button class="text-blue-600 hover:text-blue-800 edit-btn" data-id="${item.id}">
+                                <i class="fa fa-edit mr-1"></i>编辑
+                            </button>
+                            <button class="text-red-600 hover:text-red-800 delete-btn" data-id="${item.id}">
+                                <i class="fa fa-trash mr-1"></i>删除
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+                
+                // 渲染子节点
+                if (hasChildren) {
+                    item.children.forEach(child => renderRow(child, level + 1));
+                }
+            }
+            
+            data.forEach(item => renderRow(item));
+            
+            // 默认折叠土地和设备分类的子节点
+            setTimeout(() => {
+                const rows = document.querySelectorAll('#category-table-body tr');
+                let shouldHide = false;
+                
+                rows.forEach(row => {
+                    const nameSpan = row.querySelector('td:nth-child(2) span');
+                    if (nameSpan) {
+                        const name = nameSpan.textContent.trim();
+                        if (name === '土地' || name === '设备') {
+                            shouldHide = true;
+                        } else if (name === '房屋') {
+                            shouldHide = false;
+                        }
+                    }
+                    
+                    const cell = row.querySelector('td:nth-child(2) div');
+                    if (cell) {
+                        const indent = parseInt(cell.style.paddingLeft) || 0;
+                        if (indent > 0 && shouldHide) {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+            }, 100);
+        }
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 渲染表格
+            renderTable(categoryData);
+            
+            // 生成上级分类下拉选项
+            const parentSelect = document.getElementById('parent-category-select');
+            generateCategoryOptions(categoryData, parentSelect);
+            
+            // 搜索按钮事件
+            document.getElementById('search-btn').addEventListener('click', function() {
+                const name = document.getElementById('category-name').value;
+                const code = document.getElementById('category-code').value;
+                const status = document.getElementById('category-status').value;
+                
+                // 这里可以添加搜索逻辑
+                console.log('搜索条件:', { name, code, status });
+            });
+            
+            // 重置按钮事件
+            document.getElementById('reset-btn').addEventListener('click', function() {
+                document.getElementById('category-name').value = '';
+                document.getElementById('category-code').value = '';
+                document.getElementById('category-status').value = '';
+            });
+            
+            // 新增按钮事件
+            document.getElementById('add-btn').addEventListener('click', function() {
+                document.getElementById('add-modal').style.display = 'block';
+            });
+            
+            // 关闭模态框
+            document.querySelector('.close').addEventListener('click', function() {
+                document.getElementById('add-modal').style.display = 'none';
+            });
+            
+            document.getElementById('cancel-btn').addEventListener('click', function() {
+                document.getElementById('add-modal').style.display = 'none';
+            });
+            
+            // 保存表单事件
+            document.getElementById('add-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                // 这里可以添加保存逻辑
+                document.getElementById('add-modal').style.display = 'none';
+                alert('保存成功！');
+            });
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(e) {
+                const modal = document.getElementById('add-modal');
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // 折叠/展开节点
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('toggle-icon')) {
+                    const icon = e.target;
+                    const parentRow = icon.closest('tr');
+                    const parentIndent = parseInt(parentRow.querySelector('td:nth-child(2) div').style.paddingLeft) || 0;
+                    let nextRow = parentRow.nextElementSibling;
+                    
+                    if (icon.classList.contains('fa-chevron-down')) {
+                        // 折叠
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-right');
+                        
+                        while (nextRow) {
+                            const cell = nextRow.querySelector('td:nth-child(2) div');
+                            if (!cell) break;
+                            
+                            const indent = parseInt(cell.style.paddingLeft) || 0;
+                            if (indent <= parentIndent) break;
+                            
+                            nextRow.style.display = 'none';
+                            nextRow = nextRow.nextElementSibling;
+                        }
+                    } else {
+                        // 展开
+                        icon.classList.remove('fa-chevron-right');
+                        icon.classList.add('fa-chevron-down');
+                        
+                        while (nextRow) {
+                            const cell = nextRow.querySelector('td:nth-child(2) div');
+                            if (!cell) break;
+                            
+                            const indent = parseInt(cell.style.paddingLeft) || 0;
+                            if (indent <= parentIndent) break;
+                            
+                            nextRow.style.display = '';
+                            nextRow = nextRow.nextElementSibling;
+                        }
+                    }
+                }
+            });
+            
+            // 状态开关事件
+            document.addEventListener('change', function(e) {
+                if (e.target.type === 'checkbox' && e.target.parentElement.classList.contains('switch')) {
+                    const id = e.target.dataset.id;
+                    const status = e.target.checked ? 'active' : 'inactive';
+                    console.log('更新状态:', { id, status });
+                }
+            });
+            
+            // 编辑按钮事件
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.edit-btn')) {
+                    const id = e.target.closest('.edit-btn').dataset.id;
+                    console.log('编辑:', id);
+                }
+            });
+            
+            // 删除按钮事件
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.delete-btn')) {
+                    const id = e.target.closest('.delete-btn').dataset.id;
+                    if (confirm('确定要删除吗？')) {
+                        console.log('删除:', id);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

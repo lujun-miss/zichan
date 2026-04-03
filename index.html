@@ -39,7 +39,8 @@
         }
         .main-content {
             flex: 1;
-            overflow: hidden;
+            overflow: auto;
+            width: calc(100% - 280px);
         }
         .nav-item {
             transition: all 0.3s ease;
@@ -101,39 +102,138 @@
                                 <button class="nav-item flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:text-primary w-full" onclick="toggleSubmenu('assets-submenu')">
                                     <div class="flex items-center space-x-3">
                                         <i class="fa fa-cubes w-5 text-center"></i>
-                                        <span>资产信息</span>
+                                        <span>资产管理</span>
                                     </div>
                                     <i class="fa fa-chevron-down text-xs transition-transform" id="assets-chevron"></i>
                                 </button>
                                 <ul id="assets-submenu" class="pl-10 space-y-1 hidden">
                                     <li>
-                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '第一客运分公司')">
-                                            <span>第一客运分公司</span>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('unit_assets.html')">
+                                            <span>资产列表</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '第二客运分公司')">
-                                            <span>第二客运分公司</span>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('add_asset.html')">
+                                            <span>新增资产</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '维修分公司')">
-                                            <span>维修分公司</span>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_categories.html')">
+                                            <span>资产分类</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="nav-item-group">
+                                <button class="nav-item flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:text-primary w-full" onclick="toggleSubmenu('asset-usage-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fa fa-line-chart w-5 text-center"></i>
+                                        <span>资产使用</span>
+                                    </div>
+                                    <i class="fa fa-chevron-down text-xs transition-transform" id="asset-usage-chevron"></i>
+                                </button>
+                                <ul id="asset-usage-submenu" class="pl-10 space-y-1 hidden">
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_rental.html')">
+                                            <span>资产出租</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '物流分公司')">
-                                            <span>物流分公司</span>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_apply.html')">
+                                            <span>资产申领</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '公交分公司')">
-                                            <span>公交分公司</span>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_borrow.html')">
+                                            <span>资产借用</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('units.html', '高铁分公司')">
-                                            <span>高铁分公司</span>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_return.html')">
+                                            <span>资产归还</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_stock_in.html')">
+                                            <span>资产入库</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_stock_out.html')">
+                                            <span>资产退库</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_distribute.html')">
+                                            <span>资产派发</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_dispose.html')">
+                                            <span>资产处置</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('asset_transfer.html')">
+                                            <span>资产调拨</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="nav-item-group">
+                                <button class="nav-item flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:text-primary w-full" onclick="toggleSubmenu('approval-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fa fa-check-square-o w-5 text-center"></i>
+                                        <span>审批中心</span>
+                                    </div>
+                                    <i class="fa fa-chevron-down text-xs transition-transform" id="approval-chevron"></i>
+                                </button>
+                                <ul id="approval-submenu" class="pl-10 space-y-1 hidden">
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('approval_center.html?tab=my-initiated')">
+                                            <span>我发起的</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('approval_center.html?tab=pending')">
+                                            <span>待我审核</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('approval_center.html?tab=reviewed')">
+                                            <span>我已审核</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('approval_center.html?tab=cc')">
+                                            <span>抄送给我</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="nav-item-group">
+                                <button class="nav-item flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:text-primary w-full" onclick="toggleSubmenu('performance-submenu')">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fa fa-line-chart w-5 text-center"></i>
+                                        <span>绩效考核</span>
+                                    </div>
+                                    <i class="fa fa-chevron-down text-xs transition-transform" id="performance-chevron"></i>
+                                </button>
+                                <ul id="performance-submenu" class="pl-10 space-y-1 hidden">
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('kpi_library.html')">
+                                            <span>KPI指标库</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" class="nav-subitem flex items-center space-x-3 px-4 py-2 rounded-lg text-gray-600 hover:text-primary" onclick="loadPage('performance_flow.html')">
+                                            <span>考核任务</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -174,6 +274,7 @@
                                 <span>角色管理</span>
                             </a>
                         </li>
+
                     </ul>
                 </nav>
             </div>
@@ -186,7 +287,7 @@
                         <button class="lg:hidden text-gray-600">
                             <i class="fa fa-bars text-xl"></i>
                         </button>
-
+                        <h2 id="page-title" class="text-lg font-semibold text-gray-800">首页管理</h2>
                     </div>
                     <div class="flex items-center space-x-4">
                         <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
@@ -238,7 +339,10 @@
             navItems.forEach(item => item.classList.remove('active'));
             navSubItems.forEach(item => item.classList.remove('active'));
             
-            event.currentTarget.classList.add('active');
+            // 不要使用event.currentTarget，改为使用this
+            if (this && this.classList) {
+                this.classList.add('active');
+            }
             
             if (unitName) {
                 iframe.src = `${pageUrl}?unit=${encodeURIComponent(unitName)}`;
@@ -248,10 +352,24 @@
                 const titles = {
                     'home.html': '首页管理',
                     'units.html': '单位管理',
-                    'assets.html': '资产信息',
+                    'unit_assets.html': '资产管理',
                     'reports.html': '报表统计',
                     'users.html': '用户管理',
-                    'roles.html': '角色管理'
+                    'roles.html': '角色管理',
+                    'kpi_library.html': 'KPI指标库',
+                    'performance_flow.html': '考核任务',
+                    'asset_rental.html': '资产出租',
+                    'asset_apply.html': '资产申领',
+                    'asset_borrow.html': '资产借用',
+                    'asset_return.html': '资产归还',
+                    'asset_stock_in.html': '资产入库',
+                    'asset_stock_out.html': '资产退库',
+                    'asset_distribute.html': '资产派发',
+                    'asset_dispose.html': '资产处置',
+                    'asset_transfer.html': '资产调拨',
+                    'approval_center.html': '审批中心',
+                    'asset_stats.html': '资产统计',
+                    'asset_categories.html': '资产分类'
                 };
                 pageTitle.textContent = titles[pageUrl] || '首页管理';
             }

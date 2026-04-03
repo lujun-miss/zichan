@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产列表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="modal.js"></script>
+    <style>
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background-color: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="p-6">
+        <div class="mb-6 flex items-center justify-between">
+            <p class="text-gray-600" id="page-description">管理单位资产信息</p>
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                    <i class="fa fa-user text-gray-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-800">管理员</p>
+                    <p class="text-xs text-gray-500">admin@example.com</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- 单位树状结构 -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm p-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">单位列表</h4>
+                    <div class="space-y-1">
+                        <div class="unit-item p-2 rounded-md hover:bg-gray-50 cursor-pointer bg-blue-50 text-blue-700" data-unit="all">
+                            <i class="fa fa-building-o mr-2"></i>全部单位
+                        </div>
+                        <div id="unit-tree"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 资产列表 -->
+            <div class="lg:col-span-4">
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                        <div class="flex items-center">
+                            <h3 class="text-lg font-semibold text-gray-800 mr-4">资产列表</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">共<span id="asset-count">0</span>项资产</span>
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">即将过期：<span id="expiring-count">0</span>个</span>
+                                <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">未处理：<span id="pending-count">0</span>个</span>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <div class="mt-4 flex items-center space-x-3">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" id="asset-search" class="form-input pl-10" placeholder="搜索资产名称..." style="width: 200px;">
+                        </div>
+                        <select id="asset-type-filter" class="form-select w-32">
+                            <option value="">全部类型</option>
+                            <option value="房屋">房屋</option>
+                            <option value="设备">设备</option>
+                            <option value="车辆">车辆</option>
+                        </select>
+                        <select id="asset-status-filter" class="form-select w-32">
+                            <option value="">全部状态</option>
+                            <option value="已出租">已出租</option>
+                            <option value="闲置中">闲置中</option>
+                            <option value="自用">自用</option>
+                        </select>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">查询</button>
+                        <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">重置</button>
+                        <button id="add-asset-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                            <i class="fa fa-plus mr-2"></i>
+                            添加资产
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto" style="max-height: 600px; overflow-y: auto;">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单位</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">资产</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">面积</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">租金</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">租期</th>
+                                    <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="asset-table-body">
+                                <!-- 资产列表将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // 获取URL参数
+            function getUrlParameter(name) {
+                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+
+            const unitName = getUrlParameter('unit');
+            // 如果没有单位参数，显示所有单位的资产
+            const isAllUnits = !unitName;
+            
+            // 当前选中的单位（默认显示全部单位）
+            let selectedUnit = 'all';
+
+
+            
+            // 渲染单位树
+            function renderUnitTree() {
+                const unitTree = document.getElementById('unit-tree');
+                unitTree.innerHTML = '';
+                
+                // 获取所有单位名称
+                const units = Object.keys(assetsData);
+                
+                units.forEach(unit => {
+                    const unitDiv = document.createElement('div');
+                    unitDiv.className = 'unit-item p-2 rounded-md hover:bg-gray-50 cursor-pointer';
+                    unitDiv.dataset.unit = unit;
+                    unitDiv.innerHTML = `<i class="fa fa-building mr-2"></i>${unit}`;
+                    unitTree.appendChild(unitDiv);
+                });
+                
+                // 添加单位点击事件
+                document.querySelectorAll('.unit-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        // 更新选中状态
+                        document.querySelectorAll('.unit-item').forEach(i => {
+                            i.classList.remove('bg-blue-50', 'text-blue-700');
+                        });
+                        this.classList.add('bg-blue-50', 'text-blue-700');
+                        
+                        // 更新选中单位
+                        selectedUnit = this.dataset.unit;
+                        
+                        // 重新筛选资产
+                        filterAssets();
+                    });
+                });
+            }
+
+            // 资产数据
+            const assetsData = {
+                '第一客运分公司': [
+                    {
+                        name: '办公楼A座',
+                        type: '房屋',
+                        area: '1200㎡',
+                        rental: '出租',
+                        status: '已出租',
+                        rent: '¥50,000/月',
+                        rentalStart: '2023-01-01',
+                        rentalEnd: '2024-12-31',
+                        contract: '办公楼租赁合同.pdf',
+                        photos: ['办公楼外观.jpg', '办公楼内部.jpg']
+                    },
+                    {
+                        name: '仓库1号',
+                        type: '房屋',
+                        area: '800㎡',
+                        rental: '出租',
+                        status: '已出租',
+                        rent: '¥30,000/月',
+                        rentalStart: '2023-03-01',
+                        rentalEnd: '2024-02-28',
+                        contract: '仓库租赁合同.pdf',
+                        photos: ['仓库外观.jpg']
+                    },
+                    {
+                        name: '货车1号',
+                        type: '车辆',
+                        area: '2.5吨',
+                        rental: '自用',
+                        status: '闲置中',
+                        rent: '',
+                        rentalStart: '',
+                        rentalEnd: '',
+                        contract: '',
+                        photos: ['货车外观.jpg']
+                    },
+                    {
+                        name: '设备1号',
+                        type: '设备',
+                        area: '50㎡',
+                        rental: '出租',
+                        status: '维修中',
+                        rent: '¥10,000/月',
+                        rentalStart: '2023-05-01',
+                        rentalEnd: '2024-04-30',
+                        contract: '设备租赁合同.pdf',
+                        photos: ['设备外观.jpg', '设备内部.jpg']
+                    }
+                ],
+                '第二客运分公司': [
+                    {
+                        name: '办公楼B座',
+                        type: '房屋',
+                        area: '900㎡',
+                        rental: '出租',
+                        status: '已出租',
+                        rent: '¥40,000/月',
+                        rentalStart: '2023-02-01',
+                        rentalEnd: '2024-01-31',
+                        contract: '办公楼租赁合同.pdf',
+                        photos: ['办公楼外观.jpg']
+                    },
+                    {
+                        name: '仓库2号',
+                        type: '房屋',
+                        area: '600㎡',
+                        rental: '出租',
+                        status: '闲置中',
+                        rent: '¥25,000/月',
+                        rentalStart: '',
+                        rentalEnd: '',
+                        contract: '',
+                        photos: ['仓库外观.jpg']
+                    }
+                ],
+                '第三客运分公司': [
+                    {
+                        name: '办公楼C座',
+                        type: '房屋',
+                        area: '700㎡',
+                        rental: '自用',
+                        status: '闲置中',
+                        rent: '',
+                        rentalStart: '',
+                        rentalEnd: '',
+                        contract: '',
+                        photos: ['办公楼外观.jpg']
+                    },
+                    {
+                        name: '货车2号',
+                        type: '车辆',
+                        area: '3吨',
+                        rental: '出租',
+                        status: '已出租',
+                        rent: '¥8,000/月',
+                        rentalStart: '2023-04-01',
+                        rentalEnd: '2024-03-31',
+                        contract: '货车租赁合同.pdf',
+                        photos: ['货车外观.jpg']
+                    }
+                ],
+                '物流分公司': [
+                    {
+                        name: '物流仓库',
+                        type: '房屋',
+                        area: '2000㎡',
+                        rental: '自用',
+                        status: '闲置中',
+                        rent: '',
+                        rentalStart: '',
+                        rentalEnd: '',
+                        contract: '',
+                        photos: ['仓库外观.jpg', '仓库内部.jpg']
+                    },
+                    {
+                        name: '货车3号',
+                        type: '车辆',
+                        area: '5吨',
+                        rental: '出租',
+                        status: '已出租',
+                        rent: '¥15,000/月',
+                        rentalStart: '2023-06-01',
+                        rentalEnd: '2024-05-31',
+                        contract: '货车租赁合同.pdf',
+                        photos: ['货车外观.jpg']
+                    }
+                ],
+                '公交分公司': [
+                    {
+                        name: '公交停车场',
+                        type: '房屋',
+                        area: '5000㎡',
+                        rental: '自用',
+                        status: '闲置中',
+                        rent: '',
+                        rentalStart: '',
+                        rentalEnd: '',
+                        contract: '',
+                        photos: ['停车场外观.jpg']
+                    },
+                    {
+                        name: '公交车1号',
+                        type: '车辆',
+                        area: '12米',
+                        rental: '自用',
+                        status: '维修中',
+                        rent: '',
+                        rentalStart: '',
+                        rentalEnd: '',
+                        contract: '',
+                        photos: ['公交车外观.jpg']
+                    }
+                ],
+                '高铁分公司': [
+                    {
+                        name: '高铁站办公楼',
+                        type: '房屋',
+                        area: '1500㎡',
+                        rental: '自用',
+                        status: '闲置中',
+                        rent: '',
+                        rentalStart: '',
+                        rentalEnd: '',
+                        contract: '',
+                        photos: ['办公楼外观.jpg']
+                    },
+                    {
+                        name: '高铁设备',
+                        type: '设备',
+                        area: '100㎡',
+                        rental: '出租',
+                        status: '已出租',
+                        rent: '¥20,000/月',
+                        rentalStart: '2023-07-01',
+                        rentalEnd: '2024-06-30',
+                        contract: '设备租赁合同.pdf',
+                        photos: ['设备外观.jpg']
+                    }
+                ]
+            };
+
+            // 渲染资产列表
+            function renderAssets(assets) {
+                const tableBody = document.getElementById('asset-table-body');
+                tableBody.innerHTML = '';
+                
+                if (assets.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="px-4 py-8 text-center text-gray-500">暂无资产数据</td>
+                        </tr>
+                    `;
+                    document.getElementById('asset-count').textContent = '0';
+                    document.getElementById('expiring-count').textContent = '0';
+                    document.getElementById('pending-count').textContent = '0';
+                    return;
+                }
+                
+                assets.forEach((asset, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // 判断是否即将到期（30天内）
+                    const isExpiring = asset.rentalEnd && new Date(asset.rentalEnd) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+                    
+                    // 生成租期显示（简化格式）
+                    const rentalPeriod = asset.rentalStart && asset.rentalEnd ? 
+                        `${asset.rentalStart.substring(0, 10)} - ${asset.rentalEnd.substring(0, 10)}` : '-';
+                    
+                    row.innerHTML = `
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${(asset.unit || selectedUnit).length > 6 ? (asset.unit || selectedUnit).substring(0, 6) + '...' : (asset.unit || selectedUnit)}</div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${asset.name.length > 10 ? asset.name.substring(0, 10) + '...' : asset.name}</div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${asset.type}</div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${asset.area}</div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                                asset.assessment && asset.assessment.status === '已处理（不续签）' ? 'bg-red-100 text-red-800' :
+                                asset.status === '已出租' ? 'bg-green-100 text-green-800' :
+                                asset.status === '闲置中' ? 'bg-yellow-100 text-yellow-800' :
+                                asset.status === '自用' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                            }">
+                                ${asset.assessment && asset.assessment.status === '已处理（不续签）' ? '不续签' : 
+                                  asset.status === '已出租' ? '已出租' : 
+                                  asset.status === '闲置中' ? '闲置' : 
+                                  asset.status === '自用' ? '自用' : '-'}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                            ${asset.rent || '-'}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-xs text-gray-500">
+                                ${rentalPeriod}
+                                ${isExpiring ? `<span class="ml-1 px-1.5 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full">即将到期</span>` : ''}
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-xs">
+                            <div class="flex space-x-1">
+                                <button class="text-blue-600 hover:text-blue-900" title="查看详情" onclick="viewAssetDetail(${index})">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                <button class="text-blue-600 hover:text-blue-900" title="编辑资产">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                ${asset.rental === '出租' && asset.status === '已出租' && (!asset.assessment || asset.assessment.status !== '已处理（不续签）') ? `
+                                <button class="text-green-600 hover:text-green-900" title="续签" onclick="handleRenewalFromList(${index})">
+                                    <i class="fa fa-refresh"></i>
+                                </button>
+                                <button class="text-red-600 hover:text-red-900" title="不续签" onclick="handleNotRenew(${index})">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                // 更新统计信息
+                document.getElementById('asset-count').textContent = assets.length;
+                
+                // 计算即将过期的资产数量
+                const expiringCount = assets.filter(asset => 
+                    asset.rentalEnd && new Date(asset.rentalEnd) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                ).length;
+                document.getElementById('expiring-count').textContent = expiringCount;
+                
+                // 计算未处理的资产数量（这里简化处理，实际应该根据业务逻辑定义）
+                const pendingCount = assets.filter(asset => 
+                    asset.status === '已出租' && !asset.assessment
+                ).length;
+                document.getElementById('pending-count').textContent = pendingCount;
+            }
+
+            // 筛选资产
+            function filterAssets() {
+                const searchTerm = document.getElementById('asset-search').value.toLowerCase().trim();
+                const typeFilter = document.getElementById('asset-type-filter').value;
+                const statusFilter = document.getElementById('asset-status-filter').value;
+                
+                let allAssets = [];
+                
+                if (selectedUnit === 'all') {
+                    // 显示所有单位的资产
+                    Object.keys(assetsData).forEach(unit => {
+                        allAssets = allAssets.concat(assetsData[unit].map(asset => ({
+                            ...asset,
+                            unit: unit
+                        })));
+                    });
+                } else {
+                    // 只显示选中单位的资产
+                    allAssets = assetsData[selectedUnit] || [];
+                }
+                
+                const filteredAssets = allAssets.filter(asset => {
+                    const matchesSearch = searchTerm === '' || asset.name.toLowerCase().includes(searchTerm);
+                    const matchesType = typeFilter === '' || asset.type === typeFilter;
+                    const matchesStatus = statusFilter === '' || asset.status === statusFilter;
+                    
+                    return matchesSearch && matchesType && matchesStatus;
+                });
+                
+                renderAssets(filteredAssets);
+            }
+
+            // 添加资产按钮点击事件
+            document.getElementById('add-asset-btn').addEventListener('click', function() {
+                // 打开添加资产页面
+                window.location.href = 'add_asset.html';
+            });
+            
+            // 原有添加资产表单代码（保留但不使用）
+            function showAddAssetForm() {
+                const addAssetForm = `
+                    <form id="add-asset-form">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label class="form-label" for="asset-name">资产名称 <span class="text-red-500">*</span></label>
+                                <input type="text" id="asset-name" class="form-input" placeholder="请输入资产名称" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="asset-type">资产类型 <span class="text-red-500">*</span></label>
+                                <select id="asset-type" class="form-select" required>
+                                    <option value="">请选择资产类型</option>
+                                    <option value="房屋">房屋</option>
+                                    <option value="设备">设备</option>
+                                    <option value="车辆">车辆</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="asset-area">面积/规格 <span class="text-red-500">*</span></label>
+                                <input type="text" id="asset-area" class="form-input" placeholder="请输入面积或规格" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="asset-rental">出租属性 <span class="text-red-500">*</span></label>
+                                <select id="asset-rental" class="form-select" required>
+                                    <option value="">请选择出租属性</option>
+                                    <option value="出租">出租</option>
+                                    <option value="自用">自用</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="asset-status">状态 <span class="text-red-500">*</span></label>
+                                <select id="asset-status" class="form-select" required>
+                                    <option value="">请选择状态</option>
+                                    <option value="已出租">已出租</option>
+                                    <option value="闲置中">闲置中</option>
+                                    <option value="维修中">维修中</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="asset-rent">租金</label>
+                                <input type="text" id="asset-rent" class="form-input" placeholder="请输入租金金额">
+                            </div>
+                        </div>
+                    </form>
+                `;
+                
+                showModal({
+                    title: '添加资产',
+                    content: addAssetForm,
+                    onConfirm: function() {
+                        const form = document.getElementById('add-asset-form');
+                        if (form.checkValidity()) {
+                            const assetName = document.getElementById('asset-name').value;
+                            const assetType = document.getElementById('asset-type').value;
+                            const assetArea = document.getElementById('asset-area').value;
+                            const assetRental = document.getElementById('asset-rental').value;
+                            const assetStatus = document.getElementById('asset-status').value;
+                            const assetRent = document.getElementById('asset-rent').value;
+                            
+                            // 模拟添加资产操作
+                            console.log('添加资产:', {
+                                name: assetName,
+                                type: assetType,
+                                area: assetArea,
+                                rental: assetRental,
+                                status: assetStatus,
+                                rent: assetRent
+                            });
+                            
+                            // 显示成功提示
+                            showModal({
+                                title: '添加成功',
+                                content: `<p class="text-green-600">资产 "${assetName}" 添加成功！</p>`,
+                                showCancelButton: false,
+                                confirmButtonText: '确定',
+                                onConfirm: function() {
+                                    filterAssets();
+                                }
+                            });
+                        } else {
+                            // 表单验证失败
+                            form.reportValidity();
+                        }
+                    }
+                });
+            }
+
+            // 搜索和筛选事件
+            document.getElementById('asset-search').addEventListener('input', filterAssets);
+            document.getElementById('asset-type-filter').addEventListener('change', filterAssets);
+            document.getElementById('asset-status-filter').addEventListener('change', filterAssets);
+            
+            // 查询按钮点击事件
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                if (btn.textContent.includes('查询')) {
+                    btn.addEventListener('click', filterAssets);
+                } else if (btn.textContent.includes('重置')) {
+                    btn.addEventListener('click', function() {
+                        document.getElementById('asset-search').value = '';
+                        document.getElementById('asset-type-filter').value = '';
+                        document.getElementById('asset-status-filter').value = '';
+                        filterAssets();
+                    });
+                }
+            });
+
+            // 渲染单位树
+            renderUnitTree();
+            
+            // 初始化渲染
+            filterAssets();
+
+            // 查看资产详情函数
+            window.viewAssetDetail = function(index) {
+                let assets = [];
+                
+                if (isAllUnits) {
+                    // 获取所有单位的资产
+                    Object.keys(assetsData).forEach(unit => {
+                        assets = assets.concat(assetsData[unit].map(asset => ({
+                            ...asset,
+                            unit: unit
+                        })));
+                    });
+                } else {
+                    // 获取特定单位的资产
+                    assets = assetsData[unitName] || [];
+                }
+                
+                const asset = assets[index];
+                
+                if (!asset) return;
+                
+                let detailContent = `
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-semibold text-gray-800">${asset.name}</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">资产类型</p>
+                                <p class="font-medium text-gray-800">${asset.type}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">面积</p>
+                                <p class="font-medium text-gray-800">${asset.area}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">出租属性</p>
+                                <p class="font-medium ${asset.rental === '出租' ? 'text-green-600' : 'text-gray-800'}">${asset.rental}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">状态</p>
+                                <p class="font-medium ${
+                                    asset.status === '已出租' ? 'text-green-600' :
+                                    asset.status === '闲置中' ? 'text-yellow-600' :
+                                    asset.status === '维修中' ? 'text-red-600' : 'text-blue-600'
+                                }">${asset.status}</p>
+                            </div>
+                        </div>
+                `;
+                
+                if (asset.rental === '出租') {
+                    detailContent += `
+                        <div class="border-t border-gray-200 pt-4">
+                            <h5 class="font-semibold text-gray-800 mb-3">租赁信息</h5>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">租金</p>
+                                    <p class="font-medium text-gray-800">${asset.rent}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">租赁时间</p>
+                                    <p class="font-medium text-gray-800">${asset.rentalStart} 至 ${asset.rentalEnd}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">合同文件</p>
+                                    ${asset.contract ? `
+                                    <button class="text-blue-600 hover:text-blue-800 text-sm flex items-center" onclick="viewContract(${index})">
+                                        <i class="fa fa-file-pdf-o mr-1"></i>
+                                        ${asset.contract}
+                                    </button>
+                                    ` : '<p class="text-gray-400 text-sm">暂无合同</p>'}
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">实物照片</p>
+                                    ${asset.photos && asset.photos.length > 0 ? `
+                                    <button class="text-purple-600 hover:text-purple-800 text-sm flex items-center" onclick="viewPhotos(${index})">
+                                        <i class="fa fa-image mr-1"></i>
+                                        查看照片 (${asset.photos.length})
+                                    </button>
+                                    ` : '<p class="text-gray-400 text-sm">暂无照片</p>'}
+                                </div>
+                            </div>
+                        </div>
+                        
+                    `;
+                }
+                
+                // 添加操作日志区域
+                detailContent += `
+                    <div class="border-t border-gray-200 pt-4">
+                        <h5 class="font-semibold text-gray-800 mb-3">操作日志</h5>
+                        <div class="max-h-40 overflow-y-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作人员</th>
+                                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作时间</th>
+                                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作事项</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    ${asset.operationLogs && asset.operationLogs.length > 0 ? asset.operationLogs.map(log => `
+                                        <tr>
+                                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">${log.user}</td>
+                                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">${log.time}</td>
+                                            <td class="px-4 py-2 text-sm text-gray-600">${log.action}${log.description ? ' - ' + log.description : ''}</td>
+                                        </tr>
+                                    `).join('') : `
+                                        <tr>
+                                            <td colspan="3" class="px-4 py-4 text-sm text-gray-500 text-center">暂无操作记录</td>
+                                        </tr>
+                                    `}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                
+                detailContent += `
+                    </div>
+                `;
+                
+                showModal({
+                    title: '资产详情',
+                    content: detailContent,
+                    showCancelButton: false,
+                    confirmButtonText: '关闭'
+                });
+            };
+            
+            // 查看合同函数
+            window.viewContract = function(index) {
+                let assets = [];
+                
+                if (isAllUnits) {
+                    // 获取所有单位的资产
+                    Object.keys(assetsData).forEach(unit => {
+                        assets = assets.concat(assetsData[unit].map(asset => ({
+                            ...asset,
+                            unit: unit
+                        })));
+                    });
+                } else {
+                    // 获取特定单位的资产
+                    assets = assetsData[unitName] || [];
+                }
+                
+                const asset = assets[index];
+                
+                if (!asset || !asset.contract) {
+                    showModal({
+                        title: '查看合同',
+                        content: '<p class="text-gray-600">暂无合同文件</p>',
+                        showCancelButton: false,
+                        confirmButtonText: '关闭'
+                    });
+                    return;
+                }
+                
+                showModal({
+                    title: `${asset.name} - 租赁合同`,
+                    content: `
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-600">合同文件：${asset.contract}</p>
+                                <button class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                                    <i class="fa fa-download mr-2"></i>
+                                    下载合同
+                                </button>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '关闭'
+                });
+            };
+            
+            // 查看照片函数
+            window.viewPhotos = function(index) {
+                let assets = [];
+                
+                if (isAllUnits) {
+                    // 获取所有单位的资产
+                    Object.keys(assetsData).forEach(unit => {
+                        assets = assets.concat(assetsData[unit].map(asset => ({
+                            ...asset,
+                            unit: unit
+                        })));
+                    });
+                } else {
+                    // 获取特定单位的资产
+                    assets = assetsData[unitName] || [];
+                }
+                
+                const asset = assets[index];
+                
+                if (!asset || !asset.photos || asset.photos.length === 0) {
+                    showModal({
+                        title: '查看照片',
+                        content: '<p class="text-gray-600">暂无照片</p>',
+                        showCancelButton: false,
+                        confirmButtonText: '关闭'
+                    });
+                    return;
+                }
+                
+                let photosHtml = '';
+                asset.photos.forEach((photo, photoIndex) => {
+                    photosHtml += `
+                        <div class="photo-item mb-4">
+                            <div class="bg-gray-100 rounded-lg p-4 flex items-center justify-center" style="height: 200px;">
+                                <i class="fa fa-image text-gray-400 text-4xl"></i>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2 text-center">照片 ${photoIndex + 1}</p>
+                        </div>
+                    `;
+                });
+                
+                showModal({
+                    title: `${asset.name} - 实物照片`,
+                    content: `
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                ${photosHtml}
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '关闭'
+                });
+            };
+            
+            // 隐藏续签表单
+            window.hideRenewalForm = function(index) {
+                const modalOverlay = document.getElementById('modal-overlay');
+                if (modalOverlay) {
+                    modalOverlay.remove();
+                }
+            };
+            
+            // 提交续签表单
+            window.submitRenewal = function(index) {
+                let targetAsset = null;
+                let targetUnit = unitName;
+                
+                if (isAllUnits) {
+                    // 获取所有单位的资产并找到目标资产
+                    for (const unit of Object.keys(assetsData)) {
+                        const assets = assetsData[unit];
+                        for (let i = 0; i < assets.length; i++) {
+                            if (i === index) {
+                                targetAsset = assets[i];
+                                targetUnit = unit;
+                                break;
+                            }
+                        }
+                        if (targetAsset) break;
+                    }
+                } else {
+                    // 获取特定单位的资产
+                    const assets = assetsData[unitName] || [];
+                    targetAsset = assets[index];
+                }
+                
+                if (!targetAsset) return;
+                
+                const fileInput = document.getElementById(`renewal-contract-file-${index}`);
+                const photoInput = document.getElementById(`renewal-photo-file-${index}`);
+                const startDate = document.getElementById(`renewal-start-date-${index}`).value;
+                const endDate = document.getElementById(`renewal-end-date-${index}`).value;
+                const rent = document.getElementById(`renewal-rent-${index}`).value;
+                const note = document.getElementById(`renewal-note-${index}`).value;
+                
+                // 不再验证表单，直接提交
+                
+                const currentTime = new Date().toLocaleString();
+                
+                // 更新资产信息
+                targetAsset.rentalStart = startDate;
+                targetAsset.rentalEnd = endDate;
+                targetAsset.rent = rent ? `¥${parseInt(rent).toLocaleString()}/月` : targetAsset.rent;
+                targetAsset.contract = fileInput.files[0].name;
+                
+                // 更新照片（如果有上传）
+                if (photoInput.files && photoInput.files.length > 0) {
+                    targetAsset.photos = targetAsset.photos || [];
+                    for (let i = 0; i < photoInput.files.length; i++) {
+                        targetAsset.photos.push(photoInput.files[i].name);
+                    }
+                }
+                
+                // 记录操作日志
+                targetAsset.operationLogs = targetAsset.operationLogs || [];
+                targetAsset.operationLogs.unshift({
+                    action: '续签合同',
+                    user: '管理员',
+                    time: currentTime,
+                    type: '更新',
+                    description: `续签租赁合同，新租期：${startDate} 至 ${endDate}${note ? '，备注：' + note : ''}`
+                });
+                
+                // 关闭更改状态弹窗
+                const modalOverlay = document.getElementById('modal-overlay');
+                if (modalOverlay) {
+                    modalOverlay.remove();
+                }
+                
+                // 刷新资产列表
+                filterAssets();
+            };
+            
+            // 从列表直接续签
+            window.handleRenewalFromList = function(index) {
+                let targetAsset = null;
+                
+                if (isAllUnits) {
+                    // 获取所有单位的资产并找到目标资产
+                    let currentIndex = 0;
+                    for (const unit of Object.keys(assetsData)) {
+                        const assets = assetsData[unit];
+                        for (let i = 0; i < assets.length; i++) {
+                            if (currentIndex === index) {
+                                targetAsset = assets[i];
+                                break;
+                            }
+                            currentIndex++;
+                        }
+                        if (targetAsset) break;
+                    }
+                } else {
+                    // 获取特定单位的资产
+                    const assets = assetsData[unitName] || [];
+                    targetAsset = assets[index];
+                }
+                
+                if (!targetAsset) return;
+                
+                // 直接显示续签表单弹窗
+                showModal({
+                    title: '续签合同',
+                    content: `
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">资产名称</p>
+                                    <p class="font-medium text-gray-800">${targetAsset.name}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">当前状态</p>
+                                    <p class="font-medium ${targetAsset.status === '已出租' ? 'text-green-600' : 
+                                        targetAsset.status === '闲置中' ? 'text-yellow-600' : 
+                                        targetAsset.status === '自用' ? 'text-blue-600' : 'text-gray-800'}">${targetAsset.status}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">出租属性</p>
+                                    <p class="font-medium ${targetAsset.rental === '出租' ? 'text-green-600' : 'text-gray-600'}">${targetAsset.rental}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">租金</p>
+                                    <p class="font-medium text-gray-800">${targetAsset.rent}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 pt-4">
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <h5 class="font-semibold text-blue-800 mb-2">续签说明</h5>
+                                    <ul class="list-disc list-inside text-sm text-blue-700 space-y-1">
+                                        <li>请上传新的租赁合同文件</li>
+                                        <li>设置新的租赁期限</li>
+                                        <li>提交后系统将更新资产状态</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="space-y-4 mt-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">上传新合同</label>
+                                        <input type="file" id="renewal-contract-file-${index}" accept=".pdf,.doc,.docx" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                        <p class="mt-1 text-xs text-gray-500">支持PDF、Word格式文件</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">上传实物照片</label>
+                                        <input type="file" id="renewal-photo-file-${index}" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                        <p class="mt-1 text-xs text-gray-500">支持JPG、PNG等图片格式，可多选</p>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">新租期开始日期</label>
+                                            <input type="date" id="renewal-start-date-${index}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" value="${targetAsset.rentalEnd}">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">新租期结束日期</label>
+                                            <input type="date" id="renewal-end-date-${index}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">租金金额</label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">¥</span>
+                                            <input type="number" id="renewal-rent-${index}" class="block w-full pl-8 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="请输入租金金额" value="${targetAsset.rent.replace(/[^\d]/g, '')}">
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">/月</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                                        <textarea id="renewal-note-${index}" rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="请输入续签备注信息"></textarea>
+                                    </div>
+                                    
+                                    <div class="flex space-x-3">
+                                        <button class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" onclick="submitRenewal(${index})">提交续签</button>
+                                        <button class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" onclick="hideRenewalForm(${index})">取消</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    showConfirmButton: false
+                });
+            };
+            
+            // 从列表直接不续签
+            window.handleNotRenewFromList = function(index) {
+                handleNotRenew(index);
+            };
+            
+            // 处理不续签操作
+            window.handleNotRenew = function(index) {
+                let targetAsset = null;
+                
+                if (isAllUnits) {
+                    // 获取所有单位的资产并找到目标资产
+                    let currentIndex = 0;
+                    for (const unit of Object.keys(assetsData)) {
+                        const assets = assetsData[unit];
+                        for (let i = 0; i < assets.length; i++) {
+                            if (currentIndex === index) {
+                                targetAsset = assets[i];
+                                break;
+                            }
+                            currentIndex++;
+                        }
+                        if (targetAsset) break;
+                    }
+                } else {
+                    // 获取特定单位的资产
+                    const assets = assetsData[unitName] || [];
+                    targetAsset = assets[index];
+                }
+                
+                if (!targetAsset) return;
+                
+                // 显示确认弹窗
+                showModal({
+                    title: '确认不续签',
+                    content: `
+                        <div class="space-y-4">
+                            <p class="text-gray-600">您确定要标记资产 "<strong>${targetAsset.name}</strong>" 为不续签吗？</p>
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <h5 class="font-semibold text-yellow-800 mb-2">操作说明</h5>
+                                <ul class="list-disc list-inside text-sm text-yellow-700 space-y-1">
+                                    <li>点击确认后，系统将记录操作时间</li>
+                                    <li>合同到期后，资产状态将自动变更为"闲置中"</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    confirmButtonText: '确认不续签',
+                    cancelButtonText: '取消',
+                    onConfirm: function() {
+                        const currentTime = new Date().toLocaleString();
+                        
+                        // 更新资产状态为已处理（不续签）
+                        targetAsset.assessment = targetAsset.assessment || {};
+                        targetAsset.assessment.status = '已处理（不续签）';
+                        targetAsset.assessment.overdueDays = 0;
+                        targetAsset.assessment.penaltyPoints = 0;
+                        
+                        // 记录操作日志
+                        targetAsset.operationLogs = targetAsset.operationLogs || [];
+                        targetAsset.operationLogs.unshift({
+                            action: '标记不续签',
+                            user: '管理员',
+                            time: currentTime,
+                            type: '更新',
+                            description: `标记资产为不续签，合同到期日：${targetAsset.rentalEnd}`
+                        });
+                        
+                        // 刷新资产列表
+                        filterAssets();
+                    }
+                });
+            };
+
+        });
+    </script>
+</body>
+</html>
